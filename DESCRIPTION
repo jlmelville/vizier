@@ -1,0 +1,17 @@
+Package: vizier
+Type: Package
+Title: Vizualization of 2D Datasets in R
+Version: 0.0.0.9000
+Date: 2010-02-19
+Authors@R: person("James", "Melville", email = "jlmelville@gmail.com",
+    role = c("aut", "cre"))
+Description: Convenience functions for visualizing 2D datasets, coloring by
+    factor, color string or numeric scales, with helpful defaults.
+License: MIT + file LICENSE
+Imports:
+    methods
+Suggests:
+    RColorBrewer,
+    plotly
+LazyLoad: yes
+RoxygenNote: 6.0.1
