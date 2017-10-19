@@ -5,8 +5,8 @@
 \title{Embedding Plot Using the JavaScript Library Plotly}
 \usage{
 embed_plotly(coords, x = NULL, colors = NULL,
-  color_scheme = grDevices::rainbow, title = NULL, cex = 1, text = NULL,
-  equal_axes = FALSE)
+  color_scheme = grDevices::rainbow, title = NULL, show_legend = TRUE,
+  cex = 1, text = NULL, equal_axes = FALSE)
 }
 \arguments{
 \item{coords}{Matrix of embedded coordinates, with as many rows as
@@ -21,6 +21,9 @@ suitable vector of colors. Ignored if \code{colors} is provided.}
 ColorBrewer scheme. See 'Details'.}
 
 \item{title}{Title for the plot.}
+
+\item{show_legend}{If \code{TRUE}, display a legend. Ignored unless a
+suitable categorical value is provided as \code{x} (or one can be found).}
 
 \item{cex}{Size of the points. Ignored if \code{text} is provided.}
 
@@ -86,6 +89,9 @@ embed_plotly(pca_iris$x, iris$Species, color_scheme = topo.colors)
 # Pass in data frame and it will use the last (in this case, only) factor
 # column it finds
 embed_plotly(pca_iris$x, iris)
+
+# Don't have to see a legend if the tooltips will do
+embed_plotly(pca_iris$x, iris, show_legend = FALSE
 
 # Use the "Dark2" ColorBrewer scheme (needs RColorBrewer package installed)
 library("RColorBrewer")

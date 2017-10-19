@@ -167,6 +167,8 @@ embed_plot <- function(coords, x = NULL, colors = NULL,
 #'  are long or the data set is large, this is unlikely to be very legible, but
 #'  is occasionally useful.
 #' @param title Title for the plot.
+#' @param show_legend If \code{TRUE}, display a legend. Ignored unless a
+#' suitable categorical value is provided as \code{x} (or one can be found).
 #' @param equal_axes If \code{TRUE}, the X and Y axes are set to have the
 #'  same extents.
 #' @note Use of this function requires installing and loading the
@@ -195,6 +197,9 @@ embed_plot <- function(coords, x = NULL, colors = NULL,
 #' # column it finds
 #' embed_plotly(pca_iris$x, iris)
 #'
+#' # Don't have to see a legend if the tooltips will do
+#' embed_plotly(pca_iris$x, iris, show_legend = FALSE
+#'
 #' # Use the "Dark2" ColorBrewer scheme (needs RColorBrewer package installed)
 #' library("RColorBrewer")
 #' embed_plotly(pca_iris$x, iris, color_scheme = "Dark2")
@@ -214,7 +219,7 @@ embed_plot <- function(coords, x = NULL, colors = NULL,
 #' }
 embed_plotly <- function(coords, x = NULL, colors = NULL,
                          color_scheme = grDevices::rainbow,
-                         title = NULL,
+                         title = NULL, show_legend = TRUE,
                          cex = 1, text = NULL, equal_axes = FALSE) {
   if (!requireNamespace("plotly", quietly = TRUE, warn.conflicts = FALSE)) {
     stop("embed_plotly function requires 'plotly' package")
@@ -235,7 +240,6 @@ embed_plotly <- function(coords, x = NULL, colors = NULL,
     labels <- NULL
   }
 
-  show_legend <- TRUE
   if (!is.null(colors) && is.null(labels)) {
     labels <- colors
   }
