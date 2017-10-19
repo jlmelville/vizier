@@ -220,7 +220,8 @@ embed_plot <- function(coords, x = NULL, colors = NULL,
 embed_plotly <- function(coords, x = NULL, colors = NULL,
                          color_scheme = grDevices::rainbow,
                          title = NULL, show_legend = TRUE,
-                         cex = 1, text = NULL, equal_axes = FALSE) {
+                         cex = 1, text = NULL, tooltip = c(),
+                         equal_axes = FALSE) {
   if (!requireNamespace("plotly", quietly = TRUE, warn.conflicts = FALSE)) {
     stop("embed_plotly function requires 'plotly' package")
   }
@@ -282,7 +283,10 @@ embed_plotly <- function(coords, x = NULL, colors = NULL,
     lims <- range(coords)
   }
 
-  if (is.null(text)) {
+  if (!is.null(tooltip) && length(tooltip) > 0 && methods::is(x, "data.frame")) {
+    text <- as.character(interaction(x[, tooltip], sep = "\n"))
+  }
+  else if (is.null(text)) {
     text <- labels
   }
   p <- plotly::plot_ly(
