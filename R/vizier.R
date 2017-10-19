@@ -283,8 +283,8 @@ embed_plotly <- function(coords, x = NULL, colors = NULL,
     lims <- range(coords)
   }
 
-  if (!is.null(tooltip) && length(tooltip) > 0 && methods::is(x, "data.frame")) {
-    text <- as.character(interaction(x[, tooltip], sep = "\n"))
+  if (!is.null(tooltip)) {
+    text <- tooltip
   }
   else if (is.null(text)) {
     text <- labels
