@@ -6,7 +6,7 @@
 \usage{
 embed_plotly(coords, x = NULL, colors = NULL,
   color_scheme = grDevices::rainbow, title = NULL, show_legend = TRUE,
-  cex = 1, text = NULL, equal_axes = FALSE)
+  cex = 1, text = NULL, tooltip = NULL, equal_axes = FALSE)
 }
 \arguments{
 \item{coords}{Matrix of embedded coordinates, with as many rows as
@@ -30,6 +30,9 @@ suitable categorical value is provided as \code{x} (or one can be found).}
 \item{text}{Vector of label text to display instead of a point. If the labels
 are long or the data set is large, this is unlikely to be very legible, but
 is occasionally useful.}
+
+\item{tooltip}{Vector of tooltip text, to be displayed when a point is
+hovered over.}
 
 \item{equal_axes}{If \code{TRUE}, the X and Y axes are set to have the
 same extents.}
@@ -92,6 +95,9 @@ embed_plotly(pca_iris$x, iris)
 
 # Don't have to see a legend if the tooltips will do
 embed_plotly(pca_iris$x, iris, show_legend = FALSE
+
+# Custom tooltips
+embed_plotly(pca_iris$x, iris, tooltip = paste("Species:", iris$Species))
 
 # Use the "Dark2" ColorBrewer scheme (needs RColorBrewer package installed)
 library("RColorBrewer")

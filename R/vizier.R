@@ -166,6 +166,8 @@ embed_plot <- function(coords, x = NULL, colors = NULL,
 #' @param text Vector of label text to display instead of a point. If the labels
 #'  are long or the data set is large, this is unlikely to be very legible, but
 #'  is occasionally useful.
+#' @param tooltip Vector of tooltip text, to be displayed when a point is
+#'  hovered over.
 #' @param title Title for the plot.
 #' @param show_legend If \code{TRUE}, display a legend. Ignored unless a
 #' suitable categorical value is provided as \code{x} (or one can be found).
@@ -200,6 +202,9 @@ embed_plot <- function(coords, x = NULL, colors = NULL,
 #' # Don't have to see a legend if the tooltips will do
 #' embed_plotly(pca_iris$x, iris, show_legend = FALSE
 #'
+#' # Custom tooltips
+#' embed_plotly(pca_iris$x, iris, tooltip = paste("Species:", iris$Species))
+#'
 #' # Use the "Dark2" ColorBrewer scheme (needs RColorBrewer package installed)
 #' library("RColorBrewer")
 #' embed_plotly(pca_iris$x, iris, color_scheme = "Dark2")
@@ -220,7 +225,7 @@ embed_plot <- function(coords, x = NULL, colors = NULL,
 embed_plotly <- function(coords, x = NULL, colors = NULL,
                          color_scheme = grDevices::rainbow,
                          title = NULL, show_legend = TRUE,
-                         cex = 1, text = NULL, tooltip = c(),
+                         cex = 1, text = NULL, tooltip = NULL,
                          equal_axes = FALSE) {
   if (!requireNamespace("plotly", quietly = TRUE, warn.conflicts = FALSE)) {
     stop("embed_plotly function requires 'plotly' package")
@@ -289,6 +294,7 @@ embed_plotly <- function(coords, x = NULL, colors = NULL,
   else if (is.null(text)) {
     text <- labels
   }
+
   p <- plotly::plot_ly(
     x = coords[, 1], y = coords[, 2],
     color = labels,
