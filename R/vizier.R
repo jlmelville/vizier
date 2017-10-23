@@ -320,13 +320,14 @@ embed_plotly <- function(coords, x = NULL, colors = NULL,
 
 # Given a data frame or a vector, return a vector of colors appropriately
 # mapped to the color scheme.
-# If \code{x} is a vector, it can either be a vector of colors, a factor
-# vector (in which case each level is mapped to a color), or a numeric vector
-# (in which case the range is mapped linearly).
-# If \code{x} is a data frame, then it is checked for a color column. If there
-# isn't one, a factor column is looked for. If there's more than one suitable
-# column, the last found column is used. Numeric columns aren't searched for in
-# the data frame case.
+# If \code{x} is a vector, it can either be a vector of colors, a factor vector
+# or factor-like character vector (in which case each level is mapped to a
+# color), or a numeric vector (in which case the range is mapped linearly). If
+# \code{x} is a data frame, then it is checked for a color column. If there
+# isn't one, a factor column (or character column that can be treated like a
+# factor) is looked for. If there's more than one suitable column, the last
+# found column is used. Numeric columns aren't searched for in the data frame
+# case.
 color_helper <- function(x,
                          color_scheme = grDevices::rainbow,
                          num_colors = 15, limits = NULL, top = NULL,
@@ -362,6 +363,9 @@ color_helper <- function(x,
 # of colors found.
 # Otherwise, if the data frame contains at least one column of factors, map
 # from the last factor column found to a list of colors.
+# Otherwise, if the data frame contains at least one character column, and it
+# can be treated like a factor (i.e. more than one level but as many levels as
+# observations), use the last character column found as if it was a factor.
 # Otherwise, color each point as if it was its own factor level
 # @note R considers numbers to be acceptable colors because \code{col2rgb}
 # interprets them as indexes into a palette. Columns of numbers are NOT treated
@@ -396,6 +400,21 @@ color_helper_df <- function(df,
   }
 
   if (is.null(colors)) {
+    label_name <- last_character_column_name(df)
+    if (!is.null(label_name) && is_factorish(df[[label_name]])) {
+      if (verbose) {
+        message("Found a character column '", label_name,
+                "' for mapping to colors")
+      }
+      labels <- df[[label_name]]
+      colors <- factor_to_colors(as.factor(labels), color_scheme = color_scheme)
+    }
+  }
+
+  if (is.null(colors)) {
+    if (verbose) {
+      message("Using one color per point")
+    }
     # use one color per point
     colors <- make_palette(ncolors = nrow(df), color_scheme = color_scheme)
   }
@@ -433,6 +452,11 @@ color_helper_column <- function(x,
   # Is it a factor - map to palette (which should be categorical)
   if (is.factor(x)) {
     return(factor_to_colors(x, color_scheme = color_scheme))
+  }
+
+  # Probably a column of characters, can they be treated as a factor?
+  if (is_factorish(x)) {
+    return(factor_to_colors(as.factor(x), color_scheme = color_scheme))
   }
 
   # Otherwise one color per point (doesn't really matter what the palette is!)
@@ -626,7 +650,7 @@ last_factor_column_name <- function(df) {
 }
 
 # Looks at all the columns in a data frame, returning the name of the last
-# column which contains colors or NULL if there are no factors present.
+# column which contains colors or NULL if there are no colors present.
 last_color_column_name <- function(df) {
   color_column_name <- NULL
   color_column_names <- filter_column_names(df, is_color_column)
@@ -634,6 +658,17 @@ last_color_column_name <- function(df) {
     color_column_name <- color_column_names[length(color_column_names)]
   }
   color_column_name
+}
+
+# Looks at all the columns in a data frame, returning the name of the last
+# column which is a character or NULL if there are no character columns present.
+last_character_column_name <- function(df) {
+  char_name <- NULL
+  char_names <- filter_column_names(df, is.character)
+  if (length(char_names) > 0) {
+    char_name <- char_names[length(char_names)]
+  }
+  char_name
 }
 
 # returns TRUE if vector x consists of colors
@@ -662,4 +697,16 @@ is_color <- function(x) {
     tryCatch(is.matrix(grDevices::col2rgb(X)),
              error = function(e) FALSE)
   }, logical(1))
+}
+
+# Given a vector of character, could it be usefully treated as a factor? To be
+# factor-like, should have more than one level but not as many as one level per
+# observation.
+is_factorish <- function(x) {
+  if (!methods::is(x, "character")) {
+    return(FALSE)
+  }
+  x_factor <- as.factor(x)
+  nlevels <- length(levels(x_factor))
+  nlevels > 1 && nlevels < length(x_factor)
 }
