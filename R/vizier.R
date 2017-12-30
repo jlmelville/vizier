@@ -47,6 +47,10 @@
 #' @param title Title for the plot.
 #' @param equal_axes If \code{TRUE}, the X and Y axes are set to have the
 #'  same extents.
+#' @param pc_axes If \code{TRUE}, the \code{coords} are replaced by the
+#' first two (unscaled) principal components, which should have the effect of
+#' rotating the data (with a potential reflection) so the main variance aligns
+#' along the X-axis. Should not have any other scaling effect.
 #' @note Use of this function with ColorBrewer qualitative palette names
 #' requires that the \code{RColorBrewer} package be installed.
 #'
@@ -87,12 +91,11 @@
 #' # direction
 #' embed_plot(pca_iris$x, iris$Petal.Length, color_scheme = "Blues",
 #'            equal_axes = TRUE)
-
 embed_plot <- function(coords, x = NULL, colors = NULL,
                        color_scheme = grDevices::rainbow,
                        num_colors = 15, limits = NULL, top = NULL,
                        cex = 1, title = NULL, text = NULL,
-                       equal_axes = FALSE) {
+                       equal_axes = FALSE, pc_axes = FALSE) {
   if (methods::is(coords, "list") && !is.null(coords$coords)) {
     coords <- coords$coords
   }
@@ -107,6 +110,10 @@ embed_plot <- function(coords, x = NULL, colors = NULL,
       colors <- make_palette(ncolors = nrow(coords),
                              color_scheme = color_scheme)
     }
+  }
+
+  if (pc_axes) {
+    coords <- pc_rotate(coords)
   }
 
   lims <- NULL
@@ -173,6 +180,10 @@ embed_plot <- function(coords, x = NULL, colors = NULL,
 #' suitable categorical value is provided as \code{x} (or one can be found).
 #' @param equal_axes If \code{TRUE}, the X and Y axes are set to have the
 #'  same extents.
+#' @param pc_axes If \code{TRUE}, the \code{coords} are replaced by the
+#' first two (unscaled) principal components, which should have the effect of
+#' rotating the data (with a potential reflection) so the main variance aligns
+#' along the X-axis. Should not have any other scaling effect.
 #' @note Use of this function requires installing and loading the
 #' \code{plotly} package, using version 4 or above.
 #'
@@ -226,7 +237,7 @@ embed_plotly <- function(coords, x = NULL, colors = NULL,
                          color_scheme = grDevices::rainbow,
                          title = NULL, show_legend = TRUE,
                          cex = 1, text = NULL, tooltip = NULL,
-                         equal_axes = FALSE) {
+                         equal_axes = FALSE, pc_axes = FALSE) {
   if (!requireNamespace("plotly", quietly = TRUE, warn.conflicts = FALSE)) {
     stop("embed_plotly function requires 'plotly' package")
   }
@@ -281,6 +292,10 @@ embed_plotly <- function(coords, x = NULL, colors = NULL,
       labels <- colors
       show_legend <- FALSE
     }
+  }
+
+  if (pc_axes) {
+    coords <- pc_rotate(coords)
   }
 
   lims <- NULL
@@ -709,4 +724,13 @@ is_factorish <- function(x) {
   x_factor <- as.factor(x)
   nlevels <- length(levels(x_factor))
   nlevels > 1 && nlevels < length(x_factor)
+}
+
+# Does PCA and returns the first two components from the X. When X is a 2D
+# matrix, this effectively rotates (and potentially reflects) the point set
+# so the data aligns along the PCs.
+pc_rotate <- function(X) {
+  X <- scale(X, center = TRUE, scale = FALSE)
+  s <- svd(X, nu = 2, nv = 0)
+  s$u %*% diag(c(s$d[1:2]))
 }

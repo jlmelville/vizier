@@ -6,7 +6,8 @@
 \usage{
 embed_plotly(coords, x = NULL, colors = NULL,
   color_scheme = grDevices::rainbow, title = NULL, show_legend = TRUE,
-  cex = 1, text = NULL, tooltip = NULL, equal_axes = FALSE)
+  cex = 1, text = NULL, tooltip = NULL, equal_axes = FALSE,
+  pc_axes = FALSE)
 }
 \arguments{
 \item{coords}{Matrix of embedded coordinates, with as many rows as
@@ -36,6 +37,11 @@ hovered over.}
 
 \item{equal_axes}{If \code{TRUE}, the X and Y axes are set to have the
 same extents.}
+
+\item{pc_axes}{If \code{TRUE}, the \code{coords} are replaced by the
+first two (unscaled) principal components, which should have the effect of
+rotating the data (with a potential reflection) so the main variance aligns
+along the X-axis. Should not have any other scaling effect.}
 }
 \description{
 Plots the embedded coordinates, with each point colored by a specified
