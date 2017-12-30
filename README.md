@@ -116,9 +116,10 @@ embed_plotly(pca_iris$x, iris, tooltip = paste("Species:", iris$Species))
 
 ![plotly with custom tooltips](img/embed_ex_plotly_tooltip.png "embed_plotly(pca_iris$x, iris, show_legend = FALSE, tooltip = paste(\"Species:\", iris$Species))")
 
-More example datasets that I've used these functions with can be found in
-the [snedata](https://github.com/jlmelville/snedata) package.
-
 ## License
 
 [MIT](https://opensource.org/licenses/MIT).
+
+## See Also
+* More example datasets that I've used these functions with can be found in the [snedata](https://github.com/jlmelville/snedata) and [COIL-20](https://github.com/jlmelville/coil20) packages.
+* [quadra](https://github.com/jlmelville/quadra) for assessing the results quantitatively. This one's a bit rough at the moment, though.
