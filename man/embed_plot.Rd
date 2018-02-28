@@ -6,8 +6,8 @@
 \usage{
 embed_plot(coords, x = NULL, colors = NULL,
   color_scheme = grDevices::rainbow, num_colors = 15, limits = NULL,
-  top = NULL, cex = 1, title = NULL, text = NULL, equal_axes = FALSE,
-  pc_axes = FALSE)
+  top = NULL, cex = 1, title = NULL, text = NULL, sub = NULL,
+  equal_axes = FALSE, pc_axes = FALSE)
 }
 \arguments{
 \item{coords}{Matrix of embedded coordinates, with as many rows as
@@ -40,6 +40,8 @@ after sorting by decreasing order.}
 \item{text}{Vector of label text to display instead of a point. If the labels
 are long or the data set is large, this is unlikely to be very legible, but
 is occasionally useful.}
+
+\item{sub}{Subtitle for the plot. Appears below the title.}
 
 \item{equal_axes}{If \code{TRUE}, the X and Y axes are set to have the
 same extents.}
@@ -88,7 +90,7 @@ pca_iris <- stats::prcomp(iris[, -5], retx = TRUE, rank. = 2)
 # Visualize the resulting embedding, colored by iris species, using the
 # rainbow color scheme
 embed_plot(pca_iris$x, iris$Species, color_scheme = rainbow,
-           title = "iris PCA")
+           title = "iris PCA", sub = "rainbow colors")
 
 # topo.colors scheme
 embed_plot(pca_iris$x, iris$Species, color_scheme = topo.colors)

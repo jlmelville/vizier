@@ -47,8 +47,8 @@ embed_plot(pca_iris$x, iris)
 
 ```R
 # More explicitly color by iris species, use the rainbow color scheme and also
-# provide a title
-embed_plot(pca_iris$x, iris$Species, color_scheme = rainbow, title = "iris PCA")
+# provide a title and subtitle
+embed_plot(pca_iris$x, iris$Species, color_scheme = rainbow, title = "iris PCA", sub = "rainbow color scheme")
 ```
 ![Embed plot with a title](img/embed_ex_title.png "embed_plot(pca_iris$x, iris$Species, color_scheme = rainbow, title = \"iris PCA\")")
 

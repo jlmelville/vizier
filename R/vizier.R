@@ -45,6 +45,7 @@
 #'  are long or the data set is large, this is unlikely to be very legible, but
 #'  is occasionally useful.
 #' @param title Title for the plot.
+#' @param sub Subtitle for the plot. Appears below the title.
 #' @param equal_axes If \code{TRUE}, the X and Y axes are set to have the
 #'  same extents.
 #' @param pc_axes If \code{TRUE}, the \code{coords} are replaced by the
@@ -63,7 +64,7 @@
 #' # Visualize the resulting embedding, colored by iris species, using the
 #' # rainbow color scheme
 #' embed_plot(pca_iris$x, iris$Species, color_scheme = rainbow,
-#'            title = "iris PCA")
+#'            title = "iris PCA", sub = "rainbow colors")
 #'
 #' # topo.colors scheme
 #' embed_plot(pca_iris$x, iris$Species, color_scheme = topo.colors)
@@ -94,7 +95,7 @@
 embed_plot <- function(coords, x = NULL, colors = NULL,
                        color_scheme = grDevices::rainbow,
                        num_colors = 15, limits = NULL, top = NULL,
-                       cex = 1, title = NULL, text = NULL,
+                       cex = 1, title = NULL, text = NULL, sub = NULL,
                        equal_axes = FALSE, pc_axes = FALSE) {
   if (methods::is(coords, "list") && !is.null(coords$coords)) {
     coords <- coords$coords
@@ -130,6 +131,9 @@ embed_plot <- function(coords, x = NULL, colors = NULL,
     graphics::plot(coords, pch = 20, cex = cex, col = colors,
                    xlim = lims, ylim = lims, xlab = 'X', ylab = 'Y',
                    main = title)
+  }
+  if (!is.null(sub)) {
+    graphics::mtext(sub)
   }
 }
 
