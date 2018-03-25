@@ -314,6 +314,9 @@ embed_plotly <- function(coords, x = NULL, colors = NULL,
     text <- labels
   }
 
+  # prepend "<index>: " to tooltips to identify point in dataframe
+  text <- paste0(as.character(1:length(text)), ": ", text)
+
   p <- plotly::plot_ly(
     x = coords[, 1], y = coords[, 2],
     color = labels,
