@@ -215,7 +215,7 @@ embed_plot <- function(coords, x = NULL, colors = NULL,
 #' embed_plotly(pca_iris$x, iris)
 #'
 #' # Don't have to see a legend if the tooltips will do
-#' embed_plotly(pca_iris$x, iris, show_legend = FALSE
+#' embed_plotly(pca_iris$x, iris, show_legend = FALSE)
 #'
 #' # Custom tooltips
 #' embed_plotly(pca_iris$x, iris, tooltip = paste("Species:", iris$Species))
