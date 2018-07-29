@@ -323,7 +323,7 @@ embed_plotly <- function(coords, x = NULL, colors = NULL,
     colors = colors,
     type = "scatter", mode = mode,
     text = text,
-    marker = NULL
+    marker = marker
   )
   p <-
     plotly::layout(p,
