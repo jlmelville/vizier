@@ -111,7 +111,7 @@ embed_plotly(pca_iris$x, iris)
 
 ```R
 # Don't have to see a legend if custom tooltips will do
-embed_plotly(pca_iris$x, iris, tooltip = paste("Species:", iris$Species))
+embed_plotly(pca_iris$x, iris, show_legend = FALSE, tooltip = paste("Species:", iris$Species))
 ```
 
 ![plotly with custom tooltips](img/embed_ex_plotly_tooltip.png "embed_plotly(pca_iris$x, iris, show_legend = FALSE, tooltip = paste(\"Species:\", iris$Species))")
