@@ -46,12 +46,14 @@
 #'  is occasionally useful.
 #' @param title Title for the plot.
 #' @param sub Subtitle for the plot. Appears below the title.
-#' @param equal_axes If \code{TRUE}, the X and Y axes are set to have the
-#'  same extents.
-#' @param pc_axes If \code{TRUE}, the \code{coords} are replaced by the
-#' first two (unscaled) principal components, which should have the effect of
-#' rotating the data (with a potential reflection) so the main variance aligns
-#' along the X-axis. Should not have any other scaling effect.
+#' @param equal_axes If \code{TRUE}, the X and Y axes are set to have the same
+#'   extents.
+#' @param pc_axes If \code{TRUE}, the \code{coords} are replaced by the first
+#'   two (unscaled) principal components, which should have the effect of
+#'   rotating the data (with a potential reflection) so the main variance aligns
+#'   along the X-axis. Should not have any other scaling effect.
+#' @param verbose If \code{TRUE}, log messages to the console, mainly when
+#'   searching for a suitable color column in a dataframe.
 #' @note Use of this function with ColorBrewer qualitative palette names
 #' requires that the \code{RColorBrewer} package be installed.
 #'
@@ -96,7 +98,7 @@ embed_plot <- function(coords, x = NULL, colors = NULL,
                        color_scheme = grDevices::rainbow,
                        num_colors = 15, limits = NULL, top = NULL,
                        cex = 1, title = NULL, text = NULL, sub = NULL,
-                       equal_axes = FALSE, pc_axes = FALSE) {
+                       equal_axes = FALSE, pc_axes = FALSE, verbose = FALSE) {
   if (methods::is(coords, "list") && !is.null(coords$coords)) {
     coords <- coords$coords
   }
@@ -105,7 +107,7 @@ embed_plot <- function(coords, x = NULL, colors = NULL,
     if (!is.null(x)) {
       colors <- color_helper(x, color_scheme = color_scheme,
                              num_colors = num_colors, limits = limits,
-                             top = top)$colors
+                             top = top, verbose = verbose)$colors
     }
     else {
       colors <- make_palette(ncolors = nrow(coords),

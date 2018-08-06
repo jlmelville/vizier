@@ -5,9 +5,9 @@
 \title{Embedding Plot Using the JavaScript Library Plotly}
 \usage{
 embed_plotly(coords, x = NULL, colors = NULL,
-  color_scheme = grDevices::rainbow, title = NULL, show_legend = TRUE,
-  cex = 1, text = NULL, tooltip = NULL, equal_axes = FALSE,
-  pc_axes = FALSE)
+  color_scheme = grDevices::rainbow, title = NULL,
+  show_legend = TRUE, cex = 1, text = NULL, tooltip = NULL,
+  equal_axes = FALSE, pc_axes = FALSE)
 }
 \arguments{
 \item{coords}{Matrix of embedded coordinates, with as many rows as
