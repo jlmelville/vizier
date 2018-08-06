@@ -494,7 +494,7 @@ color_helper_column <- function(x,
 # factor_to_colors(iris$Species, color_scheme = "Set3") # ColorBrewer palette
 # factor_to_colors(iris$Species, color_scheme = rainbow) # color ramp function
 factor_to_colors <- function(x, color_scheme = grDevices::rainbow) {
-  category_names <- unique(x)
+  category_names <- levels(x)
   ncolors <- length(category_names)
   color_palette = make_palette(ncolors = ncolors, color_scheme = color_scheme)
   color_palette[x]
