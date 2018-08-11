@@ -10,8 +10,7 @@ License: GPL-3
 URL: https://github.com/jlmelville/vizier
 BugReports: https://github.com/jlmelville/vizier/issues
 Imports:
-    methods
-Suggests:
+    methods,
     RColorBrewer,
     plotly
 LazyLoad: yes

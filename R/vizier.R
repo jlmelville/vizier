@@ -252,10 +252,6 @@ embed_plotly <- function(coords, x = NULL, colors = NULL,
                          title = NULL, show_legend = TRUE,
                          cex = 1, text = NULL, tooltip = NULL,
                          equal_axes = FALSE, pc_axes = FALSE) {
-  if (!requireNamespace("plotly", quietly = TRUE, warn.conflicts = FALSE)) {
-    stop("embed_plotly function requires 'plotly' package")
-  }
-
   if (methods::is(coords, "list") && !is.null(coords$coords)) {
     coords <- coords$coords
   }
@@ -356,8 +352,6 @@ embed_plotly <- function(coords, x = NULL, colors = NULL,
     )
   p
 }
-
-
 
 # Given a data frame or a vector, return a vector of colors appropriately
 # mapped to the color scheme.
@@ -564,13 +558,6 @@ factor_to_colors <- function(x, color_scheme = grDevices::rainbow) {
 # }
 numeric_to_colors <- function(x, color_scheme = "Blues", n = 15,
                               limits = NULL) {
-  if (methods::is(color_scheme, "character") &&
-    !requireNamespace("RColorBrewer",
-      quietly = TRUE,
-      warn.conflicts = FALSE
-    )) {
-    stop("numeric_to_colors function requires 'RColorBrewer' package")
-  }
   if (is.null(limits)) {
     limits <- range(x)
   }
@@ -607,12 +594,6 @@ make_palette <- function(ncolors, color_scheme = grDevices::rainbow) {
     palette <- color_scheme(ncolors)
   }
   else {
-    if (!requireNamespace("RColorBrewer",
-      quietly = TRUE,
-      warn.conflicts = FALSE
-    )) {
-      stop("make_palette function requires 'RColorBrewer' package")
-    }
     palette <- color_brewer_palette(color_scheme, ncolors)
   }
   palette
@@ -639,12 +620,6 @@ make_palette <- function(ncolors, color_scheme = grDevices::rainbow) {
 # More information on ColorBrewer is available at its website,
 # \url{http://www.colorbrewer2.org}.
 color_brewer_palette <- function(name, ncolors) {
-  if (!requireNamespace("RColorBrewer",
-    quietly = TRUE,
-    warn.conflicts = FALSE
-  )) {
-    stop("color_brewer_palette function requires 'RColorBrewer' package")
-  }
   make_color_brewer_ramp(name)(ncolors)
 }
 
@@ -673,12 +648,6 @@ color_brewer_palette <- function(name, ncolors) {
 # More information on ColorBrewer is available at its website,
 # \url{http://www.colorbrewer2.org}.
 make_color_brewer_ramp <- function(name) {
-  if (!requireNamespace("RColorBrewer",
-    quietly = TRUE,
-    warn.conflicts = FALSE
-  )) {
-    stop("colorBrewerPalette function requires 'RColorBrewer' package")
-  }
   if (!name %in% rownames(RColorBrewer::brewer.pal.info)) {
     stop(
       "Unknown ColorBrewer name '", name, "', must be one of ",

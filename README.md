@@ -80,11 +80,10 @@ embed_plot(pca_iris$x, iris$Species, cex = 0.75, text = iris$Species)
 
 ![Embed plot with text labels](img/embed_ex_text.png "embed_plot(pca_iris$x, iris$Species, cex = 0.75, text = iris$Species)")
 
-If you install the [RColorBrewer](https://cran.r-project.org/package=RColorBrewer)
-you can also use [ColorBrewer](http://www.colorbrewer2.org) color schemes.
+You can also use [ColorBrewer](http://www.colorbrewer2.org) color schemes (via
+the [RColorBrewer](https://cran.r-project.org/package=RColorBrewer) package).
 
 ```R
-library("RColorBrewer")
 embed_plot(pca_iris$x, iris, color_scheme = "Dark2")
 ```
 ![Embed plot with ColorBrewer color scheme](img/embed_ex_cb.png "embed_plot(pca_iris$x, iris, color_scheme = \"Dark2\")")
@@ -109,7 +108,6 @@ you can use the `embed_plotly` function which has the same interface as
 of showing a legend and tooltips:
 
 ```R
-library(plotly)
 embed_plotly(pca_iris$x, iris)
 ```
 ![Embed plot as a webpage with plotly](img/embed_ex_plotly.png "embed_plotly(pca_iris$x, iris)")
