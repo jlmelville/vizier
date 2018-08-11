@@ -519,11 +519,13 @@ color_helper_column <- function(x,
   make_palette(ncolors = length(x), color_scheme = color_scheme)
 }
 
-# Map a vector of factor levels, x,  to a vector of colors taken from either
-# an RColorBrewer palette name, or a color ramp function.
-# @examples
-# factor_to_colors(iris$Species, color_scheme = "Set3") # ColorBrewer palette
-# factor_to_colors(iris$Species, color_scheme = rainbow) # color ramp function
+# Map a vector of factor levels, x, to a vector of colors taken from either
+# a color ramp function, color scheme name or existing palette
+#
+# # ColorBrewer palette name
+# factor_to_colors(iris$Species, color_scheme = "RColorBrewer::Set3")
+# color ramp function
+# factor_to_colors(iris$Species, color_scheme = rainbow)
 factor_to_colors <- function(x, color_scheme = grDevices::rainbow,
                              verbose = FALSE) {
   category_names <- levels(x)
@@ -535,16 +537,16 @@ factor_to_colors <- function(x, color_scheme = grDevices::rainbow,
 
 # Map Numbers to Colors
 #
-# Maps a numeric vector to an equivalent set of colors based on the specified
-# ColorBrewer palette. Use the diverging or sequential.
+# Maps a numeric vector to an equivalent set of colors based on a color scheme
 #
+# For numeric scales, the following RColorBrewer schemes may be useful:
 # Sequential palettes names:
 #  Blues BuGn BuPu GnBu Greens Greys Oranges OrRd PuBu PuBuGn PuRd Purples
 #  RdPu Reds YlGn YlGnBu YlOrBr YlOrRd
 # Diverging palette names:
 #  BrBG PiYG PRGn PuOr RdBu RdGy RdYlBu RdYlGn Spectral
 #
-# @note This function is based off a Stack Overflow answer by user "Dave X":
+# This function is based off a Stack Overflow answer by user "Dave X":
 #  \url{http://stackoverflow.com/a/18749392}
 #
 # @param x Numeric vector.
@@ -567,7 +569,7 @@ factor_to_colors <- function(x, color_scheme = grDevices::rainbow,
 # plot(iris[, c("Sepal.Length", "Sepal.Width")], cex = 1.5, pch = 20,
 #  col = numeric_to_colors(iris$Petal.Length, color_scheme = rainbow, n = 20))
 # }
-numeric_to_colors <- function(x, color_scheme = "Blues", n = 15,
+numeric_to_colors <- function(x, color_scheme = "RColorBrewer::Blues", n = 15,
                               limits = NULL) {
   if (is.null(limits)) {
     limits <- range(x)
@@ -580,80 +582,25 @@ numeric_to_colors <- function(x, color_scheme = "Blues", n = 15,
 
 # Color Palette with Specified Number of Colors
 #
-# Creates a color palette with the specified number of colors, interpolating
-# ColorBrewer palettes by default.
-#
-# This function is designed to make it easy to use the ColorBrewer palettes,
-# particularly with the qualitative sets, without having to worry about a plot
-# not being displayed because the palette didn't have enough colors for the
-# number of categories required. Admittedly, you probably shouldn't be using
-# the palette in that case, but it's better to see the plot.
-#
-# Rather than specify a ColorBrewer scheme by name, you can also pass in
-# a color ramp function of any kind. For some applicable ramp functions, see
-# the \code{Palettes} help page in the \code{grDevices} package (e.g. by
-# running the \code{?rainbow} command).
-#
-# @param ncolors Number of colors desired for the palette.
-# @param color_scheme Either the name of a ColorBrewer palette, or a function
-#  accepting an integer n as an argument and returning
-#  n colors.
-# @value A palette with the specified number of colors, interpolated if
-#  necessary.
+# Returns a palette with the specified size, based on an existing palette,
+# color scheme name or color rampe function.
 make_palette <- function(ncolors, color_scheme = grDevices::rainbow,
                          verbose = FALSE) {
   if (methods::is(color_scheme, "function")) {
     palette <- color_scheme(ncolors)
   }
   else {
-    palette <- color_brewer_palette(color_scheme, ncolors, verbose = verbose)
+    palette <- make_palette_function(color_scheme, verbose = verbose)(ncolors)
   }
   palette
 }
 
-# Interpolated ColorBrewer Palette
+# Custom Palette Function
 #
-# Returns a vector of colors from the specified palette, interpolated if the
-# number of requested colors is larger than the number of colors in the
-# palette. Sequential and Diverging palettes are suitable for numerical scales.
-# The Qualitiative palettes are intended for categorical values.
-#
-# Sequential palettes names:
-#  Blues BuGn BuPu GnBu Greens Greys Oranges OrRd PuBu PuBuGn PuRd Purples
-#  RdPu Reds YlGn YlGnBu YlOrBr YlOrRd
-# Diverging palette names:
-#  BrBG PiYG PRGn PuOr RdBu RdGy RdYlBu RdYlGn Spectral
-# Qualitative:
-#  Accent Dark2 Paired Pastel1 Pastel2	Set1 Set2	Set3
-# @param name Name of the palette.
-# @param ncolors Number of colors desired.
-# @return Vector of \code{n} colors from the palette.
-# @seealso
-# More information on ColorBrewer is available at its website,
-# \url{http://www.colorbrewer2.org}.
-color_brewer_palette <- function(name, ncolors, verbose = FALSE) {
-  make_color_brewer_ramp(name, verbose = verbose)(ncolors)
-}
-
-# Interpolated ColorBrewer Ramp
-#
-# Creates a color ramp function using the ColorBrewer palettes, with
-# interpolation if the requested number of colors exceeds the maximum number of
-# colors in the palette. Sequential and Diverging palettes are suitable for
-# numerical scales. The Qualitiative palettes are intended for categorical
-# values.
-#
-# Sequential palettes names:
-#  Blues BuGn BuPu GnBu Greens Greys Oranges OrRd PuBu PuBuGn PuRd Purples
-#  RdPu Reds YlGn YlGnBu YlOrBr YlOrRd
-# Diverging palette names:
-#  BrBG PiYG PRGn PuOr RdBu RdGy RdYlBu RdYlGn Spectral
-# Qualitative:
-#  Accent Dark2 Paired Pastel1 Pastel2	Set1 Set2	Set3
-#
-# @param name Name of the palette.
-# @return Function accepting an integer n as an argument and returning n colors.
-make_color_brewer_ramp <- function(name, verbose = FALSE) {
+# This function returns a function that creates a palette of a specified size
+# based on either an existing palette or a named color scheme, interpolating
+# if necessary.
+make_palette_function <- function(name, verbose = FALSE) {
   if (length(name) > 1) {
     # Actually this is already a palette
     f <- function(n) {
@@ -789,6 +736,9 @@ pc_rotate <- function(X) {
   s$u %*% diag(c(s$d[1:2]))
 }
 
+# Stuff all paletter name data frames into one uniform frame
+# containing package, palette and length.
+# continuous palettes are considered to have an infinite length
 paletteer_everything <- function() {
   all_packages <- c(paletteer::palettes_c_names$package,
                     paletteer::palettes_d_names$package,
