@@ -18,8 +18,8 @@ suitable vector of colors. Ignored if \code{colors} is provided.}
 
 \item{colors}{Vector containing colors for each coordinate.}
 
-\item{color_scheme}{Either a color ramp function, or the name of a
-ColorBrewer scheme. See 'Details'.}
+\item{color_scheme}{A color scheme. See 'Details'. Ignored if \code{colors}
+is specified.}
 
 \item{num_colors}{Number of unique colors to map to from \code{x}, if
 \code{x} is a numeric vector. Otherwise ignored.}
@@ -52,10 +52,7 @@ rotating the data (with a potential reflection) so the main variance aligns
 along the X-axis. Should not have any other scaling effect.}
 
 \item{verbose}{If \code{TRUE}, log messages to the console, mainly when
-  searching for a suitable color column in a dataframe.
-
-More information on ColorBrewer is available at its website,
- \url{http://www.colorbrewer2.org}.}
+searching for a suitable color column in a dataframe.}
 }
 \description{
 Plots the embedded coordinates, with each point colored by a specified
@@ -73,15 +70,26 @@ more than one column of a type is found in the data frame, the last one
 encountered is used.
 
 If a vector is provided, a similar procedure to the data frame is used when
-mapping from its content to a vector of colors. Additionally, a numeric vector
-can be provided, which will be linearly mapped to a color scheme.
+mapping from its content to a vector of colors. Additionally, a numeric
+vector can be provided, which will be linearly mapped to a color scheme.
 
-The \code{color_scheme} parameter can be one of either a color ramp function,
-accepting an integer n as an argument and returning n colors, or the name of
-a ColorBrewer color scheme. Probably should be one of the "Qualitative" set.
-
-For some applicable color ramp functions, see the \code{Palettes} help page
-in the \code{grDevices} package (e.g. by running the \code{?rainbow} command).
+The \code{color_scheme} parameter can be one of:
+\itemize{
+\item A palette function that takes an integer \code{n} and returns a vector
+ of colors, e.g. \code{\link[grDevices]{rainbow}}. For some other applicable
+ functions, see the \code{Palettes} help page in the \code{grDevices}
+ package (e.g. by running the \code{?rainbow} command).
+\item A vector of colors making up a custom color scheme of your own
+ devising, e.g. \code{c('red', 'green', 'blue')}. There must be at least two
+ colors in the list.
+\item The name of a color scheme provided by the
+ \href{https://cran.r-project.org/package=paletteer}{paletteer} package, in
+ the form \code{"package::palette"}. Some examples include
+ \code{"dutchmasters::milkmaid"}, \code{"cartography::green.pal"},
+ \code{"viridis::inferno"} and \code{"RColorBrewer::Dark2"}. If more colors
+ are required than supported by the color scheme, interpolation will be used
+ to create the required number of colors.
+}
 }
 \examples{
 # Embed with PCA
@@ -98,23 +106,21 @@ embed_plot(pca_iris$x, iris$Species, color_scheme = topo.colors)
 # column it finds
 embed_plot(pca_iris$x, iris)
 
-# Use the "Dark2" ColorBrewer scheme (needs RColorBrewer package installed)
-library("RColorBrewer")
-embed_plot(pca_iris$x, iris, color_scheme = "Dark2")
+# Use the "Dark2" RColorBrewer scheme
+embed_plot(pca_iris$x, iris, color_scheme = "RColorBrewer::Dark2")
 
 # Can plot the category names instead of points, but looks bad if they're
 # long (or the dataset is large)
 embed_plot(pca_iris$x, iris$Species, cex = 0.5, text = iris$Species)
 
-# Visualize numeric value (petal length) as a color (the "Blues" scheme also
-# needs RColorBrewer)
-embed_plot(pca_iris$x, iris$Petal.Length, color_scheme = "Blues")
+# Visualize numeric value (petal length) as a color
+embed_plot(pca_iris$x, iris$Petal.Length, color_scheme = "RColorBrewer::Blues")
 
 # Just show the points with the 10 longest petals
-embed_plot(pca_iris$x, iris$Petal.Length, color_scheme = "Blues", top = 10)
+embed_plot(pca_iris$x, iris$Petal.Length, color_scheme = "RColorBrewer::Blues", top = 10)
 
 # Can force axes to be equal size to stop cluster being distorted in one
 # direction
-embed_plot(pca_iris$x, iris$Petal.Length, color_scheme = "Blues",
+embed_plot(pca_iris$x, iris$Petal.Length, color_scheme = "RColorBrewer::Blues",
            equal_axes = TRUE)
 }

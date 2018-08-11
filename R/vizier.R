@@ -14,23 +14,34 @@
 #' encountered is used.
 #'
 #' If a vector is provided, a similar procedure to the data frame is used when
-#' mapping from its content to a vector of colors. Additionally, a numeric vector
-#' can be provided, which will be linearly mapped to a color scheme.
+#' mapping from its content to a vector of colors. Additionally, a numeric
+#' vector can be provided, which will be linearly mapped to a color scheme.
 #'
-#' The \code{color_scheme} parameter can be one of either a color ramp function,
-#' accepting an integer n as an argument and returning n colors, or the name of
-#' a ColorBrewer color scheme. Probably should be one of the "Qualitative" set.
-#'
-#' For some applicable color ramp functions, see the \code{Palettes} help page
-#' in the \code{grDevices} package (e.g. by running the \code{?rainbow} command).
+#' The \code{color_scheme} parameter can be one of:
+#' \itemize{
+#' \item A palette function that takes an integer \code{n} and returns a vector
+#'  of colors, e.g. \code{\link[grDevices]{rainbow}}. For some other applicable
+#'  functions, see the \code{Palettes} help page in the \code{grDevices}
+#'  package (e.g. by running the \code{?rainbow} command).
+#' \item A vector of colors making up a custom color scheme of your own
+#'  devising, e.g. \code{c('red', 'green', 'blue')}. There must be at least two
+#'  colors in the list.
+#' \item The name of a color scheme provided by the
+#'  \href{https://cran.r-project.org/package=paletteer}{paletteer} package, in
+#'  the form \code{"package::palette"}. Some examples include
+#'  \code{"dutchmasters::milkmaid"}, \code{"cartography::green.pal"},
+#'  \code{"viridis::inferno"} and \code{"RColorBrewer::Dark2"}. If more colors
+#'  are required than supported by the color scheme, interpolation will be used
+#'  to create the required number of colors.
+#' }
 #'
 #' @param coords Matrix of embedded coordinates, with as many rows as
 #'  observations, and 2 columns.
 #' @param x Either a data frame or a column that can be used to derive a
 #'  suitable vector of colors. Ignored if \code{colors} is provided.
 #' @param colors Vector containing colors for each coordinate.
-#' @param color_scheme Either a color ramp function, or the name of a
-#'  ColorBrewer scheme. See 'Details'.
+#' @param color_scheme A color scheme. See 'Details'. Ignored if \code{colors}
+#'  is specified.
 #' @param num_colors Number of unique colors to map to from \code{x}, if
 #'  \code{x} is a numeric vector. Otherwise ignored.
 #' @param limits The range that the colors should map over when mapping from a
@@ -54,9 +65,6 @@
 #'   along the X-axis. Should not have any other scaling effect.
 #' @param verbose If \code{TRUE}, log messages to the console, mainly when
 #'   searching for a suitable color column in a dataframe.
-#'
-#' More information on ColorBrewer is available at its website,
-#'  \url{http://www.colorbrewer2.org}.
 #' @export
 #' @examples
 #' # Embed with PCA
@@ -73,24 +81,22 @@
 #' # column it finds
 #' embed_plot(pca_iris$x, iris)
 #'
-#' # Use the "Dark2" ColorBrewer scheme (needs RColorBrewer package installed)
-#' library("RColorBrewer")
-#' embed_plot(pca_iris$x, iris, color_scheme = "Dark2")
+#' # Use the "Dark2" RColorBrewer scheme
+#' embed_plot(pca_iris$x, iris, color_scheme = "RColorBrewer::Dark2")
 #'
 #' # Can plot the category names instead of points, but looks bad if they're
 #' # long (or the dataset is large)
 #' embed_plot(pca_iris$x, iris$Species, cex = 0.5, text = iris$Species)
 #'
-#' # Visualize numeric value (petal length) as a color (the "Blues" scheme also
-#' # needs RColorBrewer)
-#' embed_plot(pca_iris$x, iris$Petal.Length, color_scheme = "Blues")
+#' # Visualize numeric value (petal length) as a color
+#' embed_plot(pca_iris$x, iris$Petal.Length, color_scheme = "RColorBrewer::Blues")
 #'
 #' # Just show the points with the 10 longest petals
-#' embed_plot(pca_iris$x, iris$Petal.Length, color_scheme = "Blues", top = 10)
+#' embed_plot(pca_iris$x, iris$Petal.Length, color_scheme = "RColorBrewer::Blues", top = 10)
 #'
 #' # Can force axes to be equal size to stop cluster being distorted in one
 #' # direction
-#' embed_plot(pca_iris$x, iris$Petal.Length, color_scheme = "Blues",
+#' embed_plot(pca_iris$x, iris$Petal.Length, color_scheme = "RColorBrewer::Blues",
 #'            equal_axes = TRUE)
 embed_plot <- function(coords, x = NULL, colors = NULL,
                        color_scheme = grDevices::rainbow,
@@ -112,7 +118,8 @@ embed_plot <- function(coords, x = NULL, colors = NULL,
     else {
       colors <- make_palette(
         ncolors = nrow(coords),
-        color_scheme = color_scheme
+        color_scheme = color_scheme,
+        verbose = verbose
       )
     }
   }
@@ -167,20 +174,31 @@ embed_plot <- function(coords, x = NULL, colors = NULL,
 #' mapping from its content to a vector of colors. Additionally, a numeric vector
 #' can be provided, which will be linearly mapped to a color scheme.
 #'
-#' The \code{color_scheme} parameter can be one of either a color ramp function,
-#' accepting an integer n as an argument and returning n colors, or the name of
-#' a ColorBrewer color scheme. Probably should be one of the "Qualitative" set.
-#'
-#' For some applicable color ramp functions, see the \code{Palettes} help page
-#' in the \code{grDevices} package (e.g. by running the \code{?rainbow} command).
+#' The \code{color_scheme} parameter can be one of:
+#' \itemize{
+#' \item A palette function that takes an integer \code{n} and returns a vector
+#'  of colors, e.g. \code{\link[grDevices]{rainbow}}. For some other applicable
+#'  functions, see the \code{Palettes} help page in the \code{grDevices}
+#'  package (e.g. by running the \code{?rainbow} command).
+#' \item A vector of colors making up a custom color scheme of your own
+#'  devising, e.g. \code{c('red', 'green', 'blue')}. There must be at least two
+#'  colors in the list.
+#' \item The name of a color scheme provided by the
+#'  \href{https://cran.r-project.org/package=paletteer}{paletteer} package, in
+#'  the form \code{"package::palette"}. Some examples include
+#'  \code{"dutchmasters::milkmaid"}, \code{"cartography::green.pal"},
+#'  \code{"viridis::inferno"} and \code{"RColorBrewer::Dark2"}. If more colors
+#'  are required than supported by the color scheme, interpolation will be used
+#'  to create the required number of colors.
+#' }
 #'
 #' @param coords Matrix of embedded coordinates, with as many rows as
 #'  observations, and 2 columns.
 #' @param x Either a data frame or a column that can be used to derive a
 #'  suitable vector of colors. Ignored if \code{colors} is provided.
 #' @param colors Vector containing colors for each coordinate.
-#' @param color_scheme Either a color ramp function, or the name of a
-#'  ColorBrewer scheme. See 'Details'.
+#' @param color_scheme A color scheme. See 'Details'. Ignored if \code{colors}
+#'  is specified.
 #' @param cex Size of the points. Ignored if \code{text} is provided.
 #' @param text Vector of label text to display instead of a point. If the labels
 #'  are long or the data set is large, this is unlikely to be very legible, but
@@ -226,21 +244,19 @@ embed_plot <- function(coords, x = NULL, colors = NULL,
 #' # Custom tooltips
 #' embed_plotly(pca_iris$x, iris, tooltip = paste("Species:", iris$Species))
 #'
-#' # Use the "Dark2" ColorBrewer scheme (needs RColorBrewer package installed)
-#' library("RColorBrewer")
-#' embed_plotly(pca_iris$x, iris, color_scheme = "Dark2")
+#' # Use the "Dark2" RColorBrewer scheme
+#' embed_plotly(pca_iris$x, iris, color_scheme = "RColorBrewer::Dark2")
 #'
 #' # Can plot the category names instead of points, but looks bad if they're
 #' # long (or the dataset is large)
 #' embed_plot(pca_iris$x, iris$Species, cex = 0.5, text = iris$Species)
 #'
-#' # Visualize numeric value (petal length) as a color (the "Blues" scheme also
-#' # needs RColorBrewer)
-#' embed_plotly(pca_iris$x, iris$Petal.Length, color_scheme = "Blues")
+#' # Visualize numeric value (petal length) as a color
+#' embed_plotly(pca_iris$x, iris$Petal.Length, color_scheme = "RColorBrewer::Blues")
 #'
 #' # Can force axes to be equal size to stop cluster being distorted in one
 #' # direction
-#' embed_plotly(pca_iris$x, iris$Petal.Length, color_scheme = "Blues",
+#' embed_plotly(pca_iris$x, iris$Petal.Length, color_scheme = "RColorBrewer::Blues",
 #'              equal_axes = TRUE)
 #' }
 embed_plotly <- function(coords, x = NULL, colors = NULL,
@@ -430,7 +446,8 @@ color_helper_df <- function(df,
         message("Found a factor '", label_name, "' for mapping to colors")
       }
       labels <- df[[label_name]]
-      colors <- factor_to_colors(labels, color_scheme = color_scheme)
+      colors <- factor_to_colors(labels, color_scheme = color_scheme,
+                                 verbose = verbose)
     }
   }
 
@@ -502,19 +519,19 @@ color_helper_column <- function(x,
   make_palette(ncolors = length(x), color_scheme = color_scheme)
 }
 
-
 # Map a vector of factor levels, x,  to a vector of colors taken from either
 # an RColorBrewer palette name, or a color ramp function.
 # @examples
 # factor_to_colors(iris$Species, color_scheme = "Set3") # ColorBrewer palette
 # factor_to_colors(iris$Species, color_scheme = rainbow) # color ramp function
-factor_to_colors <- function(x, color_scheme = grDevices::rainbow) {
+factor_to_colors <- function(x, color_scheme = grDevices::rainbow,
+                             verbose = FALSE) {
   category_names <- levels(x)
   ncolors <- length(category_names)
-  color_palette <- make_palette(ncolors = ncolors, color_scheme = color_scheme)
+  color_palette <- make_palette(ncolors = ncolors, color_scheme = color_scheme,
+                                verbose = verbose)
   color_palette[x]
 }
-
 
 # Map Numbers to Colors
 #
@@ -544,11 +561,11 @@ factor_to_colors <- function(x, color_scheme = grDevices::rainbow) {
 # # Plot Iris dataset sepal width vs length, colored by petal length, using
 # # 20 colors ranging from Purple to Green (PRGn):
 # plot(iris[, c("Sepal.Length", "Sepal.Width")], cex = 1.5, pch = 20,
-#  col = numeric_to_colors(iris$Petal.Length, palette = "PRGn", n = 20))
+#  col = numeric_to_colors(iris$Petal.Length, color_scheme = "RColorBrewer::PRGn", n = 20))
 #
 # # Use the rainbow color ramp function
 # plot(iris[, c("Sepal.Length", "Sepal.Width")], cex = 1.5, pch = 20,
-#  col = numeric_to_colors(iris$Petal.Length, col_ramp = rainbow, n = 20))
+#  col = numeric_to_colors(iris$Petal.Length, color_scheme = rainbow, n = 20))
 # }
 numeric_to_colors <- function(x, color_scheme = "Blues", n = 15,
                               limits = NULL) {
@@ -583,12 +600,13 @@ numeric_to_colors <- function(x, color_scheme = "Blues", n = 15,
 #  n colors.
 # @value A palette with the specified number of colors, interpolated if
 #  necessary.
-make_palette <- function(ncolors, color_scheme = grDevices::rainbow) {
+make_palette <- function(ncolors, color_scheme = grDevices::rainbow,
+                         verbose = FALSE) {
   if (methods::is(color_scheme, "function")) {
     palette <- color_scheme(ncolors)
   }
   else {
-    palette <- color_brewer_palette(color_scheme, ncolors)
+    palette <- color_brewer_palette(color_scheme, ncolors, verbose = verbose)
   }
   palette
 }
@@ -613,8 +631,8 @@ make_palette <- function(ncolors, color_scheme = grDevices::rainbow) {
 # @seealso
 # More information on ColorBrewer is available at its website,
 # \url{http://www.colorbrewer2.org}.
-color_brewer_palette <- function(name, ncolors) {
-  make_color_brewer_ramp(name)(ncolors)
+color_brewer_palette <- function(name, ncolors, verbose = FALSE) {
+  make_color_brewer_ramp(name, verbose = verbose)(ncolors)
 }
 
 # Interpolated ColorBrewer Ramp
@@ -635,22 +653,55 @@ color_brewer_palette <- function(name, ncolors) {
 #
 # @param name Name of the palette.
 # @return Function accepting an integer n as an argument and returning n colors.
-make_color_brewer_ramp <- function(name) {
-  if (!name %in% rownames(RColorBrewer::brewer.pal.info)) {
-    stop(
-      "Unknown ColorBrewer name '", name, "', must be one of ",
-      paste(rownames(RColorBrewer::brewer.pal.info), collapse = ", ")
-    )
+make_color_brewer_ramp <- function(name, verbose = FALSE) {
+  if (length(name) > 1) {
+    # Actually this is already a palette
+    f <- function(n) {
+      if (n > length(name) && verbose) {
+        message("Interpolating palette for ", n, " colors")
+      }
+      grDevices::colorRampPalette(name)(n)
+    }
+    return(f)
+  }
+  else {
+    split_res <- unlist(strsplit(name, "::"))
+    if (length(split_res) != 2) {
+      stop("Bad palette name '", name, "'. ",
+           "Should be in format: <package>::<palette>")
+    }
+    package_name <- split_res[1]
+    palette_name <- split_res[2]
   }
 
+  pal_df <- paletteer_everything()
+  pal <- pal_df[pal_df$package == package_name, ]
+  if (nrow(pal) == 0) {
+    stop("Unknown package '", package_name, "'")
+  }
+
+  pal <- pal[pal$palette == palette_name, ]
+  if (nrow(pal) == 0) {
+    stop("Unknown palette '", palette_name,
+         "' for package '", package_name, "'")
+  }
+
+  pal_fn <- switch(as.character(pal$type),
+                   "c" = paletteer::paletteer_c,
+                   "d" = paletteer::paletteer_d,
+                   "dynamic" = paletteer::paletteer_dynamic
+  )
+  max_colors <- pal$length
   function(n) {
-    max_colors <- RColorBrewer::brewer.pal.info[name, ]$maxcolors
-    n <- max(n, 3)
     if (n <= max_colors) {
-      RColorBrewer::brewer.pal(n, name)
+      forceAndCall(3, pal_fn, package_name, palette_name, n)
     }
     else {
-      grDevices::colorRampPalette(RColorBrewer::brewer.pal(max_colors, name))(n)
+      if (verbose) {
+        message("Interpolating palette for ", n, " colors")
+      }
+      grDevices::colorRampPalette(
+        forceAndCall(3, pal_fn, package_name, palette_name, max_colors))(n)
     }
   }
 }
@@ -736,4 +787,22 @@ pc_rotate <- function(X) {
   X <- scale(X, center = TRUE, scale = FALSE)
   s <- svd(X, nu = 2, nv = 0)
   s$u %*% diag(c(s$d[1:2]))
+}
+
+paletteer_everything <- function() {
+  all_packages <- c(paletteer::palettes_c_names$package,
+                    paletteer::palettes_d_names$package,
+                    paletteer::palettes_dynamic_names$package)
+  all_palettes <- c(paletteer::palettes_c_names$palette,
+                    paletteer::palettes_d_names$palette,
+                    paletteer::palettes_dynamic_names$name)
+  all_lengths <- c(rep(Inf, nrow(paletteer::palettes_c_names)),
+                       paletteer::palettes_d_names$length,
+                       paletteer::palettes_dynamic_names$length)
+  all_types <- c(rep("c", nrow(paletteer::palettes_c_names)),
+                 rep("d", nrow(paletteer::palettes_d_names)),
+                 rep("dynamic", nrow(paletteer::palettes_dynamic_names)))
+
+  data.frame(package = all_packages, palette = all_palettes,
+             length = all_lengths, type = all_types)
 }

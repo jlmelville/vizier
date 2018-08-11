@@ -80,27 +80,34 @@ embed_plot(pca_iris$x, iris$Species, cex = 0.75, text = iris$Species)
 
 ![Embed plot with text labels](img/embed_ex_text.png "embed_plot(pca_iris$x, iris$Species, cex = 0.75, text = iris$Species)")
 
-You can also use [ColorBrewer](http://www.colorbrewer2.org) color schemes (via
-the [RColorBrewer](https://cran.r-project.org/package=RColorBrewer) package).
+For more color schemes, Vizier makes use of the wonderful 
+[paletteer](https://cran.r-project.org/package=paletteer) package. 
+You can select one of the palettes on offer by (among other ways) passing a 
+string with the format`"package::palette"`. For example, to use the `Dark2`
+scheme from the the 
+[RColorBrewer](https://cran.r-project.org/package=RColorBrewer) package 
+(itself based on [ColorBrewer](http://www.colorbrewer2.org) schemes):
 
 ```R
-embed_plot(pca_iris$x, iris, color_scheme = "Dark2")
+embed_plot(pca_iris$x, iris, color_scheme = "RColorBrewer::Dark2")
 ```
-![Embed plot with ColorBrewer color scheme](img/embed_ex_cb.png "embed_plot(pca_iris$x, iris, color_scheme = \"Dark2\")")
+![Embed plot with ColorBrewer color scheme](img/embed_ex_cb.png "embed_plot(pca_iris$x, iris, color_scheme = \"RColorBrewer::Dark2\")")
 
+For more on selecting color schemes, see the 'Color Schemes' section below.
+Here's another example, using a continuous palette from RColorBrewer, useful
+for mapping numeric vectors to the color:
 
 ```R
-# Visualize numeric value (petal length) as a color (the "Blues" scheme also
-# needs RColorBrewer)
-embed_plot(pca_iris$x, iris$Petal.Length, color_scheme = "Blues")
+# Visualize numeric value (petal length) as a color
+embed_plot(pca_iris$x, iris$Petal.Length, color_scheme = "RColorBrewer::Blues")
 ```
-![Embed plot with quantitative color scale](img/embed_ex_quant.png "embed_plot(pca_iris$x, iris$Petal.Length, color_scheme = \"Blues\")")
+![Embed plot with quantitative color scale](img/embed_ex_quant.png "embed_plot(pca_iris$x, iris$Petal.Length, color_scheme = \"RColorBrewer::Blues\")")
 
 ```R
 # Just show the points with the 10 longest petals
-embed_plot(pca_iris$x, iris$Petal.Length, color_scheme = "Blues", top = 10)
+embed_plot(pca_iris$x, iris$Petal.Length, color_scheme = "RColorBrewer::Blues", top = 10)
 ```
-![Embed plot only showing top 10 petal lengths](img/embed_ex_top.png "embed_plot(pca_iris$x, iris$Petal.Length, color_scheme = \"Blues\", top = 10)")
+![Embed plot only showing top 10 petal lengths](img/embed_ex_top.png "embed_plot(pca_iris$x, iris$Petal.Length, color_scheme = \"RColorBrewer::Blues\", top = 10)")
 
 If you install the [plotly](https://cran.r-project.org/package=plotly) package,
 you can use the `embed_plotly` function which has the same interface as 
@@ -118,6 +125,35 @@ embed_plotly(pca_iris$x, iris, show_legend = FALSE, tooltip = paste("Species:", 
 ```
 
 ![plotly with custom tooltips](img/embed_ex_plotly_tooltip.png "embed_plotly(pca_iris$x, iris, show_legend = FALSE, tooltip = paste(\"Species:\", iris$Species))")
+
+## Color Schemes
+
+Vizier makes use of the wonderful 
+[paletteer](https://cran.r-project.org/package=paletteer) package which unifies
+the enormous number of palettes out there. To specify a color scheme, use the
+`color_scheme` parameter, passing one of:
+
+* A palette function that takes an integer `n` and returns a vector of colors,
+e.g. `grDevices::rainbow`.
+* A vector of colors making up a custom color scheme of your own devising, e.g.
+`c('red', 'green', 'blue')`. There must be at least two colors in the list.
+* The name of a color scheme provided by `paletteer`, in the form 
+`"package::palette"`. For a list of the many, many palettes supported, see
+[paletteer's github page](https://github.com/EmilHvitfeldt/paletteer). Some
+examples include `"dutchmasters::milkmaid"`, `"cartography::green.pal"`, 
+`"viridis::inferno"`, `"RColorBrewer::Dark2"`. `vizier` makes no distinction
+between the continuous, fixed-width or dynamic palette classification used by
+`paletteer`.
+
+### Palette Interpolation
+
+If the color scheme you select has a maximum number of colors, and `vizier`
+needs to use more than those that are available, then it will interpolate
+among the maximum number of colors to create the desired number. This may lead
+to results where different categories are hard to distinguish from each other.
+If you set `verbose = TRUE`, then if interpolation is required, a message will 
+be logged to console to this effect. `paletteer` has information on the number
+of colors available in each palette.
 
 ## License
 
