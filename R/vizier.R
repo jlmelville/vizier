@@ -105,13 +105,17 @@ embed_plot <- function(coords, x = NULL, colors = NULL,
 
   if (is.null(colors)) {
     if (!is.null(x)) {
-      colors <- color_helper(x, color_scheme = color_scheme,
-                             num_colors = num_colors, limits = limits,
-                             top = top, verbose = verbose)$colors
+      colors <- color_helper(x,
+        color_scheme = color_scheme,
+        num_colors = num_colors, limits = limits,
+        top = top, verbose = verbose
+      )$colors
     }
     else {
-      colors <- make_palette(ncolors = nrow(coords),
-                             color_scheme = color_scheme)
+      colors <- make_palette(
+        ncolors = nrow(coords),
+        color_scheme = color_scheme
+      )
     }
   }
 
@@ -125,14 +129,18 @@ embed_plot <- function(coords, x = NULL, colors = NULL,
   }
 
   if (!is.null(text)) {
-    graphics::plot(coords, type = 'n', xlim = lims, ylim = lims,
-                   xlab = 'X', ylab = 'Y', main = title)
+    graphics::plot(coords,
+      type = "n", xlim = lims, ylim = lims,
+      xlab = "X", ylab = "Y", main = title
+    )
     graphics::text(coords, labels = text, cex = cex, col = colors)
   }
   else {
-    graphics::plot(coords, pch = 20, cex = cex, col = colors,
-                   xlim = lims, ylim = lims, xlab = 'X', ylab = 'Y',
-                   main = title)
+    graphics::plot(coords,
+      pch = 20, cex = cex, col = colors,
+      xlim = lims, ylim = lims, xlab = "X", ylab = "Y",
+      main = title
+    )
   }
   if (!is.null(sub)) {
     graphics::mtext(sub)
@@ -259,7 +267,7 @@ embed_plotly <- function(coords, x = NULL, colors = NULL,
   }
   else {
     mode <- "markers"
-    marker = list(size = cex * 6)
+    marker <- list(size = cex * 6)
     labels <- NULL
   }
 
@@ -278,11 +286,13 @@ embed_plotly <- function(coords, x = NULL, colors = NULL,
           colors <- color_scheme(length(x))
         }
         mode <- "markers"
-        marker = list(size = cex * 6)
+        marker <- list(size = cex * 6)
       }
       else {
-        res <- color_helper(x, color_scheme = color_scheme,
-                            ret_labels = TRUE)
+        res <- color_helper(x,
+          color_scheme = color_scheme,
+          ret_labels = TRUE
+        )
         colors <- res$colors
         if (!is.null(res$labels)) {
           labels <- res$labels
@@ -293,8 +303,10 @@ embed_plotly <- function(coords, x = NULL, colors = NULL,
       }
     }
     else {
-      colors <- make_palette(ncolors = nrow(coords),
-                             color_scheme = color_scheme)
+      colors <- make_palette(
+        ncolors = nrow(coords),
+        color_scheme = color_scheme
+      )
       labels <- colors
       show_legend <- FALSE
     }
@@ -329,14 +341,19 @@ embed_plotly <- function(coords, x = NULL, colors = NULL,
   )
   p <-
     plotly::layout(p,
-                   title = title,
-                   xaxis = list(title = "X",
-                                zeroline = FALSE, showline = TRUE, showgrid = FALSE,
-                                range = lims * 1.15),
-                   yaxis = list(title = "Y",
-                                zeroline = FALSE, showline = TRUE, showgrid = FALSE,
-                                range = lims),
-                   showlegend = show_legend)
+      title = title,
+      xaxis = list(
+        title = "X",
+        zeroline = FALSE, showline = TRUE, showgrid = FALSE,
+        range = lims * 1.15
+      ),
+      yaxis = list(
+        title = "Y",
+        zeroline = FALSE, showline = TRUE, showgrid = FALSE,
+        range = lims
+      ),
+      showlegend = show_legend
+    )
   p
 }
 
@@ -358,9 +375,11 @@ color_helper <- function(x,
                          ret_labels = FALSE,
                          verbose = FALSE) {
   if (methods::is(x, "data.frame")) {
-    res <- color_helper_df(x, color_scheme = color_scheme,
-                           ret_labels = ret_labels,
-                           verbose = verbose)
+    res <- color_helper_df(x,
+      color_scheme = color_scheme,
+      ret_labels = ret_labels,
+      verbose = verbose
+    )
     if (!ret_labels) {
       res <- list(colors = res, labels = NULL)
     }
@@ -372,11 +391,14 @@ color_helper <- function(x,
     else {
       labels <- NULL
     }
-    res <- list(colors = color_helper_column(x,
-                                             color_scheme = color_scheme,
-                                             num_colors = num_colors, limits = limits, top = top,
-                                             verbose = verbose),
-                labels = labels)
+    res <- list(
+      colors = color_helper_column(x,
+        color_scheme = color_scheme,
+        num_colors = num_colors, limits = limits, top = top,
+        verbose = verbose
+      ),
+      labels = labels
+    )
   }
   res
 }
@@ -399,7 +421,6 @@ color_helper_df <- function(df,
                             color_scheme = color_scheme,
                             ret_labels = FALSE,
                             verbose = FALSE) {
-
   colors <- NULL
   labels <- NULL
   # Is there a color column?
@@ -427,8 +448,10 @@ color_helper_df <- function(df,
     label_name <- last_character_column_name(df)
     if (!is.null(label_name) && is_factorish(df[[label_name]])) {
       if (verbose) {
-        message("Found a character column '", label_name,
-                "' for mapping to colors")
+        message(
+          "Found a character column '", label_name,
+          "' for mapping to colors"
+        )
       }
       labels <- df[[label_name]]
       colors <- factor_to_colors(as.factor(labels), color_scheme = color_scheme)
@@ -464,8 +487,10 @@ color_helper_column <- function(x,
 
   # Is it numeric - map to palette (which should be sequential or diverging)
   if (is.numeric(x)) {
-    colors <- numeric_to_colors(x, color_scheme = color_scheme,
-                                n = num_colors, limits = limits)
+    colors <- numeric_to_colors(x,
+      color_scheme = color_scheme,
+      n = num_colors, limits = limits
+    )
     if (!is.null(top)) {
       svec <- sort(x, decreasing = TRUE)
       colors[x < svec[top]] <- NA
@@ -496,7 +521,7 @@ color_helper_column <- function(x,
 factor_to_colors <- function(x, color_scheme = grDevices::rainbow) {
   category_names <- levels(x)
   ncolors <- length(category_names)
-  color_palette = make_palette(ncolors = ncolors, color_scheme = color_scheme)
+  color_palette <- make_palette(ncolors = ncolors, color_scheme = color_scheme)
   color_palette[x]
 }
 
@@ -540,8 +565,10 @@ factor_to_colors <- function(x, color_scheme = grDevices::rainbow) {
 numeric_to_colors <- function(x, color_scheme = "Blues", n = 15,
                               limits = NULL) {
   if (methods::is(color_scheme, "character") &&
-      !requireNamespace("RColorBrewer", quietly = TRUE,
-                        warn.conflicts = FALSE)) {
+    !requireNamespace("RColorBrewer",
+      quietly = TRUE,
+      warn.conflicts = FALSE
+    )) {
     stop("numeric_to_colors function requires 'RColorBrewer' package")
   }
   if (is.null(limits)) {
@@ -549,7 +576,8 @@ numeric_to_colors <- function(x, color_scheme = "Blues", n = 15,
   }
   pal <- make_palette(ncolors = n, color_scheme = color_scheme)
   pal[findInterval(x, seq(limits[1], limits[2], length.out = length(pal) + 1),
-                   all.inside = TRUE)]
+    all.inside = TRUE
+  )]
 }
 
 # Color Palette with Specified Number of Colors
@@ -579,8 +607,10 @@ make_palette <- function(ncolors, color_scheme = grDevices::rainbow) {
     palette <- color_scheme(ncolors)
   }
   else {
-    if (!requireNamespace("RColorBrewer", quietly = TRUE,
-                          warn.conflicts = FALSE)) {
+    if (!requireNamespace("RColorBrewer",
+      quietly = TRUE,
+      warn.conflicts = FALSE
+    )) {
       stop("make_palette function requires 'RColorBrewer' package")
     }
     palette <- color_brewer_palette(color_scheme, ncolors)
@@ -609,8 +639,10 @@ make_palette <- function(ncolors, color_scheme = grDevices::rainbow) {
 # More information on ColorBrewer is available at its website,
 # \url{http://www.colorbrewer2.org}.
 color_brewer_palette <- function(name, ncolors) {
-  if (!requireNamespace("RColorBrewer", quietly = TRUE,
-                        warn.conflicts = FALSE)) {
+  if (!requireNamespace("RColorBrewer",
+    quietly = TRUE,
+    warn.conflicts = FALSE
+  )) {
     stop("color_brewer_palette function requires 'RColorBrewer' package")
   }
   make_color_brewer_ramp(name)(ncolors)
@@ -641,17 +673,21 @@ color_brewer_palette <- function(name, ncolors) {
 # More information on ColorBrewer is available at its website,
 # \url{http://www.colorbrewer2.org}.
 make_color_brewer_ramp <- function(name) {
-  if (!requireNamespace("RColorBrewer", quietly = TRUE,
-                        warn.conflicts = FALSE)) {
+  if (!requireNamespace("RColorBrewer",
+    quietly = TRUE,
+    warn.conflicts = FALSE
+  )) {
     stop("colorBrewerPalette function requires 'RColorBrewer' package")
   }
   if (!name %in% rownames(RColorBrewer::brewer.pal.info)) {
-    stop("Unknown ColorBrewer name '", name, "', must be one of ",
-         paste(rownames(RColorBrewer::brewer.pal.info), collapse = ", "))
+    stop(
+      "Unknown ColorBrewer name '", name, "', must be one of ",
+      paste(rownames(RColorBrewer::brewer.pal.info), collapse = ", ")
+    )
   }
 
   function(n) {
-    max_colors <- RColorBrewer::brewer.pal.info[name,]$maxcolors
+    max_colors <- RColorBrewer::brewer.pal.info[name, ]$maxcolors
     n <- max(n, 3)
     if (n <= max_colors) {
       RColorBrewer::brewer.pal(n, name)
@@ -719,7 +755,8 @@ filter_column_names <- function(df, pred) {
 is_color <- function(x) {
   vapply(x, function(X) {
     tryCatch(is.matrix(grDevices::col2rgb(X)),
-             error = function(e) FALSE)
+      error = function(e) FALSE
+    )
   }, logical(1))
 }
 
