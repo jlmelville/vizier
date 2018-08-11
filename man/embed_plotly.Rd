@@ -41,7 +41,10 @@ same extents.}
 \item{pc_axes}{If \code{TRUE}, the \code{coords} are replaced by the
 first two (unscaled) principal components, which should have the effect of
 rotating the data (with a potential reflection) so the main variance aligns
-along the X-axis. Should not have any other scaling effect.}
+along the X-axis. Should not have any other scaling effect.
+
+More information on plotly is available at its website,
+\url{https://plot.ly}.}
 }
 \description{
 Plots the embedded coordinates, with each point colored by a specified
@@ -71,13 +74,6 @@ a ColorBrewer color scheme. Probably should be one of the "Qualitative" set.
 
 For some applicable color ramp functions, see the \code{Palettes} help page
 in the \code{grDevices} package (e.g. by running the \code{?rainbow} command).
-}
-\note{
-Use of this function requires installing and loading the
-\code{plotly} package, using version 4 or above.
-
-More information on plotly is available at its website,
-\url{https://plot.ly}.
 }
 \examples{
 \dontrun{

@@ -52,7 +52,10 @@ rotating the data (with a potential reflection) so the main variance aligns
 along the X-axis. Should not have any other scaling effect.}
 
 \item{verbose}{If \code{TRUE}, log messages to the console, mainly when
-searching for a suitable color column in a dataframe.}
+  searching for a suitable color column in a dataframe.
+
+More information on ColorBrewer is available at its website,
+ \url{http://www.colorbrewer2.org}.}
 }
 \description{
 Plots the embedded coordinates, with each point colored by a specified
@@ -79,13 +82,6 @@ a ColorBrewer color scheme. Probably should be one of the "Qualitative" set.
 
 For some applicable color ramp functions, see the \code{Palettes} help page
 in the \code{grDevices} package (e.g. by running the \code{?rainbow} command).
-}
-\note{
-Use of this function with ColorBrewer qualitative palette names
-requires that the \code{RColorBrewer} package be installed.
-
-More information on ColorBrewer is available at its website,
- \url{http://www.colorbrewer2.org}.
 }
 \examples{
 # Embed with PCA

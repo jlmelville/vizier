@@ -54,8 +54,6 @@
 #'   along the X-axis. Should not have any other scaling effect.
 #' @param verbose If \code{TRUE}, log messages to the console, mainly when
 #'   searching for a suitable color column in a dataframe.
-#' @note Use of this function with ColorBrewer qualitative palette names
-#' requires that the \code{RColorBrewer} package be installed.
 #'
 #' More information on ColorBrewer is available at its website,
 #'  \url{http://www.colorbrewer2.org}.
@@ -198,8 +196,6 @@ embed_plot <- function(coords, x = NULL, colors = NULL,
 #' first two (unscaled) principal components, which should have the effect of
 #' rotating the data (with a potential reflection) so the main variance aligns
 #' along the X-axis. Should not have any other scaling effect.
-#' @note Use of this function requires installing and loading the
-#' \code{plotly} package, using version 4 or above.
 #'
 #' More information on plotly is available at its website,
 #' \url{https://plot.ly}.
@@ -531,8 +527,6 @@ factor_to_colors <- function(x, color_scheme = grDevices::rainbow) {
 # Diverging palette names:
 #  BrBG PiYG PRGn PuOr RdBu RdGy RdYlBu RdYlGn Spectral
 #
-# @note Use of this function requires that the \code{RColorBrewer} packages be
-#  installed.
 # @note This function is based off a Stack Overflow answer by user "Dave X":
 #  \url{http://stackoverflow.com/a/18749392}
 #
@@ -641,12 +635,6 @@ color_brewer_palette <- function(name, ncolors) {
 #
 # @param name Name of the palette.
 # @return Function accepting an integer n as an argument and returning n colors.
-#
-# @note This function requires the RColorBrewer package to be installed and
-#  loaded.
-# @seealso
-# More information on ColorBrewer is available at its website,
-# \url{http://www.colorbrewer2.org}.
 make_color_brewer_ramp <- function(name) {
   if (!name %in% rownames(RColorBrewer::brewer.pal.info)) {
     stop(
