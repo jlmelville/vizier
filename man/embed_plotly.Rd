@@ -71,7 +71,7 @@ can be provided, which will be linearly mapped to a color scheme.
 The \code{color_scheme} parameter can be one of:
 \itemize{
 \item A palette function that takes an integer \code{n} and returns a vector
- of colors, e.g. \code{\link[grDevices]{rainbow}}. For some other applicable
+ of colors, e.g. \code{grDevices::rainbow}. For some other applicable
  functions, see the \code{Palettes} help page in the \code{grDevices}
  package (e.g. by running the \code{?rainbow} command).
 \item A vector of colors making up a custom color scheme of your own
