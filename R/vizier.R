@@ -450,8 +450,10 @@ color_helper_df <- function(df,
         message("Found a factor '", label_name, "' for mapping to colors")
       }
       labels <- df[[label_name]]
-      colors <- factor_to_colors(labels, color_scheme = color_scheme,
-                                 verbose = verbose)
+      colors <- factor_to_colors(labels,
+        color_scheme = color_scheme,
+        verbose = verbose
+      )
     }
   }
 
@@ -534,8 +536,10 @@ factor_to_colors <- function(x, color_scheme = grDevices::rainbow,
                              verbose = FALSE) {
   category_names <- levels(x)
   ncolors <- length(category_names)
-  color_palette <- make_palette(ncolors = ncolors, color_scheme = color_scheme,
-                                verbose = verbose)
+  color_palette <- make_palette(
+    ncolors = ncolors, color_scheme = color_scheme,
+    verbose = verbose
+  )
   color_palette[x]
 }
 
@@ -618,8 +622,10 @@ make_palette_function <- function(name, verbose = FALSE) {
   else {
     split_res <- unlist(strsplit(name, "::"))
     if (length(split_res) != 2) {
-      stop("Bad palette name '", name, "'. ",
-           "Should be in format: <package>::<palette>")
+      stop(
+        "Bad palette name '", name, "'. ",
+        "Should be in format: <package>::<palette>"
+      )
     }
     package_name <- split_res[1]
     palette_name <- split_res[2]
@@ -633,14 +639,16 @@ make_palette_function <- function(name, verbose = FALSE) {
 
   pal <- pal[pal$palette == palette_name, ]
   if (nrow(pal) == 0) {
-    stop("Unknown palette '", palette_name,
-         "' for package '", package_name, "'")
+    stop(
+      "Unknown palette '", palette_name,
+      "' for package '", package_name, "'"
+    )
   }
 
   pal_fn <- switch(as.character(pal$type),
-                   "c" = paletteer::paletteer_c,
-                   "d" = paletteer::paletteer_d,
-                   "dynamic" = paletteer::paletteer_dynamic
+    "c" = paletteer::paletteer_c,
+    "d" = paletteer::paletteer_d,
+    "dynamic" = paletteer::paletteer_dynamic
   )
   max_colors <- pal$length
   function(n) {
@@ -652,7 +660,8 @@ make_palette_function <- function(name, verbose = FALSE) {
         message("Interpolating palette for ", n, " colors")
       }
       grDevices::colorRampPalette(
-        forceAndCall(3, pal_fn, package_name, palette_name, max_colors))(n)
+        forceAndCall(3, pal_fn, package_name, palette_name, max_colors)
+      )(n)
     }
   }
 }
@@ -744,19 +753,29 @@ pc_rotate <- function(X) {
 # containing package, palette and length.
 # continuous palettes are considered to have an infinite length
 paletteer_everything <- function() {
-  all_packages <- c(paletteer::palettes_c_names$package,
-                    paletteer::palettes_d_names$package,
-                    paletteer::palettes_dynamic_names$package)
-  all_palettes <- c(paletteer::palettes_c_names$palette,
-                    paletteer::palettes_d_names$palette,
-                    paletteer::palettes_dynamic_names$name)
-  all_lengths <- c(rep(Inf, nrow(paletteer::palettes_c_names)),
-                       paletteer::palettes_d_names$length,
-                       paletteer::palettes_dynamic_names$length)
-  all_types <- c(rep("c", nrow(paletteer::palettes_c_names)),
-                 rep("d", nrow(paletteer::palettes_d_names)),
-                 rep("dynamic", nrow(paletteer::palettes_dynamic_names)))
+  all_packages <- c(
+    paletteer::palettes_c_names$package,
+    paletteer::palettes_d_names$package,
+    paletteer::palettes_dynamic_names$package
+  )
+  all_palettes <- c(
+    paletteer::palettes_c_names$palette,
+    paletteer::palettes_d_names$palette,
+    paletteer::palettes_dynamic_names$name
+  )
+  all_lengths <- c(
+    rep(Inf, nrow(paletteer::palettes_c_names)),
+    paletteer::palettes_d_names$length,
+    paletteer::palettes_dynamic_names$length
+  )
+  all_types <- c(
+    rep("c", nrow(paletteer::palettes_c_names)),
+    rep("d", nrow(paletteer::palettes_d_names)),
+    rep("dynamic", nrow(paletteer::palettes_dynamic_names))
+  )
 
-  data.frame(package = all_packages, palette = all_palettes,
-             length = all_lengths, type = all_types)
+  data.frame(
+    package = all_packages, palette = all_palettes,
+    length = all_lengths, type = all_types
+  )
 }
