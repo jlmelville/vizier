@@ -193,27 +193,29 @@ embed_plot <- function(coords, x = NULL, colors = NULL,
 #' }
 #'
 #' @param coords Matrix of embedded coordinates, with as many rows as
-#'  observations, and 2 columns.
+#'   observations, and 2 columns.
 #' @param x Either a data frame or a column that can be used to derive a
-#'  suitable vector of colors. Ignored if \code{colors} is provided.
+#'   suitable vector of colors. Ignored if \code{colors} is provided.
 #' @param colors Vector containing colors for each coordinate.
 #' @param color_scheme A color scheme. See 'Details'. Ignored if \code{colors}
-#'  is specified.
+#'   is specified.
 #' @param cex Size of the points. Ignored if \code{text} is provided.
 #' @param text Vector of label text to display instead of a point. If the labels
-#'  are long or the data set is large, this is unlikely to be very legible, but
-#'  is occasionally useful.
+#'   are long or the data set is large, this is unlikely to be very legible, but
+#'   is occasionally useful.
 #' @param tooltip Vector of tooltip text, to be displayed when a point is
-#'  hovered over.
+#'   hovered over.
 #' @param title Title for the plot.
 #' @param show_legend If \code{TRUE}, display a legend. Ignored unless a
-#' suitable categorical value is provided as \code{x} (or one can be found).
+#'   suitable categorical value is provided as \code{x} (or one can be found).
 #' @param equal_axes If \code{TRUE}, the X and Y axes are set to have the
-#'  same extents.
+#'   same extents.
 #' @param pc_axes If \code{TRUE}, the \code{coords} are replaced by the
-#' first two (unscaled) principal components, which should have the effect of
-#' rotating the data (with a potential reflection) so the main variance aligns
-#' along the X-axis. Should not have any other scaling effect.
+#'   first two (unscaled) principal components, which should have the effect of
+#'   rotating the data (with a potential reflection) so the main variance aligns
+#'   along the X-axis. Should not have any other scaling effect.
+#' @param verbose If \code{TRUE}, log messages to the console, mainly when
+#'   searching for a suitable color column in a dataframe.
 #'
 #' More information on plotly is available at its website,
 #' \url{https://plot.ly}.
@@ -263,7 +265,8 @@ embed_plotly <- function(coords, x = NULL, colors = NULL,
                          color_scheme = grDevices::rainbow,
                          title = NULL, show_legend = TRUE,
                          cex = 1, text = NULL, tooltip = NULL,
-                         equal_axes = FALSE, pc_axes = FALSE) {
+                         equal_axes = FALSE, pc_axes = FALSE,
+                         verbose = FALSE) {
   if (methods::is(coords, "list") && !is.null(coords$coords)) {
     coords <- coords$coords
   }
@@ -299,7 +302,7 @@ embed_plotly <- function(coords, x = NULL, colors = NULL,
       else {
         res <- color_helper(x,
           color_scheme = color_scheme,
-          ret_labels = TRUE
+          ret_labels = TRUE, verbose = verbose
         )
         colors <- res$colors
         if (!is.null(res$labels)) {
@@ -313,7 +316,8 @@ embed_plotly <- function(coords, x = NULL, colors = NULL,
     else {
       colors <- make_palette(
         ncolors = nrow(coords),
-        color_scheme = color_scheme
+        color_scheme = color_scheme,
+        verbose = verbose
       )
       labels <- colors
       show_legend <- FALSE

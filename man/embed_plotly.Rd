@@ -7,7 +7,7 @@
 embed_plotly(coords, x = NULL, colors = NULL,
   color_scheme = grDevices::rainbow, title = NULL,
   show_legend = TRUE, cex = 1, text = NULL, tooltip = NULL,
-  equal_axes = FALSE, pc_axes = FALSE)
+  equal_axes = FALSE, pc_axes = FALSE, verbose = FALSE)
 }
 \arguments{
 \item{coords}{Matrix of embedded coordinates, with as many rows as
@@ -41,7 +41,10 @@ same extents.}
 \item{pc_axes}{If \code{TRUE}, the \code{coords} are replaced by the
 first two (unscaled) principal components, which should have the effect of
 rotating the data (with a potential reflection) so the main variance aligns
-along the X-axis. Should not have any other scaling effect.
+along the X-axis. Should not have any other scaling effect.}
+
+\item{verbose}{If \code{TRUE}, log messages to the console, mainly when
+  searching for a suitable color column in a dataframe.
 
 More information on plotly is available at its website,
 \url{https://plot.ly}.}
