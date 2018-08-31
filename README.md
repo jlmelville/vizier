@@ -58,6 +58,12 @@ embed_plot(pca_iris$x, iris$Species, color_scheme = rainbow, title = "iris PCA",
 ![Embed plot with a title](img/embed_ex_title.png "embed_plot(pca_iris$x, iris$Species, color_scheme = rainbow, title = \"iris PCA\")")
 
 ```R
+# Increase the transparency of the fill color by scaling the alpha by 0.5
+embed_plot(pca_iris$x, iris$Species, color_scheme = rainbow, alpha_scale = 0.5)
+```
+![Embed plot with transparency](img/embed_ex_alpha.png "embed_plot(pca_iris$x, iris$Species, color_scheme = rainbow, alpha_scale = 0.5)")
+
+```R
 # topo.colors scheme
 embed_plot(pca_iris$x, iris$Species, color_scheme = topo.colors)
 ```

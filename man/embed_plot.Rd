@@ -5,9 +5,10 @@
 \title{Embedding Plot}
 \usage{
 embed_plot(coords, x = NULL, colors = NULL,
-  color_scheme = grDevices::rainbow, num_colors = 15, limits = NULL,
-  top = NULL, cex = 1, title = NULL, text = NULL, sub = NULL,
-  equal_axes = FALSE, pc_axes = FALSE, verbose = FALSE)
+  color_scheme = grDevices::rainbow, num_colors = 15,
+  alpha_scale = 1, limits = NULL, top = NULL, cex = 1,
+  title = NULL, text = NULL, sub = NULL, equal_axes = FALSE,
+  pc_axes = FALSE, verbose = FALSE)
 }
 \arguments{
 \item{coords}{Matrix of embedded coordinates, with as many rows as
@@ -23,6 +24,10 @@ is specified.}
 
 \item{num_colors}{Number of unique colors to map to from \code{x}, if
 \code{x} is a numeric vector. Otherwise ignored.}
+
+\item{alpha_scale}{Scale the opacity alpha of the colors, between 0 and 1.
+Useful for increasing the transparency of points, especially with large
+plots with lots of overlap.}
 
 \item{limits}{The range that the colors should map over when mapping from a
 numeric vector. If not specified, then the range of \code{x}. This is useful

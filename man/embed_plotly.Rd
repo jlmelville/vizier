@@ -5,7 +5,7 @@
 \title{Embedding Plot Using the JavaScript Library Plotly}
 \usage{
 embed_plotly(coords, x = NULL, colors = NULL,
-  color_scheme = grDevices::rainbow, title = NULL,
+  color_scheme = grDevices::rainbow, alpha_scale = 1, title = NULL,
   show_legend = TRUE, cex = 1, text = NULL, tooltip = NULL,
   equal_axes = FALSE, pc_axes = FALSE, verbose = FALSE)
 }
@@ -20,6 +20,10 @@ suitable vector of colors. Ignored if \code{colors} is provided.}
 
 \item{color_scheme}{A color scheme. See 'Details'. Ignored if \code{colors}
 is specified.}
+
+\item{alpha_scale}{Scale the opacity alpha of the colors, between 0 and 1.
+Useful for increasing the transparency of points, especially with large
+plots with lots of overlap.}
 
 \item{title}{Title for the plot.}
 

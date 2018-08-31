@@ -42,6 +42,9 @@
 #' @param colors Vector containing colors for each coordinate.
 #' @param color_scheme A color scheme. See 'Details'. Ignored if \code{colors}
 #'  is specified.
+#' @param alpha_scale Scale the opacity alpha of the colors, between 0 and 1.
+#'   Useful for increasing the transparency of points, especially with large
+#'   plots with lots of overlap.
 #' @param num_colors Number of unique colors to map to from \code{x}, if
 #'  \code{x} is a numeric vector. Otherwise ignored.
 #' @param limits The range that the colors should map over when mapping from a
@@ -100,7 +103,8 @@
 #'            equal_axes = TRUE)
 embed_plot <- function(coords, x = NULL, colors = NULL,
                        color_scheme = grDevices::rainbow,
-                       num_colors = 15, limits = NULL, top = NULL,
+                       num_colors = 15, alpha_scale = 1,
+                       limits = NULL, top = NULL,
                        cex = 1, title = NULL, text = NULL, sub = NULL,
                        equal_axes = FALSE, pc_axes = FALSE, verbose = FALSE) {
   if (methods::is(coords, "list") && !is.null(coords$coords)) {
@@ -123,6 +127,8 @@ embed_plot <- function(coords, x = NULL, colors = NULL,
       )
     }
   }
+  colors <- grDevices::adjustcolor(colors, alpha.f = alpha_scale)
+
 
   if (pc_axes) {
     coords <- pc_rotate(coords)
@@ -199,6 +205,9 @@ embed_plot <- function(coords, x = NULL, colors = NULL,
 #' @param colors Vector containing colors for each coordinate.
 #' @param color_scheme A color scheme. See 'Details'. Ignored if \code{colors}
 #'   is specified.
+#' @param alpha_scale Scale the opacity alpha of the colors, between 0 and 1.
+#'   Useful for increasing the transparency of points, especially with large
+#'   plots with lots of overlap.
 #' @param cex Size of the points. Ignored if \code{text} is provided.
 #' @param text Vector of label text to display instead of a point. If the labels
 #'   are long or the data set is large, this is unlikely to be very legible, but
@@ -263,6 +272,7 @@ embed_plot <- function(coords, x = NULL, colors = NULL,
 #' }
 embed_plotly <- function(coords, x = NULL, colors = NULL,
                          color_scheme = grDevices::rainbow,
+                         alpha_scale = 1,
                          title = NULL, show_legend = TRUE,
                          cex = 1, text = NULL, tooltip = NULL,
                          equal_axes = FALSE, pc_axes = FALSE,
@@ -323,6 +333,7 @@ embed_plotly <- function(coords, x = NULL, colors = NULL,
       show_legend <- FALSE
     }
   }
+  colors <- grDevices::adjustcolor(colors, alpha.f = alpha_scale)
 
   if (pc_axes) {
     coords <- pc_rotate(coords)
