@@ -4,8 +4,8 @@ An R Package for Visualization of 2D Datasets.
 
 **August 10 2018**: The license for this package has changed from 
 [MIT](https://opensource.org/licenses/MIT) to 
-[GPL-3](https://www.gnu.org/licenses/gpl-3.0.en.html). The last MIT-licensed
-release is [here](https://github.com/jlmelville/vizier/releases/tag/0.0.0.9000).
+[GPL-3](https://www.gnu.org/licenses/gpl-3.0.en.html). 
+[The last MIT-licensed release is here](https://github.com/jlmelville/vizier/releases/tag/0.0.0.9000).
 
 Visualizing datasets in 2D (e.g. via PCA, Sammon Mapping, t-SNE) is much more
 informative if the points are colored, using something like:
