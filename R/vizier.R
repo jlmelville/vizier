@@ -114,9 +114,9 @@ embed_plot <- function(coords, x = NULL, colors = NULL,
   if (is.null(colors)) {
     if (!is.null(x)) {
       colors <- color_helper(x,
-        color_scheme = color_scheme,
-        num_colors = num_colors, limits = limits,
-        top = top, verbose = verbose
+                             color_scheme = color_scheme,
+                             num_colors = num_colors, limits = limits,
+                             top = top, verbose = verbose
       )$colors
     }
     else {
@@ -141,16 +141,16 @@ embed_plot <- function(coords, x = NULL, colors = NULL,
 
   if (!is.null(text)) {
     graphics::plot(coords,
-      type = "n", xlim = lims, ylim = lims,
-      xlab = "X", ylab = "Y", main = title
+                   type = "n", xlim = lims, ylim = lims,
+                   xlab = "X", ylab = "Y", main = title
     )
     graphics::text(coords, labels = text, cex = cex, col = colors)
   }
   else {
     graphics::plot(coords,
-      pch = 20, cex = cex, col = colors,
-      xlim = lims, ylim = lims, xlab = "X", ylab = "Y",
-      main = title
+                   pch = 20, cex = cex, col = colors,
+                   xlim = lims, ylim = lims, xlab = "X", ylab = "Y",
+                   main = title
     )
   }
   if (!is.null(sub)) {
@@ -205,6 +205,8 @@ embed_plot <- function(coords, x = NULL, colors = NULL,
 #' @param colors Vector containing colors for each coordinate.
 #' @param color_scheme A color scheme. See 'Details'. Ignored if \code{colors}
 #'   is specified.
+#' @param num_colors Number of unique colors to map to from \code{x}, if
+#'  \code{x} is a numeric vector. Otherwise ignored.
 #' @param alpha_scale Scale the opacity alpha of the colors, between 0 and 1.
 #'   Useful for increasing the transparency of points, especially with large
 #'   plots with lots of overlap.
@@ -272,7 +274,7 @@ embed_plot <- function(coords, x = NULL, colors = NULL,
 #' }
 embed_plotly <- function(coords, x = NULL, colors = NULL,
                          color_scheme = grDevices::rainbow,
-                         alpha_scale = 1,
+                         num_colors = 15, alpha_scale = 1,
                          title = NULL, show_legend = TRUE,
                          cex = 1, text = NULL, tooltip = NULL,
                          equal_axes = FALSE, pc_axes = FALSE,
@@ -301,18 +303,18 @@ embed_plotly <- function(coords, x = NULL, colors = NULL,
       if (methods::is(x, "numeric")) {
         labels <- x
         if (methods::is(color_scheme, "character")) {
-          colors <- color_scheme
+          colors <- make_palette(ncolors = num_colors, color_scheme = color_scheme)
         }
         else {
-          colors <- color_scheme(length(x))
+          colors <- color_scheme(max(1, num_colors - 1))
         }
         mode <- "markers"
         marker <- list(size = cex * 6)
       }
       else {
         res <- color_helper(x,
-          color_scheme = color_scheme,
-          ret_labels = TRUE, verbose = verbose
+                            color_scheme = color_scheme,
+                            ret_labels = TRUE, verbose = verbose
         )
         colors <- res$colors
         if (!is.null(res$labels)) {
@@ -333,6 +335,7 @@ embed_plotly <- function(coords, x = NULL, colors = NULL,
       show_legend <- FALSE
     }
   }
+
   colors <- grDevices::adjustcolor(colors, alpha.f = alpha_scale)
 
   if (pc_axes) {
@@ -353,10 +356,9 @@ embed_plotly <- function(coords, x = NULL, colors = NULL,
 
   # prepend "<index>: " to tooltips to identify point in dataframe
   text <- paste0(as.character(seq_len(length(text))), ": ", text)
-
   p <- plotly::plot_ly(
     x = coords[, 1], y = coords[, 2],
-    color = labels,
+    color = ~labels,
     colors = colors,
     type = "scatter", mode = mode,
     text = text,
@@ -364,19 +366,25 @@ embed_plotly <- function(coords, x = NULL, colors = NULL,
   )
   p <-
     plotly::layout(p,
-      title = title,
-      xaxis = list(
-        title = "X",
-        zeroline = FALSE, showline = TRUE, showgrid = FALSE,
-        range = lims * 1.15
-      ),
-      yaxis = list(
-        title = "Y",
-        zeroline = FALSE, showline = TRUE, showgrid = FALSE,
-        range = lims
-      ),
-      showlegend = show_legend
+                   title = title,
+                   xaxis = list(
+                     title = "X",
+                     zeroline = FALSE, showline = TRUE, showgrid = FALSE,
+                     range = lims * 1.15
+                   ),
+                   yaxis = list(
+                     title = "Y",
+                     zeroline = FALSE, showline = TRUE, showgrid = FALSE,
+                     range = lims
+                   ),
+                   showlegend = show_legend
     )
+  if (show_legend && methods::is(x, "numeric")) {
+    p <- plotly::colorbar(p, title = "")
+  }
+  else {
+    p <- plotly::hide_colorbar(p)
+  }
   p
 }
 
@@ -397,9 +405,9 @@ color_helper <- function(x,
                          verbose = FALSE) {
   if (methods::is(x, "data.frame")) {
     res <- color_helper_df(x,
-      color_scheme = color_scheme,
-      ret_labels = ret_labels,
-      verbose = verbose
+                           color_scheme = color_scheme,
+                           ret_labels = ret_labels,
+                           verbose = verbose
     )
     if (!ret_labels) {
       res <- list(colors = res, labels = NULL)
@@ -414,9 +422,9 @@ color_helper <- function(x,
     }
     res <- list(
       colors = color_helper_column(x,
-        color_scheme = color_scheme,
-        num_colors = num_colors, limits = limits, top = top,
-        verbose = verbose
+                                   color_scheme = color_scheme,
+                                   num_colors = num_colors, limits = limits, top = top,
+                                   verbose = verbose
       ),
       labels = labels
     )
@@ -462,8 +470,8 @@ color_helper_df <- function(df,
       }
       labels <- df[[label_name]]
       colors <- factor_to_colors(labels,
-        color_scheme = color_scheme,
-        verbose = verbose
+                                 color_scheme = color_scheme,
+                                 verbose = verbose
       )
     }
   }
@@ -512,8 +520,8 @@ color_helper_column <- function(x,
   # Is it numeric - map to palette (which should be sequential or diverging)
   if (is.numeric(x)) {
     colors <- numeric_to_colors(x,
-      color_scheme = color_scheme,
-      n = num_colors, limits = limits
+                                color_scheme = color_scheme,
+                                n = num_colors, limits = limits
     )
     if (!is.null(top)) {
       svec <- sort(x, decreasing = TRUE)
@@ -595,7 +603,7 @@ numeric_to_colors <- function(x, color_scheme = "RColorBrewer::Blues", n = 15,
   }
   pal <- make_palette(ncolors = n, color_scheme = color_scheme)
   pal[findInterval(x, seq(limits[1], limits[2], length.out = length(pal) + 1),
-    all.inside = TRUE
+                   all.inside = TRUE
   )]
 }
 
@@ -657,9 +665,9 @@ make_palette_function <- function(name, verbose = FALSE) {
   }
 
   pal_fn <- switch(as.character(pal$type),
-    "c" = paletteer::paletteer_c,
-    "d" = paletteer::paletteer_d,
-    "dynamic" = paletteer::paletteer_dynamic
+                   "c" = paletteer::paletteer_c,
+                   "d" = paletteer::paletteer_d,
+                   "dynamic" = paletteer::paletteer_dynamic
   )
   max_colors <- pal$length
   function(n) {
@@ -734,7 +742,7 @@ filter_column_names <- function(df, pred) {
 is_color <- function(x) {
   vapply(x, function(X) {
     tryCatch(is.matrix(grDevices::col2rgb(X)),
-      error = function(e) FALSE
+             error = function(e) FALSE
     )
   }, logical(1))
 }

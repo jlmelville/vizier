@@ -5,9 +5,10 @@
 \title{Embedding Plot Using the JavaScript Library Plotly}
 \usage{
 embed_plotly(coords, x = NULL, colors = NULL,
-  color_scheme = grDevices::rainbow, alpha_scale = 1, title = NULL,
-  show_legend = TRUE, cex = 1, text = NULL, tooltip = NULL,
-  equal_axes = FALSE, pc_axes = FALSE, verbose = FALSE)
+  color_scheme = grDevices::rainbow, num_colors = 15,
+  alpha_scale = 1, title = NULL, show_legend = TRUE, cex = 1,
+  text = NULL, tooltip = NULL, equal_axes = FALSE, pc_axes = FALSE,
+  verbose = FALSE)
 }
 \arguments{
 \item{coords}{Matrix of embedded coordinates, with as many rows as
@@ -20,6 +21,9 @@ suitable vector of colors. Ignored if \code{colors} is provided.}
 
 \item{color_scheme}{A color scheme. See 'Details'. Ignored if \code{colors}
 is specified.}
+
+\item{num_colors}{Number of unique colors to map to from \code{x}, if
+\code{x} is a numeric vector. Otherwise ignored.}
 
 \item{alpha_scale}{Scale the opacity alpha of the colors, between 0 and 1.
 Useful for increasing the transparency of points, especially with large
