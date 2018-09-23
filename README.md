@@ -86,7 +86,7 @@ embed_plot(pca_iris$x, iris$Species, cex = 0.75, text = iris$Species)
 
 ![Embed plot with text labels](img/embed_ex_text.png "embed_plot(pca_iris$x, iris$Species, cex = 0.75, text = iris$Species)")
 
-For more color schemes, Vizier makes use of the wonderful 
+For more color schemes, Vizier makes use of the excellent 
 [paletteer](https://cran.r-project.org/package=paletteer) package. 
 You can select one of the palettes on offer by (among other ways) passing a 
 string with the format`"package::palette"`. For example, to use the `Dark2`
