@@ -117,7 +117,7 @@ embed_plot(pca_iris$x, iris$Petal.Length, color_scheme = "RColorBrewer::Blues", 
 
 If you install the [plotly](https://cran.r-project.org/package=plotly) package,
 you can use the `embed_plotly` function which has the same interface as 
-`embed_plot` (except the `top` parameter is missing). This has the advantage
+`embed_plot` (except the `top` and `sub` parameters are missing). This has the advantage
 of showing a legend and tooltips:
 
 ```R
