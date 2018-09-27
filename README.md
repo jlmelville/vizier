@@ -170,7 +170,7 @@ fine. For example, here is the `Dark2` palette from `RColorBrewer`:
 
 If you use this palette to color the iris PCA:
 
-![iris PCA with Dark2 color scheme](img/embed_dark2.png "embed_plot(pca_iris$x, iris, color_scheme = "RColorBrewer::Dark2", cex = 2, title = \"RColorBrewer Dark2\")")
+![iris PCA with Dark2 color scheme](img/embed_dark2.png "embed_plot(pca_iris$x, iris, color_scheme = \"RColorBrewer::Dark2\", cex = 2, title = \"RColorBrewer Dark2\")")
 
 The three colors from the lefthand side of the swatch are used to color the 
 species.
@@ -182,13 +182,13 @@ red to blue via yellow. Here's `rainbow` from the `jcolors` package:
 
 The PCA embedding now looks like:
 
-![iris PCA with rainbow color scheme](img/embed_jcrainbow.png "embed_plot(pca_iris$x, iris, color_scheme = "jcolors::rainbow", cex = 2, title = \"jcolors rainbow\")")
+![iris PCA with rainbow color scheme](img/embed_jcrainbow.png "embed_plot(pca_iris$x, iris, color_scheme = \"jcolors::rainbow\", cex = 2, title = \"jcolors rainbow\")")
 
 If you would prefer to use a fuller extent of the palette, you can treat the
 palette as continuous, by appending `::c` to the name of the color scheme, 
-e.g. '"jcolors::rainbow::c". Now the result is:
+e.g. `"jcolors::rainbow::c"`. Now the result is:
 
-![iris PCA with continuous rainbow color scheme](img/embed_jcrainbowc.png "embed_plot(pca_iris$x, iris, color_scheme = "jcolors::rainbow::c", cex = 2, title = \"jcolors rainbow (continuous)\")")
+![iris PCA with continuous rainbow color scheme](img/embed_jcrainbowc.png "embed_plot(pca_iris$x, iris, color_scheme = \"jcolors::rainbow::c\", cex = 2, title = \"jcolors rainbow (continuous)\")")
 
 where the colors come from the left-most, right-most and center positions on
 the swatch.
@@ -202,7 +202,7 @@ However, for palettes like `RColorBrewer::Dark2`, interpolation may not turn out
 so well. The iris PCA with the "continuous" version of Dark2, i.e. specifying 
 `RColorBrewer::Dark2::c` results in:
 
-![iris PCA with continuous Dark2 color scheme](img/embed_dark2c.png "embed_plot(pca_iris$x, iris, color_scheme = "RColorBrewer::Dark2::c", cex = 2, title = \"RColorBrewer Dark2 (continuous)\")")
+![iris PCA with continuous Dark2 color scheme](img/embed_dark2c.png "embed_plot(pca_iris$x, iris, color_scheme = \"RColorBrewer::Dark2::c\", cex = 2, title = \"RColorBrewer Dark2 (continuous)\")")
 
 The left cluster uses the green from the left-hand of the Dark2 swatch, and the
 right cluster is colored in the gray color from the right-hand side. But the
