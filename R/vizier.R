@@ -312,7 +312,8 @@ embed_plotly <- function(coords, x = NULL, colors = NULL,
       if (methods::is(x, "numeric")) {
         labels <- x
         if (methods::is(color_scheme, "character")) {
-          colors <- make_palette(ncolors = num_colors, color_scheme = color_scheme)
+          colors <- make_palette(ncolors = num_colors,
+                                 color_scheme = color_scheme)
         }
         else {
           colors <- color_scheme(max(1, num_colors - 1))
@@ -429,28 +430,13 @@ color_helper <- function(x,
                          num_colors = 15, limits = NULL, top = NULL,
                          verbose = FALSE) {
   if (methods::is(x, "data.frame")) {
-    res <- color_helper_df(x, color_scheme = color_scheme, verbose = verbose)
+    res <- color_helper_df(x, color_scheme = color_scheme,
+                           verbose = verbose)
   }
   else {
     res <- color_helper_column(x, color_scheme = color_scheme,
                                num_colors = num_colors, limits = limits,
                                top = top, verbose = verbose)
-    #
-    #
-    # labels <- NULL
-    # if (methods::is(x, "factor")) {
-    #   labels <- x
-    # }
-    #
-    #
-    # res <- list(
-    #   colors = color_helper_column(x,
-    #                                color_scheme = color_scheme,
-    #                                num_colors = num_colors, limits = limits, top = top,
-    #                                verbose = verbose
-    #   ),
-    #   labels = labels
-    # )
   }
   res
 }
@@ -493,8 +479,8 @@ color_helper_df <- function(df,
     }
     labels <- df[[label_name]]
     palette <- factor_to_palette(labels,
-                               color_scheme = color_scheme,
-                               verbose = verbose)
+                                 color_scheme = color_scheme,
+                                 verbose = verbose)
     return(list(labels = labels, palette = palette))
   }
 
@@ -507,8 +493,8 @@ color_helper_df <- function(df,
     }
     labels <- df[[label_name]]
     colors <- factor_to_palette(as.factor(labels),
-                               color_scheme = color_scheme,
-                               verbose = verbose)
+                                color_scheme = color_scheme,
+                                verbose = verbose)
     return(list(labels = labels, palette = palette))
   }
 
@@ -529,7 +515,7 @@ color_helper_column <- function(x,
     return(list(colors = x))
   }
 
-  # Is it numeric - map to palette (which should be sequential or diverging)
+  # Is it numeric - map to continuous palette
   if (is.numeric(x)) {
     colors <- numeric_to_colors(x,
                                 color_scheme = color_scheme,
@@ -547,7 +533,6 @@ color_helper_column <- function(x,
     palette <- factor_to_palette(x, color_scheme = color_scheme,
                                  verbose = verbose)
     return(list(labels = x, palette = palette))
-    # return(factor_to_colors(x, color_scheme = color_scheme))
   }
 
   # Probably a column of characters, can they be treated as a factor?
@@ -570,7 +555,7 @@ color_helper_column <- function(x,
 # factor_to_colors(iris$Species, color_scheme = rainbow)
 factor_to_colors <- function(x, color_scheme = grDevices::rainbow,
                              verbose = FALSE) {
-  factor_to_palette(x, color_scheme, verbose)[x]
+  factor_to_palette(x, color_scheme, verbose = verbose)[x]
 }
 
 # Map a vector of factor levels, x, to a palette based on the specified
@@ -617,8 +602,11 @@ factor_to_palette <- function(x, color_scheme = grDevices::rainbow,
 # plot(iris[, c("Sepal.Length", "Sepal.Width")], cex = 1.5, pch = 20,
 #  col = numeric_to_colors(iris$Petal.Length, color_scheme = rainbow, n = 20))
 # }
-numeric_to_colors <- function(x, color_scheme = "RColorBrewer::Blues", n = 15,
+numeric_to_colors <- function(x, color_scheme = "RColorBrewer::Blues", n = NULL,
                               limits = NULL) {
+  if (is.null(n)) {
+    n <- length(x)
+  }
   if (is.null(limits)) {
     limits <- range(x)
   }
@@ -649,6 +637,7 @@ make_palette <- function(ncolors, color_scheme = grDevices::rainbow,
 # based on either an existing palette or a named color scheme, interpolating
 # if necessary.
 make_palette_function <- function(name, verbose = FALSE) {
+  type <- NULL
   if (length(name) > 1) {
     # Actually this is already a palette
     f <- function(n) {
@@ -661,14 +650,20 @@ make_palette_function <- function(name, verbose = FALSE) {
   }
   else {
     split_res <- unlist(strsplit(name, "::"))
-    if (length(split_res) != 2) {
+    if (length(split_res) < 2 || length(split_res) > 3) {
       stop(
         "Bad palette name '", name, "'. ",
-        "Should be in format: <package>::<palette>"
+        "Should be in format: <package>::<palette>[::<d|c>]"
       )
     }
     package_name <- split_res[1]
     palette_name <- split_res[2]
+    if (length(split_res) == 3) {
+      type <- tolower(split_res[3])
+      if (!type %in% c("c", "d")) {
+        stop("Discrete palette type must be one 'd' or 'c'")
+      }
+    }
   }
 
   pal_df <- paletteer_everything()
@@ -687,22 +682,24 @@ make_palette_function <- function(name, verbose = FALSE) {
 
   pal_fn <- switch(as.character(pal$type),
                    "c" = paletteer::paletteer_c,
-                   "d" = paletteer::paletteer_d,
+                   "d" = function(package, palette, n) {
+                     forceAndCall(4, paletteer::paletteer_d,
+                                  package, palette, n, type = type)
+                   },
                    "dynamic" = paletteer::paletteer_dynamic
   )
   max_colors <- pal$length
   function(n) {
-    if (n <= max_colors) {
-      forceAndCall(3, pal_fn, package_name, palette_name, n)
-    }
-    else {
+    ncols <- n
+    if (n > max_colors) {
       if (verbose) {
-        message("Interpolating palette for ", n, " colors")
+        message("Interpolating palette for ", n, " colors from ", max_colors)
       }
-      grDevices::colorRampPalette(
-        forceAndCall(3, pal_fn, package_name, palette_name, max_colors)
-      )(n)
+      ncols <- max_colors
     }
+    grDevices::colorRampPalette(
+      forceAndCall(3, pal_fn, package_name, palette_name, ncols)
+    )(n)
   }
 }
 
@@ -789,7 +786,7 @@ pc_rotate <- function(X) {
   s$u %*% diag(c(s$d[1:2]))
 }
 
-# Stuff all paletter name data frames into one uniform frame
+# Stuff all paletteer name data frames into one uniform frame
 # containing package, palette and length.
 # continuous palettes are considered to have an infinite length
 paletteer_everything <- function() {
