@@ -45,8 +45,10 @@
 #' @param alpha_scale Scale the opacity alpha of the colors, between 0 and 1.
 #'   Useful for increasing the transparency of points, especially with large
 #'   plots with lots of overlap.
-#' @param num_colors Number of unique colors to map to from \code{x}, if
-#'  \code{x} is a numeric vector. Otherwise ignored.
+#' @param num_colors Number of distinct colors to use in the palette, when
+#'   \code{x} is a numeric vector, on the assumption that the palette is
+#'   continuous (which it probably should be). Ignored if \code{x} is not a
+#'   numeric vector. If set to \code{NULL}, it will be set to \code{length(x)}.
 #' @param limits The range that the colors should map over when mapping from a
 #'  numeric vector. If not specified, then the range of \code{x}. This is useful
 #'  if there is some external absolute scale that should be used. Ignored if
@@ -209,8 +211,10 @@ embed_plot <- function(coords, x = NULL, colors = NULL,
 #' @param colors Vector containing colors for each coordinate.
 #' @param color_scheme A color scheme. See 'Details'. Ignored if \code{colors}
 #'   is specified.
-#' @param num_colors Number of unique colors to map to from \code{x}, if
-#'  \code{x} is a numeric vector. Otherwise ignored.
+#' @param num_colors Number of distinct colors to use in the palette, when
+#'   \code{x} is a numeric vector, on the assumption that the palette is
+#'   continuous (which it probably should be). Ignored if \code{x} is not a
+#'   numeric vector. If set to \code{NULL}, it will be set to \code{length(x)}.
 #' @param alpha_scale Scale the opacity alpha of the colors, between 0 and 1.
 #'   Useful for increasing the transparency of points, especially with large
 #'   plots with lots of overlap.
