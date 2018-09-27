@@ -2,10 +2,9 @@
 
 An R Package for Visualization of 2D Datasets.
 
-**August 10 2018**: The license for this package has changed from 
-[MIT](https://opensource.org/licenses/MIT) to 
-[GPL-3](https://www.gnu.org/licenses/gpl-3.0.en.html). 
-[The last MIT-licensed release is here](https://github.com/jlmelville/vizier/releases/tag/0.0.0.9000).
+**September 27 2018**: Color schemes with `embed_plotly` was badly messed up.
+This now fixed. You now also have control over whether to interpolate a discrete
+palette.
 
 Visualizing datasets in 2D (e.g. via PCA, Sammon Mapping, t-SNE) is much more
 informative if the points are colored, using something like:
@@ -160,6 +159,59 @@ to results where different categories are hard to distinguish from each other.
 If you set `verbose = TRUE`, then if interpolation is required, a message will 
 be logged to console to this effect. `paletteer` has information on the number
 of colors available in each palette.
+
+### Discrete Palettes with `continuous` Type
+
+For discrete palettes, if you ask for fewer colors than the full range, you will
+only get the first few colors from the palette. For some palettes this works 
+fine. For example, here is the `Dark2` palette from `RColorBrewer`:
+
+![RColorBrewer Dark2 swatch](img/dark2_swatch.png "swatches::show_palette(paletteer::paletteer_d(\"RColorBrewer\", \"Dark2\"))")
+
+If you use this palette to color the iris PCA:
+
+![iris PCA with Dark2 color scheme](img/embed_dark2.png "embed_plot(pca_iris$x, iris, color_scheme = "RColorBrewer::Dark2", cex = 2, title = \"RColorBrewer Dark2\")")
+
+The three colors from the lefthand side of the swatch are used to color the 
+species.
+
+However, some discrete palettes have an ordering to them, e.g. they go to from
+red to blue via yellow. Here's `rainbow` from the `jcolors` package:
+
+![jcolors rainbow](img/rainbow_swatch.png "swatches::show_palette(paletteer::paletteer_d(\"jcolors\", \"rainbow\"))")
+
+The PCA embedding now looks like:
+
+![iris PCA with rainbow color scheme](img/embed_jcrainbow.png "embed_plot(pca_iris$x, iris, color_scheme = "jcolors::rainbow", cex = 2, title = \"jcolors rainbow\")")
+
+If you would prefer to use a fuller extent of the palette, you can treat the
+palette as continuous, by appending `::c` to the name of the color scheme, 
+e.g. '"jcolors::rainbow::c". Now the result is:
+
+![iris PCA with continuous rainbow color scheme](img/embed_jcrainbowc.png "embed_plot(pca_iris$x, iris, color_scheme = "jcolors::rainbow::c", cex = 2, title = \"jcolors rainbow (continuous)\")")
+
+where the colors come from the left-most, right-most and center positions on
+the swatch.
+
+The downside to treating these palettes as continuous is that there is no 
+guarantee that the interpolation will result in colors that actually come from
+the palette. In fact, they probably won't. We just got lucky in the above
+example, because interpolating between colors was not required. For colors which
+show a natural progression like `jcolors::rainbow`, results should still be ok.
+However, for palettes like `RColorBrewer::Dark2`, interpolation may not turn out
+so well. The iris PCA with the "continuous" version of Dark2, i.e. specifying 
+`RColorBrewer::Dark2::c` results in:
+
+![iris PCA with continuous Dark2 color scheme](img/embed_dark2c.png "embed_plot(pca_iris$x, iris, color_scheme = "RColorBrewer::Dark2::c", cex = 2, title = \"RColorBrewer Dark2 (continuous)\")")
+
+The left cluster uses the green from the left-hand of the Dark2 swatch, and the
+right cluster is colored in the gray color from the right-hand side. But the
+middle cluster isn't any of the other colors and mixes rather murkily with the
+gray cluster. It doesn't make sense to use interpolation in this case.
+
+In summary, avoid interpolation of discrete color schemes if you can, but 
+definitely do so for those like `RColorBrewer::Dark2` which don't work on a
+color scale.
 
 ## License
 
