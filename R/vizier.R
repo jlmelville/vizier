@@ -798,7 +798,7 @@ paletteer_everything <- function() {
   all_palettes <- c(
     paletteer::palettes_c_names$palette,
     paletteer::palettes_d_names$palette,
-    paletteer::palettes_dynamic_names$name
+    paletteer::palettes_dynamic_names$palette
   )
   all_lengths <- c(
     rep(Inf, nrow(paletteer::palettes_c_names)),
