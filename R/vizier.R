@@ -68,6 +68,10 @@
 #'   two (unscaled) principal components, which should have the effect of
 #'   rotating the data (with a potential reflection) so the main variance aligns
 #'   along the X-axis. Should not have any other scaling effect.
+#' @param xlim Vector two numeric value to give the numeric extent of the
+#'   X-axis. Ignored if \code{equal_axes = TRUE} or \code{pc_axes = TRUE}.
+#' @param ylim Vector two numeric value to give the numeric extent of the
+#'   Y-axis. Ignored if \code{equal_axes = TRUE} or \code{pc_axes = TRUE}.
 #' @param verbose If \code{TRUE}, log messages to the console, mainly when
 #'   searching for a suitable color column in a dataframe.
 #' @export
@@ -108,7 +112,8 @@ embed_plot <- function(coords, x = NULL, colors = NULL,
                        num_colors = 15, alpha_scale = 1,
                        limits = NULL, top = NULL,
                        cex = 1, title = NULL, text = NULL, sub = NULL,
-                       equal_axes = FALSE, pc_axes = FALSE, verbose = FALSE) {
+                       equal_axes = FALSE, pc_axes = FALSE, 
+                       xlim = NULL, ylim = NULL, verbose = FALSE) {
   if (methods::is(coords, "list") && !is.null(coords$coords)) {
     coords <- coords$coords
   }
@@ -140,14 +145,15 @@ embed_plot <- function(coords, x = NULL, colors = NULL,
     coords <- pc_rotate(coords)
   }
 
-  lims <- NULL
   if (equal_axes) {
-    lims <- range(coords)
+    lims <- base::range(coords)
+    xlim <- lims
+    ylim <- lims
   }
 
   if (!is.null(text)) {
     graphics::plot(coords,
-                   type = "n", xlim = lims, ylim = lims,
+                   type = "n", xlim = xlim, ylim = ylim,
                    xlab = "X", ylab = "Y", main = title
     )
     graphics::text(coords, labels = text, cex = cex, col = colors)
@@ -155,7 +161,7 @@ embed_plot <- function(coords, x = NULL, colors = NULL,
   else {
     graphics::plot(coords,
                    pch = 20, cex = cex, col = colors,
-                   xlim = lims, ylim = lims, xlab = "X", ylab = "Y",
+                   xlim = xlim, ylim = ylim, xlab = "X", ylab = "Y",
                    main = title
     )
   }
@@ -233,6 +239,10 @@ embed_plot <- function(coords, x = NULL, colors = NULL,
 #'   first two (unscaled) principal components, which should have the effect of
 #'   rotating the data (with a potential reflection) so the main variance aligns
 #'   along the X-axis. Should not have any other scaling effect.
+#' @param xlim Vector two numeric value to give the numeric extent of the
+#'   X-axis. Ignored if \code{equal_axes = TRUE} or \code{pc_axes = TRUE}.
+#' @param ylim Vector two numeric value to give the numeric extent of the
+#'   Y-axis. Ignored if \code{equal_axes = TRUE} or \code{pc_axes = TRUE}.
 #' @param verbose If \code{TRUE}, log messages to the console, mainly when
 #'   searching for a suitable color column in a dataframe.
 #'
@@ -286,6 +296,7 @@ embed_plotly <- function(coords, x = NULL, colors = NULL,
                          title = NULL, show_legend = TRUE,
                          cex = 1, text = NULL, tooltip = NULL,
                          equal_axes = FALSE, pc_axes = FALSE,
+                         xlim = NULL, ylim = NULL,
                          verbose = FALSE) {
   if (methods::is(coords, "list") && !is.null(coords$coords)) {
     coords <- coords$coords
@@ -357,11 +368,17 @@ embed_plotly <- function(coords, x = NULL, colors = NULL,
     coords <- pc_rotate(coords)
   }
 
-  lims <- NULL
-  if (equal_axes) {
-    lims <- range(coords)
-  }
+  # lims <- NULL
+  # if (equal_axes) {
+  #   lims <- range(coords)
+  # }
 
+  if (equal_axes) {
+    lims <- base::range(coords)
+    xlim <- lims
+    ylim <- lims
+  }
+  
   if (!is.null(tooltip)) {
     text <- tooltip
   }
@@ -397,12 +414,12 @@ embed_plotly <- function(coords, x = NULL, colors = NULL,
                    xaxis = list(
                      title = "X",
                      zeroline = FALSE, showline = TRUE, showgrid = FALSE,
-                     range = lims * 1.15
+                     range = xlim * 1.15
                    ),
                    yaxis = list(
                      title = "Y",
                      zeroline = FALSE, showline = TRUE, showgrid = FALSE,
-                     range = lims
+                     range = ylim
                    ),
                    showlegend = show_legend
     )

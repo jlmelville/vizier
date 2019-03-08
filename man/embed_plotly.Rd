@@ -8,7 +8,7 @@ embed_plotly(coords, x = NULL, colors = NULL,
   color_scheme = grDevices::rainbow, num_colors = 15,
   alpha_scale = 1, title = NULL, show_legend = TRUE, cex = 1,
   text = NULL, tooltip = NULL, equal_axes = FALSE, pc_axes = FALSE,
-  verbose = FALSE)
+  xlim = NULL, ylim = NULL, verbose = FALSE)
 }
 \arguments{
 \item{coords}{Matrix of embedded coordinates, with as many rows as
@@ -52,6 +52,12 @@ same extents.}
 first two (unscaled) principal components, which should have the effect of
 rotating the data (with a potential reflection) so the main variance aligns
 along the X-axis. Should not have any other scaling effect.}
+
+\item{xlim}{Vector two numeric value to give the numeric extent of the
+X-axis. Ignored if \code{equal_axes = TRUE} or \code{pc_axes = TRUE}.}
+
+\item{ylim}{Vector two numeric value to give the numeric extent of the
+Y-axis. Ignored if \code{equal_axes = TRUE} or \code{pc_axes = TRUE}.}
 
 \item{verbose}{If \code{TRUE}, log messages to the console, mainly when
   searching for a suitable color column in a dataframe.
