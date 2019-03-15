@@ -8,7 +8,8 @@ embed_plot(coords, x = NULL, colors = NULL,
   color_scheme = grDevices::rainbow, num_colors = 15,
   alpha_scale = 1, limits = NULL, top = NULL, cex = 1,
   title = NULL, text = NULL, sub = NULL, equal_axes = FALSE,
-  pc_axes = FALSE, xlim = NULL, ylim = NULL, verbose = FALSE)
+  pc_axes = FALSE, xlim = NULL, ylim = NULL, NA_color = NULL,
+  verbose = FALSE)
 }
 \arguments{
 \item{coords}{Matrix of embedded coordinates, with as many rows as
@@ -63,6 +64,10 @@ X-axis. Ignored if \code{equal_axes = TRUE} or \code{pc_axes = TRUE}.}
 
 \item{ylim}{Vector two numeric value to give the numeric extent of the
 Y-axis. Ignored if \code{equal_axes = TRUE} or \code{pc_axes = TRUE}.}
+
+\item{NA_color}{Color to use for \code{NA} values, which can arise if using
+a factor column for \code{x} (or if any item in \code{colors} is 
+\code{NA}). By default, these points won't be displayed.}
 
 \item{verbose}{If \code{TRUE}, log messages to the console, mainly when
 searching for a suitable color column in a dataframe.}

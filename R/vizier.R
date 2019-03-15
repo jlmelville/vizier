@@ -72,6 +72,9 @@
 #'   X-axis. Ignored if \code{equal_axes = TRUE} or \code{pc_axes = TRUE}.
 #' @param ylim Vector two numeric value to give the numeric extent of the
 #'   Y-axis. Ignored if \code{equal_axes = TRUE} or \code{pc_axes = TRUE}.
+#' @param NA_color Color to use for \code{NA} values, which can arise if using
+#'   a factor column for \code{x} (or if any item in \code{colors} is 
+#'   \code{NA}). By default, these points won't be displayed.
 #' @param verbose If \code{TRUE}, log messages to the console, mainly when
 #'   searching for a suitable color column in a dataframe.
 #' @export
@@ -113,7 +116,9 @@ embed_plot <- function(coords, x = NULL, colors = NULL,
                        limits = NULL, top = NULL,
                        cex = 1, title = NULL, text = NULL, sub = NULL,
                        equal_axes = FALSE, pc_axes = FALSE, 
-                       xlim = NULL, ylim = NULL, verbose = FALSE) {
+                       xlim = NULL, ylim = NULL, 
+                       NA_color = NULL,
+                       verbose = FALSE) {
   if (methods::is(coords, "list") && !is.null(coords$coords)) {
     coords <- coords$coords
   }
@@ -138,7 +143,10 @@ embed_plot <- function(coords, x = NULL, colors = NULL,
       )
     }
   }
-
+  if (!is.null(NA_color)) {
+    colors[is.na(colors)] <- NA_color
+  }
+  
   colors <- grDevices::adjustcolor(colors, alpha.f = alpha_scale)
 
   if (pc_axes) {
@@ -296,8 +304,7 @@ embed_plotly <- function(coords, x = NULL, colors = NULL,
                          title = NULL, show_legend = TRUE,
                          cex = 1, text = NULL, tooltip = NULL,
                          equal_axes = FALSE, pc_axes = FALSE,
-                         xlim = NULL, ylim = NULL,
-                         verbose = FALSE) {
+                         xlim = NULL, ylim = NULL, verbose = FALSE) {
   if (methods::is(coords, "list") && !is.null(coords$coords)) {
     coords <- coords$coords
   }
@@ -358,20 +365,11 @@ embed_plotly <- function(coords, x = NULL, colors = NULL,
       show_legend <- FALSE
     }
   }
-
-  # At this point we want either:
-  #   A vector of manually-specified colors to be used as custom colors
-  #   The column and the palette
   colors <- grDevices::adjustcolor(colors, alpha.f = alpha_scale)
-
+  
   if (pc_axes) {
     coords <- pc_rotate(coords)
   }
-
-  # lims <- NULL
-  # if (equal_axes) {
-  #   lims <- range(coords)
-  # }
 
   if (equal_axes) {
     lims <- base::range(coords)
