@@ -2,6 +2,20 @@
 
 An R Package for Visualization of 2D Datasets.
 
+## News
+
+**August 26 2020**: 
+
+* Using recent versions of
+[paletteer](https://cran.r-project.org/package=paletteer)
+for choosing the color scheme was broken.
+* The
+[turbo colormap](https://ai.googleblog.com/2019/08/turbo-improved-rainbow-colormap-for.html)
+(based on a 
+[github gist](https://gist.github.com/jlmelville/be981e2f36485d8ef9616aef60fd52ab))
+has been added as the `turbo` function.
+* New argument `rev` to reverse the ordering of the colors in the palette.
+
 **September 27 2018**: Color schemes with `embed_plotly` was badly messed up.
 This now fixed. You now also have control over whether to interpolate a discrete
 palette.
@@ -68,6 +82,17 @@ embed_plot(pca_iris$x, iris$Species, color_scheme = topo.colors)
 ```
 
 ![Embed plot with a topo color scheme](img/embed_ex_topo.png "embed_plot(pca_iris$x, iris$Species, color_scheme = topo.colors)")
+
+This package also includes the
+[turbo colormap](https://ai.googleblog.com/2019/08/turbo-improved-rainbow-colormap-for.html)
+as a palette, via the `turbo` function, which works a lot like 
+`grDevices::rainbow` (although reversed in terms of colors):
+
+```R
+embed_plot(pca_iris$x, iris$Species, color_scheme = turbo)
+```
+
+![Embed plot with the turbo color scheme](img/embed_ex_turbo.png "embed_plot(pca_iris$x, iris$Species, color_scheme = turbo)")
 
 
 ```R

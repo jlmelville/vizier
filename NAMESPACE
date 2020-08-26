@@ -2,3 +2,4 @@
 
 export(embed_plot)
 export(embed_plotly)
+export(turbo)
