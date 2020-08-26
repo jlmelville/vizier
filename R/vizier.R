@@ -23,7 +23,7 @@
 #'  of colors, e.g. \code{grDevices::rainbow}. For some other applicable
 #'  functions, see the \code{Palettes} help page in the \code{grDevices}
 #'  package (e.g. by running the \code{?rainbow} command).
-#' \item A vector of colors making up a custom color scheme of your own
+#' \item A vector of colors making up a custom palette of your own
 #'  devising, e.g. \code{c('red', 'green', 'blue')}. There must be at least two
 #'  colors in the list.
 #' \item The name of a color scheme provided by the
@@ -33,13 +33,22 @@
 #'  \code{"viridis::inferno"} and \code{"RColorBrewer::Dark2"}. If more colors
 #'  are required than supported by the color scheme, interpolation will be used
 #'  to create the required number of colors.
+#' \item The name of a pre-defined R palette, if you are running R 4.0 or later.
+#'  Some examples include \code{"Okabe-Ito"}, \code{"Tableau 10"} and 
+#'  \code{"Alphabet"}. See \code{\link[grDevices]{palette.pals}} for the list of
+#'  possible names. Note that is function is not available prior to R 4.0.
+#'  For more details, see \url{https://developer.r-project.org/Blog/public/2019/11/21/a-new-palette-for-r/index.html}.
 #' }
+#' 
+#' If you just want one color for all points, then you can pass a single color
+#' to the `colors` argument, e.g. \code{colors = "blue"}.
 #'
 #' @param coords Matrix of embedded coordinates, with as many rows as
 #'  observations, and 2 columns.
 #' @param x Either a data frame or a column that can be used to derive a
 #'  suitable vector of colors. Ignored if \code{colors} is provided.
-#' @param colors Vector containing colors for each coordinate.
+#' @param colors Vector containing colors for each observation. If fewer colors
+#'  than than observations are provided, then the colors are recycled.
 #' @param color_scheme A color scheme. See 'Details'. Ignored if \code{colors}
 #'  is specified.
 #' @param alpha_scale Scale the opacity alpha of the colors, between 0 and 1.
@@ -108,7 +117,7 @@
 #' # Just show the points with the 10 longest petals
 #' embed_plot(pca_iris$x, iris$Petal.Length, color_scheme = "RColorBrewer::Blues", top = 10)
 #'
-#' # Can force axes to be equal size to stop cluster being distorted in one
+#' # Can force axes to be equal size to stop clusters being distorted in one
 #' # direction
 #' embed_plot(pca_iris$x, iris$Petal.Length, color_scheme = "RColorBrewer::Blues",
 #'            equal_axes = TRUE)
@@ -664,56 +673,87 @@ make_palette <- function(ncolors, color_scheme = grDevices::rainbow,
 # based on either an existing palette or a named color scheme, interpolating
 # if necessary.
 make_palette_function <- function(name, verbose = FALSE) {
-  type <- NULL
   if (length(name) > 1) {
     # Actually this is already a palette
     f <- function(n) {
-      if (n > length(name) && verbose) {
-        message("Interpolating palette for ", n, " colors")
+      if (n > length(name)) {
+        if (verbose) {
+          message("Interpolating palette for ", n, " colors")
+        }
+        palette <- grDevices::colorRampPalette(name)(n)
       }
-      grDevices::colorRampPalette(name)(n)
+      else {
+        palette <- name
+      }
+      palette
     }
     return(f)
   }
-  else {
-    split_res <- unlist(strsplit(name, "::"))
-    if (length(split_res) < 2 || length(split_res) > 3) {
+  
+  type <- NULL
+  pal <- NULL
+  split_res <- unlist(strsplit(name, "::"))
+  if (length(split_res) < 2 || length(split_res) > 3) {
+    # For >= R 4.0, can supply name of built-in palette, e.g. "Okabe-Ito"
+    if (length(split_res) == 1 && is_r_palette(split_res)) {
+      pal <- list(
+        palette = split_res,
+        length = length(grDevices::palette.colors(palette = split_res)),
+        type = "r"
+      )
+      split_res <- c("R", split_res[1])
+    }
+    else {
       stop(
         "Bad palette name '", name, "'. ",
         "Should be in format: <package>::<palette>[::<d|c>]"
       )
     }
-    package_name <- split_res[1]
-    palette_name <- split_res[2]
-    if (length(split_res) == 3) {
-      type <- tolower(split_res[3])
-      if (!type %in% c("c", "d")) {
-        stop("Discrete palette type must be one 'd' or 'c'")
-      }
+  }
+  
+  package_name <- split_res[1]
+  palette_name <- split_res[2]
+  if (length(split_res) == 3) {
+    type <- tolower(split_res[3])
+    if (!type %in% c("c", "d")) {
+      stop("Discrete palette type must be one 'd' or 'c'")
+    }
+  }
+  
+  if (is.null(pal)) {
+    pal_df <- paletteer_everything()
+    pal <- pal_df[pal_df$package == package_name, ]
+    if (nrow(pal) == 0) {
+      stop("Unknown package '", package_name, "'")
+    }
+  
+    pal <- pal[pal$palette == palette_name, ]
+    if (nrow(pal) == 0) {
+      stop(
+        "Unknown palette '", palette_name,
+        "' for package '", package_name, "'"
+      )
     }
   }
 
-  pal_df <- paletteer_everything()
-  pal <- pal_df[pal_df$package == package_name, ]
-  if (nrow(pal) == 0) {
-    stop("Unknown package '", package_name, "'")
-  }
-
-  pal <- pal[pal$palette == palette_name, ]
-  if (nrow(pal) == 0) {
-    stop(
-      "Unknown palette '", palette_name,
-      "' for package '", package_name, "'"
-    )
-  }
-
   pal_fn <- switch(as.character(pal$type),
-                   "c" = paletteer::paletteer_c,
-                   "d" = function(pack_and_pal, n) {
+                   "r" = function(package_name, palette_name, n) {
+                     grDevices::palette.colors(n = n, palette = palette_name)
+                   },
+                   "c" = function(package_name, palette_name, n) {
+                     pack_and_pal <- paste0(package_name, "::", palette_name)
+                     forceAndCall(2, paletteer::paletteer_c, pack_and_pal, n)
+                   },
+                   "d" = function(package_name, palette_name, n) {
+                     pack_and_pal <- paste0(package_name, "::", palette_name)
                      forceAndCall(3, paletteer::paletteer_d,
                                   pack_and_pal, n = n, type = type)
                    },
-                   "dynamic" = paletteer::paletteer_dynamic
+                   "dynamic" = function(package_name, palette_name, n) {
+                     pack_and_pal <- paste0(package_name, "::", palette_name)
+                     forceAndCall(2, paletteer::paletteer_dynamic, 
+                                  pack_and_pal, n)
+                   }
   )
   max_colors <- pal$length
   function(n) {
@@ -724,10 +764,11 @@ make_palette_function <- function(name, verbose = FALSE) {
       }
       ncols <- max_colors
     }
-    pack_and_pal <- paste0(package_name, "::", palette_name)
-    grDevices::colorRampPalette(
-      forceAndCall(3, pal_fn, pack_and_pal, ncols)
-    )(n)
+    palette <- forceAndCall(4, pal_fn, package_name, palette_name, ncols)
+    if (n > max_colors) {
+      palette <- grDevices::colorRampPalette(palette)(n)
+    }
+    palette
   }
 }
 
@@ -803,6 +844,11 @@ is_factorish <- function(x) {
   x_factor <- as.factor(x)
   nlevels <- length(levels(x_factor))
   nlevels > 1 && nlevels < length(x_factor)
+}
+
+is_r_palette <- function(name) {
+  exists("palette.pals", where="package:grDevices") && 
+    name %in% grDevices::palette.pals()
 }
 
 # Does PCA and returns the first two components from the X. When X is a 2D
