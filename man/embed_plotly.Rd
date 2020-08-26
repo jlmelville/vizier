@@ -20,6 +20,7 @@ embed_plotly(
   pc_axes = FALSE,
   xlim = NULL,
   ylim = NULL,
+  rev = FALSE,
   verbose = FALSE
 )
 }
@@ -71,6 +72,9 @@ X-axis. Ignored if \code{equal_axes = TRUE} or \code{pc_axes = TRUE}.}
 
 \item{ylim}{Vector two numeric value to give the numeric extent of the
 Y-axis. Ignored if \code{equal_axes = TRUE} or \code{pc_axes = TRUE}.}
+
+\item{rev}{logical indicating whether the ordering of the colors should be 
+reversed.}
 
 \item{verbose}{If \code{TRUE}, log messages to the console, mainly when
   searching for a suitable color column in a dataframe.

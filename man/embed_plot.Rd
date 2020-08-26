@@ -22,6 +22,7 @@ embed_plot(
   xlim = NULL,
   ylim = NULL,
   NA_color = NULL,
+  rev = FALSE,
   verbose = FALSE
 )
 }
@@ -32,7 +33,8 @@ observations, and 2 columns.}
 \item{x}{Either a data frame or a column that can be used to derive a
 suitable vector of colors. Ignored if \code{colors} is provided.}
 
-\item{colors}{Vector containing colors for each coordinate.}
+\item{colors}{Vector containing colors for each observation. If fewer colors
+than than observations are provided, then the colors are recycled.}
 
 \item{color_scheme}{A color scheme. See 'Details'. Ignored if \code{colors}
 is specified.}
@@ -83,6 +85,9 @@ Y-axis. Ignored if \code{equal_axes = TRUE} or \code{pc_axes = TRUE}.}
 a factor column for \code{x} (or if any item in \code{colors} is 
 \code{NA}). By default, these points won't be displayed.}
 
+\item{rev}{logical indicating whether the ordering of the colors should be 
+reversed.}
+
 \item{verbose}{If \code{TRUE}, log messages to the console, mainly when
 searching for a suitable color column in a dataframe.}
 }
@@ -111,7 +116,7 @@ The \code{color_scheme} parameter can be one of:
  of colors, e.g. \code{grDevices::rainbow}. For some other applicable
  functions, see the \code{Palettes} help page in the \code{grDevices}
  package (e.g. by running the \code{?rainbow} command).
-\item A vector of colors making up a custom color scheme of your own
+\item A vector of colors making up a custom palette of your own
  devising, e.g. \code{c('red', 'green', 'blue')}. There must be at least two
  colors in the list.
 \item The name of a color scheme provided by the
@@ -121,7 +126,15 @@ The \code{color_scheme} parameter can be one of:
  \code{"viridis::inferno"} and \code{"RColorBrewer::Dark2"}. If more colors
  are required than supported by the color scheme, interpolation will be used
  to create the required number of colors.
+\item The name of a pre-defined R palette, if you are running R 4.0 or later.
+ Some examples include \code{"Okabe-Ito"}, \code{"Tableau 10"} and 
+ \code{"Alphabet"}. See \code{\link[grDevices]{palette.pals}} for the list of
+ possible names. Note that is function is not available prior to R 4.0.
+ For more details, see \url{https://developer.r-project.org/Blog/public/2019/11/21/a-new-palette-for-r/index.html}.
 }
+
+If you just want one color for all points, then you can pass a single color
+to the `colors` argument, e.g. \code{colors = "blue"}.
 }
 \examples{
 # Embed with PCA
@@ -151,7 +164,7 @@ embed_plot(pca_iris$x, iris$Petal.Length, color_scheme = "RColorBrewer::Blues")
 # Just show the points with the 10 longest petals
 embed_plot(pca_iris$x, iris$Petal.Length, color_scheme = "RColorBrewer::Blues", top = 10)
 
-# Can force axes to be equal size to stop cluster being distorted in one
+# Can force axes to be equal size to stop clusters being distorted in one
 # direction
 embed_plot(pca_iris$x, iris$Petal.Length, color_scheme = "RColorBrewer::Blues",
            equal_axes = TRUE)
