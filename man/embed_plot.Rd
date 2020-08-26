@@ -4,12 +4,26 @@
 \alias{embed_plot}
 \title{Embedding Plot}
 \usage{
-embed_plot(coords, x = NULL, colors = NULL,
-  color_scheme = grDevices::rainbow, num_colors = 15,
-  alpha_scale = 1, limits = NULL, top = NULL, cex = 1,
-  title = NULL, text = NULL, sub = NULL, equal_axes = FALSE,
-  pc_axes = FALSE, xlim = NULL, ylim = NULL, NA_color = NULL,
-  verbose = FALSE)
+embed_plot(
+  coords,
+  x = NULL,
+  colors = NULL,
+  color_scheme = grDevices::rainbow,
+  num_colors = 15,
+  alpha_scale = 1,
+  limits = NULL,
+  top = NULL,
+  cex = 1,
+  title = NULL,
+  text = NULL,
+  sub = NULL,
+  equal_axes = FALSE,
+  pc_axes = FALSE,
+  xlim = NULL,
+  ylim = NULL,
+  NA_color = NULL,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{coords}{Matrix of embedded coordinates, with as many rows as

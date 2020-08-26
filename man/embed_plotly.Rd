@@ -4,11 +4,24 @@
 \alias{embed_plotly}
 \title{Embedding Plot Using the JavaScript Library Plotly}
 \usage{
-embed_plotly(coords, x = NULL, colors = NULL,
-  color_scheme = grDevices::rainbow, num_colors = 15,
-  alpha_scale = 1, title = NULL, show_legend = TRUE, cex = 1,
-  text = NULL, tooltip = NULL, equal_axes = FALSE, pc_axes = FALSE,
-  xlim = NULL, ylim = NULL, verbose = FALSE)
+embed_plotly(
+  coords,
+  x = NULL,
+  colors = NULL,
+  color_scheme = grDevices::rainbow,
+  num_colors = 15,
+  alpha_scale = 1,
+  title = NULL,
+  show_legend = TRUE,
+  cex = 1,
+  text = NULL,
+  tooltip = NULL,
+  equal_axes = FALSE,
+  pc_axes = FALSE,
+  xlim = NULL,
+  ylim = NULL,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{coords}{Matrix of embedded coordinates, with as many rows as
