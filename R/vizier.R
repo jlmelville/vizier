@@ -697,9 +697,9 @@ make_palette_function <- function(name, verbose = FALSE) {
 
   pal_fn <- switch(as.character(pal$type),
                    "c" = paletteer::paletteer_c,
-                   "d" = function(package, palette, n) {
-                     forceAndCall(4, paletteer::paletteer_d,
-                                  package, palette, n, type = type)
+                   "d" = function(pack_and_pal, n) {
+                     forceAndCall(3, paletteer::paletteer_d,
+                                  pack_and_pal, n = n, type = type)
                    },
                    "dynamic" = paletteer::paletteer_dynamic
   )
@@ -712,8 +712,9 @@ make_palette_function <- function(name, verbose = FALSE) {
       }
       ncols <- max_colors
     }
+    pack_and_pal <- paste0(package_name, "::", palette_name)
     grDevices::colorRampPalette(
-      forceAndCall(3, pal_fn, package_name, palette_name, ncols)
+      forceAndCall(3, pal_fn, pack_and_pal, ncols)
     )(n)
   }
 }
