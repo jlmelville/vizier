@@ -4,9 +4,9 @@ An R Package for Visualization of 2D Datasets.
 
 ## News
 
-**August 26 2020**: 
+**August 26 2020**: version 0.4 includes the following improvements and fixes: 
 
-* Using recent versions of
+* Fixed bug where using recent versions of
 [paletteer](https://cran.r-project.org/package=paletteer)
 for choosing the color scheme was broken.
 * The
@@ -14,7 +14,16 @@ for choosing the color scheme was broken.
 (based on a 
 [github gist](https://gist.github.com/jlmelville/be981e2f36485d8ef9616aef60fd52ab))
 has been added as the `turbo` function.
-* New argument `rev` to reverse the ordering of the colors in the palette.
+* New argument `rev` to reverse the ordering of the colors in the palette. This
+is useful when comparing `turbo` with other rainbow palettes because `turbo`
+goes from blue to red.
+* For the 
+[new color palettes in R 4.0](https://developer.r-project.org/Blog/public/2019/11/21/a-new-palette-for-r/index.html),
+you can pass them by name, e.g. `color_scheme = "Okabe-Ito"`.
+
+* `colorRampPalette` is only used if you need to interpolate the palette (i.e.
+if you ask for more colors than exist in the palette). Colors will now be
+returned in the order they appear in the palette.
 
 **September 27 2018**: Color schemes with `embed_plotly` was badly messed up.
 This now fixed. You now also have control over whether to interpolate a discrete
@@ -50,36 +59,55 @@ devtools::install_github("jlmelville/vizier")
 
 ## Examples
 
+Create a plot of the first two principal components (PCA) for the `iris`
+dataset:
+
 ```R
-# Embed with PCA
 pca_iris <- stats::prcomp(iris[, -5], retx = TRUE, rank. = 2)
 ```
 
+Simplest use of embed_plot: pass in data frame and it will use the last 
+(in this case, only) factor column it finds and the `rainbow` color scheme
+
 ```R
-# Simplest use of embed_plot: pass in data frame and it will use the last 
-# (in this case, only) factor column it finds and the rainbow color scheme
 embed_plot(pca_iris$x, iris)
 ```
 ![Default embed plot result](img/embed_ex.png "embed_plot(pca_iris$x, iris)")
 
 
+More explicitly color by iris species, use the rainbow color scheme and also
+provide a title and subtitle:
+
 ```R
-# More explicitly color by iris species, use the rainbow color scheme and also
-# provide a title and subtitle
 embed_plot(pca_iris$x, iris$Species, color_scheme = rainbow, title = "iris PCA", sub = "rainbow color scheme")
 ```
 ![Embed plot with a title](img/embed_ex_title.png "embed_plot(pca_iris$x, iris$Species, color_scheme = rainbow, title = \"iris PCA\")")
 
+
+Increase the transparency of the fill color by scaling the alpha by 0.5:
+
 ```R
-# Increase the transparency of the fill color by scaling the alpha by 0.5
 embed_plot(pca_iris$x, iris$Species, color_scheme = rainbow, alpha_scale = 0.5)
 ```
 ![Embed plot with transparency](img/embed_ex_alpha.png "embed_plot(pca_iris$x, iris$Species, color_scheme = rainbow, alpha_scale = 0.5)")
 
+If you already have colors you want to use for each point, you can use the
+`colors` parameter. In the example below, 
+`colorRampPalette(c("red", "yellow"))(nrow(iris)))` produces a vector of 150 
+colors going from red to yellow:
+
 ```R
-# topo.colors scheme
-embed_plot(pca_iris$x, iris$Species, color_scheme = topo.colors)
+my_iris_colors = colorRampPalette(c("red", "yellow"))(nrow(iris))
+embed_plot(pca_iris$x, iris$Species, colors = my_iris_colors)
 ```
+
+![Embed plot with colors](img/embed_ex_colors.png "embed_plot(pca_iris$x, iris$Species, colors = my_iris_colors)")
+
+If you just want the points to be all one color you need only pass a single
+value, e.g. `colors = "blue"`. In general, if you pass fewer colors than there
+are points, the colors are recycled.
+
+Here's another example of using a built-in palette, `topo.colors`:
 
 ![Embed plot with a topo color scheme](img/embed_ex_topo.png "embed_plot(pca_iris$x, iris$Species, color_scheme = topo.colors)")
 
@@ -94,17 +122,67 @@ embed_plot(pca_iris$x, iris$Species, color_scheme = turbo)
 
 ![Embed plot with the turbo color scheme](img/embed_ex_turbo.png "embed_plot(pca_iris$x, iris$Species, color_scheme = turbo)")
 
+The `rev` argument can be used to reverse a color scheme:
 
 ```R
-# Force axes to be equal size to stop cluster being distorted in one direction
+embed_plot(pca_iris$x, iris$Species, color_scheme = turbo, rev = TRUE)
+```
+
+![Embed plot with the turbo color scheme reversed](img/embed_ex_turbo_rev.png "embed_plot(pca_iris$x, iris$Species, color_scheme = turbo, rev = TRUE)")
+
+You can also provide your own palette (i.e. a vector colors):
+
+```R
+embed_plot(pca_iris$x, iris$Species, color_scheme = c("black", "red", "gray"))
+```
+
+![Embed plot with custom palette](img/embed_ex_custom.png "embed_plot(pca_iris$x, iris$Species, color_scheme = c(\"black\", \"red\", \"gray\"))")
+
+Note that if you have more colors in your palette than needed, the extra ones
+are ignored: e.g. if `c("black", "red", "gray", "blue")`, `"blue"` would have
+been unused, because we only needed three colors from the palette for this plot
+for the three species.
+
+Watch out for the opposite situation where you need *more* colors than your
+palette provides. In this case `vizier` will use interpolation to get the colors
+it needs. This might work out for some palettes that represent a continuous
+color scale (like `rainbow`), but will give weird and probably undesirable
+results for discrete palettes. For more details, see the section 
+"Discrete Palettes with `continuous` Type" below.
+
+As of R 4.0, there are some 
+[new color palettes](https://developer.r-project.org/Blog/public/2019/11/21/a-new-palette-for-r/index.html).
+You can see the options available via `grDevices::palette.pals()` and generate
+the palette using `grDevices::palette.colors`. Here's an example using the `"Okabe-Ito"`
+palette:
+
+```R
+if (exists("palette.colors", where = "package:grDevices")) {
+  embed_plot(pca_iris$x, iris$Species, color_scheme = palette.colors(palette = "Okabe-Ito"))
+}
+```
+![Embed plot with new built-in palette](img/embed_ex_okabe_ito.png "embed_plot(pca_iris$x, iris$Species, color_scheme = palette.colors(palette = \"Okabe-Ito\"))")
+
+For any palette in `palette.pals`, you can also just provide the palette name
+as a shortcut:
+
+```
+embed_plot(pca_iris$x, iris$Species, color_scheme = "Okabe-Ito")
+```
+
+To force axes to be equal size to stop clusters being distorted in one direction:
+
+```R
 embed_plot(pca_iris$x, iris$Species, color_scheme = topo.colors, equal_axes = TRUE)
 ```
 
 ![Embed plot with equal axes](img/embed_ex_ax.png "embed_plot(pca_iris$x, iris$Species, color_scheme = topo.colors, equal_axes = TRUE)")
 
+You can plot the category names instead of points, but it looks bad if they're
+long (or the dataset is large. Making the text a bit smaller with the `cex` 
+param can help:
+
 ```R
-# Can plot the category names instead of points, but looks bad if they're
-# long (or the dataset is large. Make the text a bit smaller with the cex param
 embed_plot(pca_iris$x, iris$Species, cex = 0.75, text = iris$Species)
 ```
 
@@ -234,13 +312,15 @@ right cluster is colored in the gray color from the right-hand side. But the
 middle cluster isn't any of the other colors and mixes rather murkily with the
 gray cluster. It doesn't make sense to use interpolation in this case.
 
-In summary, avoid interpolation of discrete color schemes if you can, but 
-definitely do so for those like `RColorBrewer::Dark2` which don't work on a
+In summary, avoid interpolation of discrete color schemes if you can, and 
+*definitely* do avoid for those like `RColorBrewer::Dark2` which don't work on a
 color scale.
 
 ## License
 
-[GPL-3](https://www.gnu.org/licenses/gpl-3.0.en.html).
+[GPL-3](https://www.gnu.org/licenses/gpl-3.0.en.html). The code for the
+`turbo` color scheme is from <https://gist.github.com/jlmelville/be981e2f36485d8ef9616aef60fd52ab>
+and is licensed under Apache 2.
 
 ## See Also
 
