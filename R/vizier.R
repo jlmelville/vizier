@@ -75,6 +75,8 @@
 #' @param NA_color Color to use for \code{NA} values, which can arise if using
 #'   a factor column for \code{x} (or if any item in \code{colors} is 
 #'   \code{NA}). By default, these points won't be displayed.
+#' @param rev logical indicating whether the ordering of the colors should be 
+#'   reversed.
 #' @param verbose If \code{TRUE}, log messages to the console, mainly when
 #'   searching for a suitable color column in a dataframe.
 #' @export
@@ -118,6 +120,7 @@ embed_plot <- function(coords, x = NULL, colors = NULL,
                        equal_axes = FALSE, pc_axes = FALSE, 
                        xlim = NULL, ylim = NULL, 
                        NA_color = NULL,
+                       rev = FALSE,
                        verbose = FALSE) {
   if (methods::is(coords, "list") && !is.null(coords$coords)) {
     coords <- coords$coords
@@ -148,7 +151,10 @@ embed_plot <- function(coords, x = NULL, colors = NULL,
   }
   
   colors <- grDevices::adjustcolor(colors, alpha.f = alpha_scale)
-
+  if (rev) {
+    colors <- rev(colors)
+  }
+  
   if (pc_axes) {
     coords <- pc_rotate(coords)
   }
@@ -251,6 +257,8 @@ embed_plot <- function(coords, x = NULL, colors = NULL,
 #'   X-axis. Ignored if \code{equal_axes = TRUE} or \code{pc_axes = TRUE}.
 #' @param ylim Vector two numeric value to give the numeric extent of the
 #'   Y-axis. Ignored if \code{equal_axes = TRUE} or \code{pc_axes = TRUE}.
+#' @param rev logical indicating whether the ordering of the colors should be 
+#'   reversed.
 #' @param verbose If \code{TRUE}, log messages to the console, mainly when
 #'   searching for a suitable color column in a dataframe.
 #'
@@ -304,7 +312,8 @@ embed_plotly <- function(coords, x = NULL, colors = NULL,
                          title = NULL, show_legend = TRUE,
                          cex = 1, text = NULL, tooltip = NULL,
                          equal_axes = FALSE, pc_axes = FALSE,
-                         xlim = NULL, ylim = NULL, verbose = FALSE) {
+                         xlim = NULL, ylim = NULL, rev = FALSE, 
+                         verbose = FALSE) {
   if (methods::is(coords, "list") && !is.null(coords$coords)) {
     coords <- coords$coords
   }
@@ -366,6 +375,9 @@ embed_plotly <- function(coords, x = NULL, colors = NULL,
     }
   }
   colors <- grDevices::adjustcolor(colors, alpha.f = alpha_scale)
+  if (rev) {
+    colors <- rev(colors)
+  }
   
   if (pc_axes) {
     coords <- pc_rotate(coords)
