@@ -21,7 +21,7 @@
 #' in turn based on Python code at 
 #' \url{https://gist.github.com/mikhailov-work/ee72ba4191942acecc03fe6da94fc73f}.
 #' @examples
-#' use this like e.g. grDevices::rainbow
+#' # use like e.g. grDevices::rainbow
 #' pie(rep(1, 12), col = rainbow(12), main = "RGB/HSV")
 #' pie(rep(1, 12), col = turbo(12), main = "turbo")
 #' @export

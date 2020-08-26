@@ -26,7 +26,7 @@ graphics functions or in \code{par}.
 Create a vector of n contiguous colors using the Turbo rainbow colormap.
 }
 \examples{
-use this like e.g. grDevices::rainbow
+# use like e.g. grDevices::rainbow
 pie(rep(1, 12), col = rainbow(12), main = "RGB/HSV")
 pie(rep(1, 12), col = turbo(12), main = "turbo")
 }
