@@ -20,7 +20,6 @@ goes from blue to red.
 * For the 
 [new color palettes in R 4.0](https://developer.r-project.org/Blog/public/2019/11/21/a-new-palette-for-r/index.html),
 you can pass them by name, e.g. `color_scheme = "Okabe-Ito"`.
-
 * `colorRampPalette` is only used if you need to interpolate the palette (i.e.
 if you ask for more colors than exist in the palette). Colors will now be
 returned in the order they appear in the palette.
