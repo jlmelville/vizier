@@ -6,7 +6,7 @@ An R Package for Visualization of 2D Datasets.
 
 ## News
 
-**September 6 2020**: add `limits` support numerical scales with plotly.
+**September 6 2020**: new parameter: `limits` for `embed_plotly`.
 
 **August 26 2020**: version 0.4 includes the following improvements and fixes: 
 
