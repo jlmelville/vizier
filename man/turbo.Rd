@@ -13,13 +13,13 @@ turbo(n, start = 0, end = 1, rev = FALSE)
 
 \item{end}{the (corrected) hue in [0,1] at which the rainbow ends.}
 
-\item{rev}{logical indicating whether the ordering of the colors should be 
+\item{rev}{logical indicating whether the ordering of the colors should be
 reversed.}
 }
 \value{
 A character vector \code{cv} containing n hex color codes. This can
 be used either to create a user-defined color palette for subsequent graphics
-by \code{\link[grDevices]{palette}(cv)}, a \code{col =} specification in 
+by \code{\link[grDevices]{palette}(cv)}, a \code{col =} specification in
 graphics functions or in \code{par}.
 }
 \description{
@@ -31,14 +31,14 @@ pie(rep(1, 12), col = rainbow(12), main = "RGB/HSV")
 pie(rep(1, 12), col = turbo(12), main = "turbo")
 }
 \references{
-Mikhailkov, A. (2019). 
+Mikhailkov, A. (2019).
 Google AI Blog: Turbo, An Improved Rainbow Colormap for Visualization.
 \url{https://ai.googleblog.com/2019/08/turbo-improved-rainbow-colormap-for.html}.
 Accessed August 26, 2020.
 }
 \seealso{
-This function originated as (Apache 2 licensed) code at 
+This function originated as (Apache 2 licensed) code at
 \url{https://gist.github.com/jlmelville/be981e2f36485d8ef9616aef60fd52ab},
-in turn based on Python code at 
+in turn based on Python code at
 \url{https://gist.github.com/mikhailov-work/ee72ba4191942acecc03fe6da94fc73f}.
 }

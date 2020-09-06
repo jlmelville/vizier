@@ -82,10 +82,10 @@ X-axis. Ignored if \code{equal_axes = TRUE} or \code{pc_axes = TRUE}.}
 Y-axis. Ignored if \code{equal_axes = TRUE} or \code{pc_axes = TRUE}.}
 
 \item{NA_color}{Color to use for \code{NA} values, which can arise if using
-a factor column for \code{x} (or if any item in \code{colors} is 
+a factor column for \code{x} (or if any item in \code{colors} is
 \code{NA}). By default, these points won't be displayed.}
 
-\item{rev}{logical indicating whether the ordering of the colors should be 
+\item{rev}{logical indicating whether the ordering of the colors should be
 reversed.}
 
 \item{verbose}{If \code{TRUE}, log messages to the console, mainly when
@@ -127,7 +127,7 @@ The \code{color_scheme} parameter can be one of:
  are required than supported by the color scheme, interpolation will be used
  to create the required number of colors.
 \item The name of a pre-defined R palette, if you are running R 4.0 or later.
- Some examples include \code{"Okabe-Ito"}, \code{"Tableau 10"} and 
+ Some examples include \code{"Okabe-Ito"}, \code{"Tableau 10"} and
  \code{"Alphabet"}. See \code{\link[grDevices]{palette.pals}} for the list of
  possible names. Note that is function is not available prior to R 4.0.
  For more details, see \url{https://developer.r-project.org/Blog/public/2019/11/21/a-new-palette-for-r/index.html}.
@@ -141,8 +141,10 @@ to the `colors` argument, e.g. \code{colors = "blue"}.
 pca_iris <- stats::prcomp(iris[, -5], retx = TRUE, rank. = 2)
 # Visualize the resulting embedding, colored by iris species, using the
 # rainbow color scheme
-embed_plot(pca_iris$x, iris$Species, color_scheme = rainbow,
-           title = "iris PCA", sub = "rainbow colors")
+embed_plot(pca_iris$x, iris$Species,
+  color_scheme = rainbow,
+  title = "iris PCA", sub = "rainbow colors"
+)
 
 # topo.colors scheme
 embed_plot(pca_iris$x, iris$Species, color_scheme = topo.colors)
@@ -166,6 +168,8 @@ embed_plot(pca_iris$x, iris$Petal.Length, color_scheme = "RColorBrewer::Blues", 
 
 # Can force axes to be equal size to stop clusters being distorted in one
 # direction
-embed_plot(pca_iris$x, iris$Petal.Length, color_scheme = "RColorBrewer::Blues",
-           equal_axes = TRUE)
+embed_plot(pca_iris$x, iris$Petal.Length,
+  color_scheme = "RColorBrewer::Blues",
+  equal_axes = TRUE
+)
 }

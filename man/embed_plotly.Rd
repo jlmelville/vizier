@@ -11,6 +11,7 @@ embed_plotly(
   color_scheme = grDevices::rainbow,
   num_colors = 15,
   alpha_scale = 1,
+  limits = NULL,
   title = NULL,
   show_legend = TRUE,
   cex = 1,
@@ -45,6 +46,11 @@ numeric vector. If set to \code{NULL}, it will be set to \code{length(x)}.}
 Useful for increasing the transparency of points, especially with large
 plots with lots of overlap.}
 
+\item{limits}{The range that the colors should map over when mapping from a
+numeric vector. If not specified, then the range of \code{x}. This is useful
+if there is some external absolute scale that should be used. Ignored if
+\code{x} is not a numeric vector.}
+
 \item{title}{Title for the plot.}
 
 \item{show_legend}{If \code{TRUE}, display a legend. Ignored unless a
@@ -73,7 +79,7 @@ X-axis. Ignored if \code{equal_axes = TRUE} or \code{pc_axes = TRUE}.}
 \item{ylim}{Vector two numeric value to give the numeric extent of the
 Y-axis. Ignored if \code{equal_axes = TRUE} or \code{pc_axes = TRUE}.}
 
-\item{rev}{logical indicating whether the ordering of the colors should be 
+\item{rev}{logical indicating whether the ordering of the colors should be
 reversed.}
 
 \item{verbose}{If \code{TRUE}, log messages to the console, mainly when
@@ -132,8 +138,10 @@ library("plotly")
 
 # Visualize the resulting embedding, colored by iris species, using the
 # rainbow color scheme
-embed_plotly(pca_iris$x, iris$Species, color_scheme = rainbow,
-             title = "iris PCA")
+embed_plotly(pca_iris$x, iris$Species,
+  color_scheme = rainbow,
+  title = "iris PCA"
+)
 
 # topo.colors scheme
 embed_plotly(pca_iris$x, iris$Species, color_scheme = topo.colors)
@@ -160,7 +168,9 @@ embed_plotly(pca_iris$x, iris$Petal.Length, color_scheme = "RColorBrewer::Blues"
 
 # Can force axes to be equal size to stop cluster being distorted in one
 # direction
-embed_plotly(pca_iris$x, iris$Petal.Length, color_scheme = "RColorBrewer::Blues",
-             equal_axes = TRUE)
+embed_plotly(pca_iris$x, iris$Petal.Length,
+  color_scheme = "RColorBrewer::Blues",
+  equal_axes = TRUE
+)
 }
 }

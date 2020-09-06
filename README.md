@@ -1,8 +1,12 @@
 # vizier
 
+[![Last Commit](https://img.shields.io/github/last-commit/jlmelville/vizier)](https://github.com/jlmelville/vizier)
+
 An R Package for Visualization of 2D Datasets.
 
 ## News
+
+**September 6 2020**: add `limits` support numerical scales with plotly.
 
 **August 26 2020**: version 0.4 includes the following improvements and fixes: 
 
