@@ -12,6 +12,7 @@ embed_plotly(
   num_colors = 15,
   alpha_scale = 1,
   limits = NULL,
+  clip_limit_values = TRUE,
   title = NULL,
   show_legend = TRUE,
   cex = 1,
@@ -50,6 +51,12 @@ plots with lots of overlap.}
 numeric vector. If not specified, then the range of \code{x}. This is useful
 if there is some external absolute scale that should be used. Ignored if
 \code{x} is not a numeric vector.}
+
+\item{clip_limit_values}{If \code{TRUE} (the default) and \code{limits} is
+provided, then any value that lies outside the \code{limits} is clipped to
+the limiting values. If \code{tooltip = NULL} then the original values will
+be preserved in the tooltip. If \code{clip_limit_values = FALSE}, then 
+values outside the \code{limits} will be shown in the "missing" color.}
 
 \item{title}{Title for the plot.}
 

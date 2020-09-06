@@ -257,6 +257,11 @@ embed_plot <- function(coords, x = NULL, colors = NULL,
 #'  numeric vector. If not specified, then the range of \code{x}. This is useful
 #'  if there is some external absolute scale that should be used. Ignored if
 #'  \code{x} is not a numeric vector.
+#' @param clip_limit_values If \code{TRUE} (the default) and \code{limits} is
+#'   provided, then any value that lies outside the \code{limits} is clipped to
+#'   the limiting values. If \code{tooltip = NULL} then the original values will
+#'   be preserved in the tooltip. If \code{clip_limit_values = FALSE}, then
+#'   values outside the \code{limits} will be shown in the "missing" color.
 #' @param cex Size of the points. Ignored if \code{text} is provided.
 #' @param text Vector of label text to display instead of a point. If the labels
 #'   are long or the data set is large, this is unlikely to be very legible, but
@@ -332,7 +337,7 @@ embed_plot <- function(coords, x = NULL, colors = NULL,
 embed_plotly <- function(coords, x = NULL, colors = NULL,
                          color_scheme = grDevices::rainbow,
                          num_colors = 15, alpha_scale = 1,
-                         limits = NULL,
+                         limits = NULL, clip_limit_values = TRUE,
                          title = NULL, show_legend = TRUE,
                          cex = 1, text = NULL, tooltip = NULL,
                          equal_axes = FALSE, pc_axes = FALSE,
@@ -377,6 +382,17 @@ embed_plotly <- function(coords, x = NULL, colors = NULL,
         if (!is.null(limits)) {
           marker$cmin <- limits[1]
           marker$cmax <- limits[2]
+          if (clip_limit_values && any(labels > marker$cmax | labels < marker$cmin)) {
+            # colors outside the limits are displayed as missing rather than
+            # clipped to the limits. If we choose to clip ourselves, we lose the
+            # original values on the tooltip. If the tooltip parameter has not
+            # been set, we save the original values there.
+            if (is.null(tooltip)) {
+              tooltip <- labels
+            }
+            labels[labels > marker$cmax] <- marker$cmax
+            labels[labels < marker$cmin] <- marker$cmin
+          }
         }
       }
       else {
@@ -405,9 +421,11 @@ embed_plotly <- function(coords, x = NULL, colors = NULL,
       show_legend <- FALSE
     }
   }
-  colors <- grDevices::adjustcolor(colors, alpha.f = alpha_scale)
   if (rev) {
     colors <- rev(colors)
+  }
+  if (is.list(marker)) {
+    marker$opacity <- alpha_scale
   }
 
   if (pc_axes) {
@@ -434,7 +452,8 @@ embed_plotly <- function(coords, x = NULL, colors = NULL,
       x = coords[, 1], y = coords[, 2],
       color = ~labels,
       colors = colors,
-      type = "scatter", mode = mode,
+      type = "scatter",
+      mode = mode,
       text = text,
       marker = marker
     )
@@ -444,7 +463,8 @@ embed_plotly <- function(coords, x = NULL, colors = NULL,
     marker <- append(marker, list(color = colors))
     p <- plotly::plot_ly(
       x = coords[, 1], y = coords[, 2],
-      type = "scatter", mode = mode,
+      type = "scatter",
+      mode = mode,
       text = text,
       marker = marker
     )

@@ -6,13 +6,14 @@ An R Package for Visualization of 2D Datasets.
 
 ## News
 
-**September 6 2020**: new parameter: `limits` for `embed_plotly`.
+**September 6 2020**: fix `alpha_scale` with `embed_plotly`. Also, new 
+parameter: `limits` for `embed_plotly`.
 
 **August 26 2020**: version 0.4 includes the following improvements and fixes: 
 
 * Fixed bug where using recent versions of
-[paletteer](https://cran.r-project.org/package=paletteer)
-for choosing the color scheme was broken.
+[paletteer](https://cran.r-project.org/package=paletteer) for choosing the color
+scheme was broken.
 * The
 [turbo colormap](https://ai.googleblog.com/2019/08/turbo-improved-rainbow-colormap-for.html)
 (based on a 
