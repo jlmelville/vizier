@@ -6,6 +6,9 @@ An R Package for Visualization of 2D Datasets.
 
 ## News
 
+**November 25 2023**: use [Polychrome](https://cran.r-project.org/package=Polychrome)
+to generate default color schemes for categorical data.
+
 **September 6 2020**: fix `alpha_scale` with `embed_plotly`. Also, new 
 parameter: `limits` for `embed_plotly`.
 
