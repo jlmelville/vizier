@@ -329,11 +329,9 @@ interpolate <- function(colormap, x) {
 interpolate_or_clip <- function(colormap, x) {
   if (x < 0.0) {
     return(c(0.0, 0.0, 0.0))
-  }
-  else if (x > 1.0) {
+  } else if (x > 1.0) {
     return(c(1.0, 1.0, 1.0))
-  }
-  else {
+  } else {
     return(interpolate(colormap, x))
   }
 }
