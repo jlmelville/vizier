@@ -55,7 +55,7 @@ if there is some external absolute scale that should be used. Ignored if
 \item{clip_limit_values}{If \code{TRUE} (the default) and \code{limits} is
 provided, then any value that lies outside the \code{limits} is clipped to
 the limiting values. If \code{tooltip = NULL} then the original values will
-be preserved in the tooltip. If \code{clip_limit_values = FALSE}, then 
+be preserved in the tooltip. If \code{clip_limit_values = FALSE}, then
 values outside the \code{limits} will be shown in the "missing" color.}
 
 \item{title}{Title for the plot.}
