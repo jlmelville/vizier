@@ -1,11 +1,11 @@
-Package: vizier
 Type: Package
+Package: vizier
 Title: Visualization of 2D Datasets in R
 Version: 0.4.2
-Authors@R: person("James", "Melville", email = "jlmelville@gmail.com",
-    role = c("aut", "cre"))
-Description: Convenience functions for visualizing 2D datasets, coloring by
-    factor, color string or numeric scales, with helpful defaults.
+Authors@R: 
+    person("James", "Melville", , "jlmelville@gmail.com", role = c("aut", "cre"))
+Description: Convenience functions for visualizing 2D datasets, coloring
+    by factor, color string or numeric scales, with helpful defaults.
 License: GPL-3
 URL: https://github.com/jlmelville/vizier
 BugReports: https://github.com/jlmelville/vizier/issues
@@ -13,6 +13,6 @@ Imports:
     methods,
     paletteer,
     plotly
-LazyLoad: yes
-RoxygenNote: 7.1.1
 Encoding: UTF-8
+LazyLoad: yes
+RoxygenNote: 7.2.3
