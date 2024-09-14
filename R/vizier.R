@@ -532,11 +532,11 @@ embed_plotly <- function(coords,
 
 # return a vector of n colors used to directly color each point, can be
 # passed to the colors arg of embed_plot
-# if x is a numeric scalar, it is assumed to be n, the number of actual colors 
+# if x is a numeric scalar, it is assumed to be n, the number of actual colors
 # to return (one per point)
 # if you don't specify a color_scheme and you are asking for a reasonable number
 # of colors in the palette (where reasonable is 20 or fewer), Polychrome is used
-# to generate a categorical palette. This is very slow for large number of 
+# to generate a categorical palette. This is very slow for large number of
 # colors (anyway it seems quite hard to find 20 distinct colors!), so if this
 # is detected, a warning is issued and the fallback)color_scheme is used.
 # if numeric_ok is TRUE, then if no suitable color-ish column is found in x,
@@ -567,6 +567,7 @@ get_colors <- function(x,
         limits = limits,
         top = top,
         numeric_ok = numeric_ok,
+        fallback_color_scheme = fallback_color_scheme,
         verbose = verbose
       )
       if (!is.null(res$colors)) {
@@ -577,8 +578,10 @@ get_colors <- function(x,
     } else {
       if (n > 20 && is.null(color_scheme)) {
         if (verbose) {
-          message("Warning: more than 20 palette colors requested without ", 
-          "specifying a color scheme. Using fallback color scheme")
+          message(
+            "Warning: more than 20 palette colors requested without ",
+            "specifying a color scheme. Using fallback color scheme"
+          )
         }
         color_scheme <- fallback_color_scheme
       }
@@ -597,7 +600,7 @@ get_colors <- function(x,
   if (rev) {
     colors <- rev(colors)
   }
-  
+
   colors
 }
 
@@ -618,12 +621,14 @@ color_helper <- function(x,
                          limits = NULL,
                          top = NULL,
                          numeric_ok = FALSE,
+                         fallback_color_scheme = grDevices::rainbow,
                          verbose = FALSE) {
   if (methods::is(x, "data.frame")) {
     res <- color_helper_df(
       x,
       color_scheme = color_scheme,
       numeric_ok = numeric_ok,
+      fallback_color_scheme = fallback_color_scheme,
       verbose = verbose
     )
   } else {
@@ -648,20 +653,24 @@ color_helper <- function(x,
 # Otherwise, if the data frame contains at least one character column, and it
 # can be treated like a factor (i.e. more than one level but as many levels as
 # observations), use the last character column found as if it was a factor.
-# Otherwise, color each point as if it was its own factor level
-# @note R considers numbers to be acceptable colors because \code{col2rgb}
-# interprets them as indexes into a palette. Columns of numbers are NOT treated
-# as colors by color_helper. Stick with color names (e.g. "goldenrod") or
-# rgb strings (e.g. "#140000" or "#140000FF" if including alpha values).
-# If ret_labels is TRUE, return the column used for the mapping
 # if numeric_ok is TRUE, then if other ways to find colors, before going with
 # one color per point, try to map the last numeric column to a continuous
 # color scheme. Default is FALSE because if passing in a mixed dataframe of
 # labels and data, it's likely that the numeric columns are not meant to be
 # interpreted as a continuous color scale (they're the raw data).
+# Otherwise, color each point individually.
+# In the latter two cases where we can't find a categorical-like column, the
+# `fallback_color_scheme` will be used, so it probably should be a continuous
+# color scheme
+# @note R considers numbers to be acceptable colors because \code{col2rgb}
+# interprets them as indexes into a palette. Columns of numbers are NOT treated
+# as colors by color_helper. Stick with color names (e.g. "goldenrod") or
+# rgb strings (e.g. "#140000" or "#140000FF" if including alpha values).
+# If ret_labels is TRUE, return the column used for the mapping
 color_helper_df <- function(df,
                             color_scheme = NULL,
                             numeric_ok = FALSE,
+                            fallback_color_scheme = grDevices::rainbow,
                             verbose = FALSE) {
   colors <- NULL
   labels <- NULL
@@ -703,12 +712,9 @@ color_helper_df <- function(df,
     return(list(labels = labels, palette = palette))
   }
 
-  
+
   # Either a numeric or one-point-per color scheme here
-  if (is.null(color_scheme)) {
-    color_scheme <- grDevices::rainbow
-  }
-  
+  # use fallback_color_scheme from here on out
   if (numeric_ok) {
     numeric_name <- last_numeric_column_name(df)
     if (!is.null(numeric_name)) {
@@ -719,16 +725,16 @@ color_helper_df <- function(df,
           "' for mapping to colors"
         )
       }
-      colors <- numeric_to_colors(df[[numeric_name]], color_scheme = color_scheme)
+      colors <- numeric_to_colors(df[[numeric_name]], color_scheme = fallback_color_scheme)
       return(list(colors = colors))
     }
   }
-  
+
   # use one color per point
   if (verbose) {
     message("Using one color per point")
   }
-  colors <- make_palette(ncolors = nrow(df), color_scheme = color_scheme)
+  colors <- make_palette(ncolors = nrow(df), color_scheme = fallback_color_scheme)
   list(colors = colors, labels = labels)
 }
 
