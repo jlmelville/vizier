@@ -1,7 +1,7 @@
 Type: Package
 Package: vizier
 Title: Visualization of 2D Datasets in R
-Version: 0.5.1
+Version: 0.5.2
 Authors@R: 
     person("James", "Melville", , "jlmelville@gmail.com", role = c("aut", "cre"))
 Description: Convenience functions for visualizing 2D datasets, coloring

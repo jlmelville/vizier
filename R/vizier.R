@@ -532,9 +532,16 @@ embed_plotly <- function(coords,
 
 # return a vector of n colors used to directly color each point, can be
 # passed to the colors arg of embed_plot
-# n: number of actual colors to return (one per point)
-get_colors <- function(n,
-                       x = NULL,
+# if x is a numeric scalar, it is assumed to be n, the number of actual colors 
+# to return (one per point)
+# if you don't specify a color_scheme and you are asking for a reasonable number
+# of colors in the palette (where reasonable is 20 or fewer), Polychrome is used
+# to generate a categorical palette. This is very slow for large number of 
+# colors (anyway it seems quite hard to find 20 distinct colors!), so if this
+# is detected, a warning is issued and the rainbow palette is used.
+# if numeric_ok is TRUE, then if no suitable color-ish column is found in x,
+# the last numeric column is used.
+get_colors <- function(x,
                        color_scheme = NULL,
                        num_colors = 15,
                        limits = NULL,
@@ -543,7 +550,13 @@ get_colors <- function(n,
                        alpha_scale = 1,
                        NA_color = NULL,
                        rev = FALSE,
+                       numeric_ok = FALSE,
                        verbose = FALSE) {
+  if (is.numeric(x) && length(x) == 1) {
+    n <- x
+    x <- NULL
+  }
+
   if (is.null(colors)) {
     if (!is.null(x)) {
       res <- color_helper(
@@ -552,6 +565,7 @@ get_colors <- function(n,
         num_colors = num_colors,
         limits = limits,
         top = top,
+        numeric_ok = numeric_ok,
         verbose = verbose
       )
       if (!is.null(res$colors)) {
@@ -560,6 +574,13 @@ get_colors <- function(n,
         colors <- res$palette[res$labels]
       }
     } else {
+      if (n > 20 && is.null(color_scheme)) {
+        if (verbose) {
+          message("Warning: more than 20 palette colors requested without ", 
+          "specifying a color scheme. Using rainbow.")
+        }
+        color_scheme <- grDevices::rainbow
+      }
       colors <- make_palette(
         ncolors = n,
         color_scheme = color_scheme,
@@ -595,9 +616,15 @@ color_helper <- function(x,
                          num_colors = 15,
                          limits = NULL,
                          top = NULL,
+                         numeric_ok = FALSE,
                          verbose = FALSE) {
   if (methods::is(x, "data.frame")) {
-    res <- color_helper_df(x, color_scheme = color_scheme, verbose = verbose)
+    res <- color_helper_df(
+      x,
+      color_scheme = color_scheme,
+      numeric_ok = numeric_ok,
+      verbose = verbose
+    )
   } else {
     res <- color_helper_column(
       x,
@@ -626,8 +653,14 @@ color_helper <- function(x,
 # as colors by color_helper. Stick with color names (e.g. "goldenrod") or
 # rgb strings (e.g. "#140000" or "#140000FF" if including alpha values).
 # If ret_labels is TRUE, return the column used for the mapping
+# if numeric_ok is TRUE, then if other ways to find colors, before going with
+# one color per point, try to map the last numeric column to a continuous
+# color scheme. Default is FALSE because if passing in a mixed dataframe of
+# labels and data, it's likely that the numeric columns are not meant to be
+# interpreted as a continuous color scale (they're the raw data).
 color_helper_df <- function(df,
                             color_scheme = NULL,
+                            numeric_ok = FALSE,
                             verbose = FALSE) {
   colors <- NULL
   labels <- NULL
@@ -669,12 +702,30 @@ color_helper_df <- function(df,
     return(list(labels = labels, palette = palette))
   }
 
+  
+  # Either a numeric or one-point-per color scheme here
+  if (is.null(color_scheme)) {
+    color_scheme <- grDevices::rainbow
+  }
+  
+  if (numeric_ok) {
+    numeric_name <- last_numeric_column_name(df)
+    if (!is.null(numeric_name)) {
+      if (verbose) {
+        message(
+          "Found a numeric column '",
+          numeric_name,
+          "' for mapping to colors"
+        )
+      }
+      colors <- numeric_to_colors(df[[numeric_name]], color_scheme = color_scheme)
+      return(list(colors = colors))
+    }
+  }
+  
   # use one color per point
   if (verbose) {
     message("Using one color per point")
-  }
-  if (is.null(color_scheme)) {
-    color_scheme <- grDevices::rainbow
   }
   colors <- make_palette(ncolors = nrow(df), color_scheme = color_scheme)
   list(colors = colors, labels = labels)
@@ -974,6 +1025,16 @@ last_character_column_name <- function(df) {
   }
   char_name
 }
+
+last_numeric_column_name <- function(df) {
+  numeric_name <- NULL
+  numeric_names <- filter_column_names(df, is.numeric)
+  if (length(numeric_names) > 0) {
+    numeric_name <- numeric_names[length(numeric_names)]
+  }
+  numeric_name
+}
+
 
 # returns TRUE if vector x consists of colors
 is_color_column <- function(x) {
