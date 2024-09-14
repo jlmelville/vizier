@@ -538,7 +538,7 @@ embed_plotly <- function(coords,
 # of colors in the palette (where reasonable is 20 or fewer), Polychrome is used
 # to generate a categorical palette. This is very slow for large number of 
 # colors (anyway it seems quite hard to find 20 distinct colors!), so if this
-# is detected, a warning is issued and the rainbow palette is used.
+# is detected, a warning is issued and the fallback)color_scheme is used.
 # if numeric_ok is TRUE, then if no suitable color-ish column is found in x,
 # the last numeric column is used.
 get_colors <- function(x,
@@ -551,6 +551,7 @@ get_colors <- function(x,
                        NA_color = NULL,
                        rev = FALSE,
                        numeric_ok = FALSE,
+                       fallback_color_scheme = grDevices::rainbow,
                        verbose = FALSE) {
   if (is.numeric(x) && length(x) == 1) {
     n <- x
@@ -577,9 +578,9 @@ get_colors <- function(x,
       if (n > 20 && is.null(color_scheme)) {
         if (verbose) {
           message("Warning: more than 20 palette colors requested without ", 
-          "specifying a color scheme. Using rainbow.")
+          "specifying a color scheme. Using fallback color scheme")
         }
-        color_scheme <- grDevices::rainbow
+        color_scheme <- fallback_color_scheme
       }
       colors <- make_palette(
         ncolors = n,
