@@ -532,8 +532,8 @@ embed_plotly <- function(coords,
 
 # return a vector of n colors used to directly color each point, can be
 # passed to the colors arg of embed_plot
-# if x is a numeric scalar, it is assumed to be n, the number of actual colors
-# to return (one per point)
+# if x is a numeric scalar, it is assumed to be num_colors, the number of actual
+# colors to return (one per point)
 # if you don't specify a color_scheme and you are asking for a reasonable number
 # of colors in the palette (where reasonable is 20 or fewer), Polychrome is used
 # to generate a categorical palette. This is very slow for large number of
@@ -554,7 +554,7 @@ get_colors <- function(x,
                        fallback_color_scheme = grDevices::rainbow,
                        verbose = FALSE) {
   if (is.numeric(x) && length(x) == 1) {
-    n <- x
+    num_colors <- x
     x <- NULL
   }
 
@@ -576,7 +576,7 @@ get_colors <- function(x,
         colors <- res$palette[res$labels]
       }
     } else {
-      if (n > 20 && is.null(color_scheme)) {
+      if (num_colors > 20 && is.null(color_scheme)) {
         if (verbose) {
           message(
             "Warning: more than 20 palette colors requested without ",
@@ -586,7 +586,7 @@ get_colors <- function(x,
         color_scheme <- fallback_color_scheme
       }
       colors <- make_palette(
-        ncolors = n,
+        ncolors = num_colors,
         color_scheme = color_scheme,
         verbose = verbose
       )
