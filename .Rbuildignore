@@ -3,3 +3,7 @@
 ^README\.md$
 ^img$
 ^.*DONTCHECKMEIN.*$
+^\.github$
+^\.lintr$
+^air\.toml$
+^codecov\.yml$
