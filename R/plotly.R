@@ -182,9 +182,10 @@ embed_plotly <- function(
         numeric_values <- x
         color_limits <- plotly_numeric_limits(numeric_values, limits)
         if (!is.null(color_limits)) {
+          below_limits <- numeric_values < color_limits[1]
+          above_limits <- numeric_values > color_limits[2]
           outside_limits <- is.finite(numeric_values) &
-            (numeric_values < color_limits[1] |
-              numeric_values > color_limits[2])
+            (below_limits | above_limits)
 
           if (clip_limit_values) {
             if (any(outside_limits) && is.null(tooltip)) {
