@@ -26,27 +26,52 @@
 #' pie(rep(1, 12), col = turbo(12), main = "turbo")
 #' @export
 turbo <- function(n, start = 0, end = 1, rev = FALSE) {
-  if (
-    start == end ||
-      any(c(start, end) < 0) ||
-      any(
-        c(
-          start,
-          end
-        ) >
-          1
-      )
-  ) {
-    stop("'start' and 'end' must be distinct and in [0, 1].")
-  }
+  n <- validate_turbo_n(n)
+  validate_turbo_bounds(start, end)
+
   xs <- seq.int(from = start, to = end, length.out = n)
-  cols <- sapply(xs, function(x) {
-    do.call(grDevices::rgb, as.list(interpolate(turbo_colormap_data, x)))
-  })
+  cols <- grDevices::rgb(interpolate_vec(turbo_colormap_data, xs))
   if (rev) {
     cols <- rev(cols)
   }
   cols
+}
+
+validate_turbo_n <- function(n) {
+  if (
+    !is.numeric(n) ||
+      length(n) != 1 ||
+      is.na(n) ||
+      !is.finite(n) ||
+      n < 1 ||
+      n > .Machine$integer.max ||
+      n != as.integer(n)
+  ) {
+    stop("'n' must be a positive integer.", call. = FALSE)
+  }
+
+  as.integer(n)
+}
+
+validate_turbo_bounds <- function(start, end) {
+  if (
+    !is.numeric(start) ||
+      !is.numeric(end) ||
+      length(start) != 1 ||
+      length(end) != 1 ||
+      is.na(start) ||
+      is.na(end) ||
+      !is.finite(start) ||
+      !is.finite(end) ||
+      start == end ||
+      any(c(start, end) < 0) ||
+      any(c(start, end) > 1)
+  ) {
+    stop(
+      "'start' and 'end' must be distinct finite values in [0, 1].",
+      call. = FALSE
+    )
+  }
 }
 
 
@@ -350,7 +375,8 @@ interpolate_vec <- function(colormap, x) {
   a <- a + 1
   b <- b + 1
 
-  colormap[a, ] + (colormap[b, ] - colormap[a, ]) * f
+  colormap[a, , drop = FALSE] +
+    (colormap[b, , drop = FALSE] - colormap[a, , drop = FALSE]) * f
 }
 
 turbo_vec <- function(n, start = 0, end = 1) {
