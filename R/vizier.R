@@ -573,7 +573,7 @@ get_colors <- function(x,
       if (!is.null(res$colors)) {
         colors <- res$colors
       } else {
-        colors <- res$palette[res$labels]
+        colors <- res$palette[as.character(res$labels)]
       }
     } else {
       if (num_colors > 20 && is.null(color_scheme)) {
@@ -705,7 +705,7 @@ color_helper_df <- function(df,
       )
     }
     labels <- df[[label_name]]
-    colors <- factor_to_palette(as.factor(labels),
+    palette <- factor_to_palette(labels,
       color_scheme = color_scheme,
       verbose = verbose
     )
@@ -792,7 +792,7 @@ color_helper_column <- function(x,
 factor_to_colors <- function(x,
                              color_scheme = NULL,
                              verbose = FALSE) {
-  factor_to_palette(x, color_scheme, verbose = verbose)[x]
+  factor_to_palette(x, color_scheme, verbose = verbose)[as.character(x)]
 }
 
 # Map a vector of factor levels, x, to a palette based on the specified
@@ -800,13 +800,14 @@ factor_to_colors <- function(x,
 factor_to_palette <- function(x,
                               color_scheme = NULL,
                               verbose = FALSE) {
+  x <- as.factor(x)
   category_names <- levels(x)
   ncolors <- length(category_names)
-  make_palette(
+  stats::setNames(make_palette(
     ncolors = ncolors,
     color_scheme = color_scheme,
     verbose = verbose
-  )
+  ), category_names)
 }
 
 # Map Numbers to Colors
@@ -850,11 +851,41 @@ numeric_to_colors <- function(x,
   if (is.null(n)) {
     n <- length(x)
   }
-  if (is.null(limits)) {
-    limits <- range(x)
+
+  if (!is.numeric(n) || length(n) != 1 || is.na(n) || !is.finite(n) || n < 1) {
+    stop("'n' must be a positive finite number.", call. = FALSE)
   }
+  n <- as.integer(n)
+
+  if (is.null(limits)) {
+    finite_x <- x[is.finite(x)]
+    if (length(finite_x) == 0) {
+      return(rep(NA_character_, length(x)))
+    }
+    limits <- range(finite_x)
+  }
+
+  if (!is.numeric(limits) || length(limits) != 2 ||
+    anyNA(limits) || !all(is.finite(limits))) {
+    stop("'limits' must contain two finite numeric values.", call. = FALSE)
+  }
+
+  if (limits[1] > limits[2]) {
+    stop("'limits' must be in increasing order.", call. = FALSE)
+  }
+
   pal <- make_palette(ncolors = n, color_scheme = color_scheme)
-  pal[findInterval(x, seq(limits[1], limits[2], length.out = length(pal) + 1), all.inside = TRUE)]
+  colors <- rep(NA_character_, length(x))
+  ok <- is.finite(x)
+
+  if (limits[1] == limits[2]) {
+    colors[ok] <- pal[[ceiling(length(pal) / 2)]]
+    return(colors)
+  }
+
+  breaks <- seq(limits[1], limits[2], length.out = length(pal) + 1)
+  colors[ok] <- pal[findInterval(x[ok], breaks, all.inside = TRUE)]
+  colors
 }
 
 # Color Palette with Specified Number of Colors
@@ -899,7 +930,7 @@ make_palette_function <- function(name, verbose = FALSE) {
         }
         palette <- grDevices::colorRampPalette(name)(n)
       } else {
-        palette <- name
+        palette <- name[seq_len(n)]
       }
       palette
     }
@@ -931,10 +962,16 @@ make_palette_function <- function(name, verbose = FALSE) {
   package_name <- split_res[1]
   palette_name <- split_res[2]
   if (length(split_res) == 3) {
-    type <- tolower(split_res[3])
-    if (!type %in% c("c", "d")) {
-      stop("Discrete palette type must be one 'd' or 'c'")
-    }
+    type <- switch(tolower(split_res[3]),
+      "c" = "continuous",
+      "continuous" = "continuous",
+      "d" = "discrete",
+      "discrete" = "discrete",
+      stop(
+        "Palette type must be one of 'c', 'continuous', 'd', or 'discrete'",
+        call. = FALSE
+      )
+    )
   }
 
   if (is.null(pal)) {
@@ -966,12 +1003,16 @@ make_palette_function <- function(name, verbose = FALSE) {
     },
     "d" = function(package_name, palette_name, n) {
       pack_and_pal <- paste0(package_name, "::", palette_name)
-      forceAndCall(3,
-        paletteer::paletteer_d,
-        pack_and_pal,
-        n = n,
-        type = type
-      )
+      if (is.null(type)) {
+        forceAndCall(2, paletteer::paletteer_d, pack_and_pal, n)
+      } else {
+        forceAndCall(3,
+          paletteer::paletteer_d,
+          pack_and_pal,
+          n = n,
+          type = type
+        )
+      }
     },
     "dynamic" = function(package_name, palette_name, n) {
       pack_and_pal <- paste0(package_name, "::", palette_name)
