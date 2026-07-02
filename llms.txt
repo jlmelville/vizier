@@ -1,0 +1,104 @@
+# vizier
+
+An R Package for Visualization of 2D Datasets.
+
+Visualizing datasets in 2D (e.g. via PCA, Sammon Mapping, t-SNE) is much
+more informative if the points are colored, using something like:
+
+- Factor levels mapped to different colors.
+- A numeric value mapped to a color scale.
+- A string encoding a color.
+
+This package is to make doing that a bit easier, using the
+[`graphics::plot`](https://rdrr.io/r/graphics/plot.default.html)
+function, or via the [plotly](https://plotly.com/r/) JavaScript library.
+If you don’t specify a specific column to color by, it will attempt to
+find a suitable factor or color column automatically, using the last
+suitable column found, so you can add a custom column to a dataframe if
+needed and have it picked out automatically.
+
+## Installing
+
+``` r
+
+install.packages("pak")
+pak::pak("jlmelville/vizier")
+```
+
+## Documentation
+
+``` r
+
+?embed_plot
+?embed_plotly
+```
+
+The pkgdown site has longer guides:
+
+- [Getting
+  started](https://jlmelville.github.io/vizier/articles/getting-started.html)
+- [Color
+  schemes](https://jlmelville.github.io/vizier/articles/color-schemes.html)
+
+## Example
+
+Create a plot of the first two principal components (PCA) for the `iris`
+dataset:
+
+``` r
+
+pca_iris <- stats::prcomp(iris[, -5], retx = TRUE, rank. = 2)
+```
+
+Simplest use of embed_plot: pass in data frame and it will use the last
+(in this case, only) factor column it finds and the `rainbow` color
+scheme
+
+``` r
+
+embed_plot(pca_iris$x, iris)
+```
+
+![Default embed plot
+result](reference/figures/embed_ex.png "embed_plot(pca_iris$x, iris)")
+
+Default embed plot result
+
+For more examples, see the [Getting
+started](https://jlmelville.github.io/vizier/articles/getting-started.html)
+article.
+
+## License
+
+[GPL (\>= 3)](https://www.gnu.org/licenses/gpl-3.0.en.html). The code
+for the `turbo` color scheme is from
+<https://gist.github.com/jlmelville/be981e2f36485d8ef9616aef60fd52ab>
+and is licensed under Apache 2.
+
+## See Also
+
+- More example datasets that I’ve used these functions with can be found
+  in the [snedata](https://github.com/jlmelville/snedata) and
+  [COIL-20](https://github.com/jlmelville/coil20) packages.
+- [quadra](https://github.com/jlmelville/quadra) for assessing the
+  results quantitatively. This one’s a bit rough at the moment, though.
+
+# Package index
+
+## All functions
+
+- [`embed_plot()`](https://jlmelville.github.io/vizier/reference/embed_plot.md)
+  : Embedding Plot
+- [`embed_plotly()`](https://jlmelville.github.io/vizier/reference/embed_plotly.md)
+  : Embedding Plot Using the JavaScript Library Plotly
+- [`turbo()`](https://jlmelville.github.io/vizier/reference/turbo.md) :
+  Turbo Color Palette
+
+# Articles
+
+### Guides
+
+- [Getting
+  Started](https://jlmelville.github.io/vizier/articles/getting-started.md):
+- [Color
+  Schemes](https://jlmelville.github.io/vizier/articles/color-schemes.md):

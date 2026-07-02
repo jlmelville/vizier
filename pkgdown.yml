@@ -1,0 +1,10 @@
+pandoc: 3.8.3
+pkgdown: 2.2.0
+pkgdown_sha: ~
+articles:
+  articles/color-schemes: color-schemes.html
+  articles/getting-started: getting-started.html
+last_built: 2026-07-02T07:43Z
+urls:
+  reference: https://jlmelville.github.io/vizier/reference
+  article: https://jlmelville.github.io/vizier/articles
