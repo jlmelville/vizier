@@ -394,65 +394,54 @@ embed_plotly <- function(
     coords <- coords$coords
   }
 
-  if (!is.null(text)) {
-    mode <- "text"
-    labels <- text
-    marker <- NULL
-  } else {
-    mode <- "markers"
-    marker <- list(size = cex * 6)
-    labels <- NULL
-  }
-
-  use_palette <- FALSE
-  if (!is.null(colors) && is.null(labels)) {
-    labels <- colors
-  }
+  mode <- if (is.null(text)) "markers" else "text"
+  labels <- NULL
+  trace_type <- "direct"
+  numeric_values <- NULL
+  numeric_tooltip <- NULL
 
   if (is.null(colors)) {
     if (!is.null(x)) {
       if (methods::is(x, "numeric")) {
+        trace_type <- "numeric"
         labels <- x
-        if (methods::is(color_scheme, "character")) {
-          colors <- make_palette(
-            ncolors = num_colors,
-            color_scheme = color_scheme
-          )
-        } else {
-          if (is.null(color_scheme)) {
-            color_scheme <- grDevices::rainbow
-          }
-          colors <- color_scheme(max(1, num_colors - 1))
-        }
-        use_palette <- TRUE
-        mode <- "markers"
-        marker <- list(size = cex * 6)
-        if (!is.null(limits)) {
-          marker$cmin <- limits[1]
-          marker$cmax <- limits[2]
-          if (
-            clip_limit_values &&
-              any(labels > marker$cmax | labels < marker$cmin)
-          ) {
-            # colors outside the limits are displayed as missing rather than
-            # clipped to the limits. If we choose to clip ourselves, we lose the
-            # original values on the tooltip. If the tooltip parameter has not
-            # been set, we save the original values there.
-            if (is.null(tooltip)) {
-              tooltip <- labels
+        numeric_values <- x
+        color_limits <- plotly_numeric_limits(numeric_values, limits)
+        if (!is.null(color_limits)) {
+          outside_limits <- is.finite(numeric_values) &
+            (numeric_values < color_limits[1] |
+              numeric_values > color_limits[2])
+
+          if (clip_limit_values) {
+            if (any(outside_limits) && is.null(tooltip)) {
+              numeric_tooltip <- labels
             }
-            labels[labels > marker$cmax] <- marker$cmax
-            labels[labels < marker$cmin] <- marker$cmin
+            numeric_values[numeric_values > color_limits[2]] <- color_limits[2]
+            numeric_values[numeric_values < color_limits[1]] <- color_limits[1]
+          } else {
+            numeric_values[outside_limits] <- NA_real_
           }
         }
+
+        numeric_values[!is.finite(numeric_values)] <- NA_real_
+        mode <- "markers"
+        if (is.null(num_colors)) {
+          num_colors <- length(x)
+        }
+        if (is.null(color_scheme)) {
+          color_scheme <- grDevices::rainbow
+        }
+        colors <- make_palette(
+          ncolors = max(1, num_colors),
+          color_scheme = color_scheme
+        )
       } else {
         res <- color_helper(x, color_scheme = color_scheme, verbose = verbose)
         if (!is.null(res$labels)) {
-          use_palette <- TRUE
+          trace_type <- "categorical"
           labels <- res$labels
           colors <- res$palette
         } else {
-          # Just manual colors
           colors <- res$colors
         }
       }
@@ -465,12 +454,11 @@ embed_plotly <- function(
       )
       show_legend <- FALSE
     }
+  } else if (is.null(text)) {
+    labels <- colors
   }
   if (rev) {
     colors <- rev(colors)
-  }
-  if (is.list(marker)) {
-    marker$opacity <- alpha_scale
   }
 
   if (pc_axes) {
@@ -483,15 +471,15 @@ embed_plotly <- function(
     ylim <- lims
   }
 
-  if (!is.null(tooltip)) {
-    text <- tooltip
-  } else if (is.null(text)) {
-    text <- labels
-  }
-  # prepend "<index>: " to tooltips to identify point in dataframe
-  text <- paste0(as.character(seq_along(text)), ": ", text)
+  hover_text <- plotly_hover_text(
+    n = nrow(coords),
+    tooltip = tooltip,
+    text = text,
+    labels = labels,
+    numeric_tooltip = numeric_tooltip
+  )
 
-  if (use_palette) {
+  if (trace_type == "categorical") {
     p <- plotly::plot_ly(
       x = coords[, 1],
       y = coords[, 2],
@@ -499,20 +487,71 @@ embed_plotly <- function(
       colors = colors,
       type = "scatter",
       mode = mode,
-      text = text,
-      marker = marker
+      text = if (mode == "text") text else hover_text,
+      hovertext = hover_text,
+      hoverinfo = "text",
+      marker = if (mode == "markers") {
+        list(size = cex * 6, opacity = alpha_scale)
+      } else {
+        NULL
+      }
     )
-  } else {
-    show_legend <- FALSE
-    marker <- append(marker, list(color = colors))
+    layout_show_legend <- show_legend
+  } else if (trace_type == "numeric") {
+    marker <- list(
+      size = cex * 6,
+      opacity = alpha_scale,
+      color = numeric_values,
+      colorscale = plotly_colorscale(colors),
+      showscale = show_legend
+    )
+    if (!is.null(color_limits)) {
+      marker$cmin <- color_limits[1]
+      marker$cmax <- color_limits[2]
+    }
+    if (show_legend) {
+      marker$colorbar <- list(title = "")
+    }
     p <- plotly::plot_ly(
       x = coords[, 1],
       y = coords[, 2],
       type = "scatter",
       mode = mode,
-      text = text,
+      text = hover_text,
+      hovertext = hover_text,
+      hoverinfo = "text",
       marker = marker
     )
+    layout_show_legend <- FALSE
+  } else {
+    if (mode == "text") {
+      p <- plotly::plot_ly(
+        x = coords[, 1],
+        y = coords[, 2],
+        type = "scatter",
+        mode = mode,
+        text = text,
+        hovertext = hover_text,
+        hoverinfo = "text",
+        textfont = list(color = colors)
+      )
+    } else {
+      p <- plotly::plot_ly(
+        x = coords[, 1],
+        y = coords[, 2],
+        type = "scatter",
+        mode = mode,
+        text = hover_text,
+        hovertext = hover_text,
+        hoverinfo = "text",
+        marker = list(
+          size = cex * 6,
+          opacity = alpha_scale,
+          color = colors
+        )
+      )
+    }
+    layout_show_legend <- FALSE
   }
   p <-
     plotly::layout(
@@ -532,14 +571,51 @@ embed_plotly <- function(
         showgrid = FALSE,
         range = ylim
       ),
-      showlegend = show_legend
+      showlegend = layout_show_legend
     )
-  if (show_legend && methods::is(x, "numeric")) {
-    p <- plotly::colorbar(p, title = "", limits = limits)
-  } else {
-    p <- plotly::hide_colorbar(p)
-  }
   p
+}
+
+plotly_colorscale <- function(colors) {
+  if (length(colors) == 1) {
+    colors <- rep(colors, 2)
+  }
+  stops <- seq(0, 1, length.out = length(colors))
+  unname(Map(function(stop, color) list(stop, color), stops, colors))
+}
+
+plotly_numeric_limits <- function(x, limits = NULL) {
+  if (!is.null(limits)) {
+    return(validate_numeric_limits(limits))
+  }
+
+  finite_x <- x[is.finite(x)]
+  if (length(finite_x) == 0) {
+    return(NULL)
+  }
+  range(finite_x)
+}
+
+plotly_hover_text <- function(
+  n,
+  tooltip = NULL,
+  text = NULL,
+  labels = NULL,
+  numeric_tooltip = NULL
+) {
+  if (!is.null(tooltip)) {
+    hover <- tooltip
+  } else if (!is.null(numeric_tooltip)) {
+    hover <- numeric_tooltip
+  } else if (!is.null(text)) {
+    hover <- text
+  } else if (!is.null(labels)) {
+    hover <- labels
+  } else {
+    hover <- rep("", n)
+  }
+
+  paste0(as.character(seq_along(hover)), ": ", hover)
 }
 
 # return a vector of n colors used to directly color each point, can be
@@ -897,18 +973,7 @@ numeric_to_colors <- function(
     limits <- range(finite_x)
   }
 
-  if (
-    !is.numeric(limits) ||
-      length(limits) != 2 ||
-      anyNA(limits) ||
-      !all(is.finite(limits))
-  ) {
-    stop("'limits' must contain two finite numeric values.", call. = FALSE)
-  }
-
-  if (limits[1] > limits[2]) {
-    stop("'limits' must be in increasing order.", call. = FALSE)
-  }
+  limits <- validate_numeric_limits(limits)
 
   pal <- make_palette(ncolors = n, color_scheme = color_scheme)
   colors <- rep(NA_character_, length(x))
@@ -922,6 +987,23 @@ numeric_to_colors <- function(
   breaks <- seq(limits[1], limits[2], length.out = length(pal) + 1)
   colors[ok] <- pal[findInterval(x[ok], breaks, all.inside = TRUE)]
   colors
+}
+
+validate_numeric_limits <- function(limits) {
+  if (
+    !is.numeric(limits) ||
+      length(limits) != 2 ||
+      anyNA(limits) ||
+      !all(is.finite(limits))
+  ) {
+    stop("'limits' must contain two finite numeric values.", call. = FALSE)
+  }
+
+  if (limits[1] > limits[2]) {
+    stop("'limits' must be in increasing order.", call. = FALSE)
+  }
+
+  limits
 }
 
 # Color Palette with Specified Number of Colors
