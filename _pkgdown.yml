@@ -2,3 +2,8 @@ url: https://jlmelville.github.io/vizier/
 template:
   bootstrap: 5
 
+articles:
+- title: Guides
+  contents:
+  - articles/getting-started
+  - articles/color-schemes

@@ -3,10 +3,12 @@
 ^README\.md$
 ^img$
 ^.*DONTCHECKMEIN.*$
+plans/
 ^\.github$
 ^\.lintr$
 ^air\.toml$
 ^codecov\.yml$
 ^_pkgdown\.yml$
 ^docs$
+^vignettes/articles$
 ^pkgdown$
