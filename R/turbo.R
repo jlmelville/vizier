@@ -26,10 +26,17 @@
 #' pie(rep(1, 12), col = turbo(12), main = "turbo")
 #' @export
 turbo <- function(n, start = 0, end = 1, rev = FALSE) {
-  if (start == end || any(c(start, end) < 0) || any(c(
-    start,
-    end
-  ) > 1)) {
+  if (
+    start == end ||
+      any(c(start, end) < 0) ||
+      any(
+        c(
+          start,
+          end
+        ) >
+          1
+      )
+  ) {
     stop("'start' and 'end' must be distinct and in [0, 1].")
   }
   xs <- seq.int(from = start, to = end, length.out = n)
@@ -308,9 +315,6 @@ turbo_colormap_data <- matrix(
   byrow = TRUE
 )
 
-# interpolate(turbo_colormap_data, 0) -> c(0.18995, 0.07176. 0.23217)
-# interpolate(turbo_colormap_data, 0.5) -> c(0.638425, 0.990970, 0.236465)
-# interpolate(turbo_colormap_data, 1) -> c(0.47960, 0.01583, 0.01055)
 interpolate <- function(colormap, x) {
   x <- max(0.0, min(1.0, x))
   a <- floor(x * 255.0)
@@ -319,20 +323,20 @@ interpolate <- function(colormap, x) {
   a <- a + 1
   b <- b + 1
 
-  return(c(
+  c(
     colormap[a, 1] + (colormap[b, 1] - colormap[a, 1]) * f,
     colormap[a, 2] + (colormap[b, 2] - colormap[a, 2]) * f,
     colormap[a, 3] + (colormap[b, 3] - colormap[a, 3]) * f
-  ))
+  )
 }
 
 interpolate_or_clip <- function(colormap, x) {
   if (x < 0.0) {
-    return(c(0.0, 0.0, 0.0))
+    c(0.0, 0.0, 0.0)
   } else if (x > 1.0) {
-    return(c(1.0, 1.0, 1.0))
+    c(1.0, 1.0, 1.0)
   } else {
-    return(interpolate(colormap, x))
+    interpolate(colormap, x)
   }
 }
 
