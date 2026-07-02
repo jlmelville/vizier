@@ -9,9 +9,9 @@ turbo(n, start = 0, end = 1, rev = FALSE)
 \arguments{
 \item{n}{the number of colors (\emph{>= 1}) to be in the palette.}
 
-\item{start}{the (corrected) hue in [0,1] at which the rainbow begins.}
+\item{start}{the (corrected) hue in \verb{[0, 1]} at which the rainbow begins.}
 
-\item{end}{the (corrected) hue in [0,1] at which the rainbow ends.}
+\item{end}{the (corrected) hue in \verb{[0, 1]} at which the rainbow ends.}
 
 \item{rev}{logical indicating whether the ordering of the colors should be
 reversed.}

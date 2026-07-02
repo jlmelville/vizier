@@ -66,7 +66,7 @@
 #'  if there is some external absolute scale that should be used. Ignored if
 #'  \code{x} is not a numeric vector.
 #' @param top If not \code{NULL}, only the specified number of points will be
-#'  displayed, corresponding to those with the highest values in \code{vec},
+#'  displayed, corresponding to those with the highest values in \code{x},
 #'  after sorting by decreasing order.
 #' @param cex Size of the points. Ignored if \code{text} is provided.
 #' @param text Vector of label text to display instead of a point. If the labels
@@ -234,6 +234,9 @@ embed_plot <- function(coords,
 #' This will open a web browser if you are using the R CLI. In RStudio, it
 #' will put the plot in RStudio's Plots tab.
 #'
+#' More information on plotly is available at its website,
+#' \url{https://plotly.com/r/}.
+#'
 #' The \code{x} argument can be used to provide a suitable vector of colors
 #' from either a data frame or vector.
 #'
@@ -315,9 +318,6 @@ embed_plot <- function(coords,
 #'   reversed.
 #' @param verbose If \code{TRUE}, log messages to the console, mainly when
 #'   searching for a suitable color column in a dataframe.
-#'
-#' More information on plotly is available at its website,
-#' \url{https://plot.ly}.
 #' @export
 #' @examples
 #' \dontrun{
@@ -352,7 +352,7 @@ embed_plot <- function(coords,
 #'
 #' # Can plot the category names instead of points, but looks bad if they're
 #' # long (or the dataset is large)
-#' embed_plot(pca_iris$x, iris$Species, cex = 0.5, text = iris$Species)
+#' embed_plotly(pca_iris$x, iris$Species, cex = 0.5, text = iris$Species)
 #'
 #' # Visualize numeric value (petal length) as a color
 #' embed_plotly(pca_iris$x, iris$Petal.Length, color_scheme = "RColorBrewer::Blues")
@@ -383,6 +383,13 @@ embed_plotly <- function(coords,
                          ylim = NULL,
                          rev = FALSE,
                          verbose = FALSE) {
+  if (!requireNamespace("plotly", quietly = TRUE)) {
+    stop(
+      "Package \"plotly\" must be installed to use embed_plotly().",
+      call. = FALSE
+    )
+  }
+
   if (methods::is(coords, "list") && !is.null(coords$coords)) {
     coords <- coords$coords
   }
@@ -902,7 +909,7 @@ make_palette <- function(ncolors,
   } else {
     palette <- make_palette_function(color_scheme, verbose = verbose)(ncolors)
   }
-  palette
+  as.character(palette)
 }
 
 # something a bit like the Python package glasbey provides

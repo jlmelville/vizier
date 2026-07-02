@@ -3,8 +3,8 @@
 #' Create a vector of n contiguous colors using the Turbo rainbow colormap.
 #'
 #' @param n the number of colors (\emph{>= 1}) to be in the palette.
-#' @param start the (corrected) hue in [0,1] at which the rainbow begins.
-#' @param end the (corrected) hue in [0,1] at which the rainbow ends.
+#' @param start the (corrected) hue in `[0, 1]` at which the rainbow begins.
+#' @param end the (corrected) hue in `[0, 1]` at which the rainbow ends.
 #' @param rev logical indicating whether the ordering of the colors should be
 #' reversed.
 #' @return A character vector \code{cv} containing n hex color codes. This can

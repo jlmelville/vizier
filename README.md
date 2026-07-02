@@ -25,7 +25,7 @@ has been added as the `turbo` function.
 * New argument `rev` to reverse the ordering of the colors in the palette. This
 is useful when comparing `turbo` with other rainbow palettes because `turbo`
 goes from blue to red.
-* For the 
+* For the
 [new color palettes in R 4.0](https://developer.r-project.org/Blog/public/2019/11/21/a-new-palette-for-r/index.html),
 you can pass them by name, e.g. `color_scheme = "Okabe-Ito"`.
 * `colorRampPalette` is only used if you need to interpolate the palette (i.e.
@@ -33,7 +33,7 @@ if you ask for more colors than exist in the palette). Colors will now be
 returned in the order they appear in the palette.
 
 **September 27 2018**: Color schemes with `embed_plotly` was badly messed up.
-This now fixed. You now also have control over whether to interpolate a discrete
+This is now fixed. You now also have control over whether to interpolate a discrete
 palette.
 
 Visualizing datasets in 2D (e.g. via PCA, Sammon Mapping, t-SNE) is much more
@@ -44,17 +44,17 @@ informative if the points are colored, using something like:
 * A string encoding a color.
 
 This package is to make doing that a bit easier, using the `graphics::plot`
-function, or via the [plotly](https://plot.ly/) JavaScript library. If you
-don't specify a specific column to color by, it will attept to find a suitable
+function, or via the [plotly](https://plotly.com/r/) JavaScript library. If you
+don't specify a specific column to color by, it will attempt to find a suitable
 factor or color column automatically, using the last suitable column found, so
-you can add a custom column to a dataframe if needed and have it picked out 
+you can add a custom column to a dataframe if needed and have it picked out
 automatically.
 
 ## Installing
 
 ```R
-install.packages("devtools")
-devtools::install_github("jlmelville/vizier")
+install.packages("pak")
+pak::pak("jlmelville/vizier")
 ```
 
 ## Documentation
@@ -73,7 +73,7 @@ dataset:
 pca_iris <- stats::prcomp(iris[, -5], retx = TRUE, rank. = 2)
 ```
 
-Simplest use of embed_plot: pass in data frame and it will use the last 
+Simplest use of embed_plot: pass in data frame and it will use the last
 (in this case, only) factor column it finds and the `rainbow` color scheme
 
 ```R
@@ -100,7 +100,7 @@ embed_plot(pca_iris$x, iris$Species, color_scheme = rainbow, alpha_scale = 0.5)
 
 If you already have colors you want to use for each point, you can use the
 `colors` parameter. In the example below, 
-`colorRampPalette(c("red", "yellow"))(nrow(iris)))` produces a vector of 150 
+`colorRampPalette(c("red", "yellow"))(nrow(iris)))` produces a vector of 150
 colors going from red to yellow:
 
 ```R
@@ -120,7 +120,7 @@ Here's another example of using a built-in palette, `topo.colors`:
 
 This package also includes the
 [turbo colormap](https://ai.googleblog.com/2019/08/turbo-improved-rainbow-colormap-for.html)
-as a palette, via the `turbo` function, which works a lot like 
+as a palette, via the `turbo` function, which works a lot like
 `grDevices::rainbow` (although reversed in terms of colors):
 
 ```R
@@ -137,7 +137,7 @@ embed_plot(pca_iris$x, iris$Species, color_scheme = turbo, rev = TRUE)
 
 ![Embed plot with the turbo color scheme reversed](img/embed_ex_turbo_rev.png "embed_plot(pca_iris$x, iris$Species, color_scheme = turbo, rev = TRUE)")
 
-You can also provide your own palette (i.e. a vector colors):
+You can also provide your own palette (i.e. a vector of colors):
 
 ```R
 embed_plot(pca_iris$x, iris$Species, color_scheme = c("black", "red", "gray"))
@@ -154,7 +154,7 @@ Watch out for the opposite situation where you need *more* colors than your
 palette provides. In this case `vizier` will use interpolation to get the colors
 it needs. This might work out for some palettes that represent a continuous
 color scale (like `rainbow`), but will give weird and probably undesirable
-results for discrete palettes. For more details, see the section 
+results for discrete palettes. For more details, see the section
 "Discrete Palettes with `continuous` Type" below.
 
 As of R 4.0, there are some 
@@ -186,7 +186,7 @@ embed_plot(pca_iris$x, iris$Species, color_scheme = topo.colors, equal_axes = TR
 ![Embed plot with equal axes](img/embed_ex_ax.png "embed_plot(pca_iris$x, iris$Species, color_scheme = topo.colors, equal_axes = TRUE)")
 
 You can plot the category names instead of points, but it looks bad if they're
-long (or the dataset is large. Making the text a bit smaller with the `cex` 
+long (or the dataset is large). Making the text a bit smaller with the `cex`
 param can help:
 
 ```R
@@ -195,12 +195,12 @@ embed_plot(pca_iris$x, iris$Species, cex = 0.75, text = iris$Species)
 
 ![Embed plot with text labels](img/embed_ex_text.png "embed_plot(pca_iris$x, iris$Species, cex = 0.75, text = iris$Species)")
 
-For more color schemes, Vizier makes use of the excellent 
-[paletteer](https://cran.r-project.org/package=paletteer) package. 
-You can select one of the palettes on offer by (among other ways) passing a 
-string with the format`"package::palette"`. For example, to use the `Dark2`
-scheme from the the 
-[RColorBrewer](https://cran.r-project.org/package=RColorBrewer) package 
+For more color schemes, Vizier makes use of the excellent
+[paletteer](https://cran.r-project.org/package=paletteer) package.
+You can select one of the palettes on offer by (among other ways) passing a
+string with the format `"package::palette"`. For example, to use the `Dark2`
+scheme from the 
+[RColorBrewer](https://cran.r-project.org/package=RColorBrewer) package
 (itself based on [ColorBrewer](http://www.colorbrewer2.org) schemes):
 
 ```R
@@ -255,7 +255,7 @@ e.g. `grDevices::rainbow`.
 * The name of a color scheme provided by `paletteer`, in the form 
 `"package::palette"`. For a list of the many, many palettes supported, see
 [paletteer's github page](https://github.com/EmilHvitfeldt/paletteer). Some
-examples include `"dutchmasters::milkmaid"`, `"cartography::green.pal"`, 
+examples include `"dutchmasters::milkmaid"`, `"cartography::green.pal"`,
 `"viridis::inferno"`, `"RColorBrewer::Dark2"`. `vizier` makes no distinction
 between the continuous, fixed-width or dynamic palette classification used by
 `paletteer`.
@@ -266,14 +266,14 @@ If the color scheme you select has a maximum number of colors, and `vizier`
 needs to use more than those that are available, then it will interpolate
 among the maximum number of colors to create the desired number. This may lead
 to results where different categories are hard to distinguish from each other.
-If you set `verbose = TRUE`, then if interpolation is required, a message will 
+If you set `verbose = TRUE`, then if interpolation is required, a message will
 be logged to console to this effect. `paletteer` has information on the number
 of colors available in each palette.
 
 ### Discrete Palettes with `continuous` Type
 
 For discrete palettes, if you ask for fewer colors than the full range, you will
-only get the first few colors from the palette. For some palettes this works 
+only get the first few colors from the palette. For some palettes this works
 fine. For example, here is the `Dark2` palette from `RColorBrewer`:
 
 ![RColorBrewer Dark2 swatch](img/dark2_swatch.png "swatches::show_palette(paletteer::paletteer_d(\"RColorBrewer\", \"Dark2\"))")
@@ -282,7 +282,7 @@ If you use this palette to color the iris PCA:
 
 ![iris PCA with Dark2 color scheme](img/embed_dark2.png "embed_plot(pca_iris$x, iris, color_scheme = \"RColorBrewer::Dark2\", cex = 2, title = \"RColorBrewer Dark2\")")
 
-The three colors from the lefthand side of the swatch are used to color the 
+The three colors from the lefthand side of the swatch are used to color the
 species.
 
 However, some discrete palettes have an ordering to them, e.g. they go to from
@@ -295,7 +295,7 @@ The PCA embedding now looks like:
 ![iris PCA with rainbow color scheme](img/embed_jcrainbow.png "embed_plot(pca_iris$x, iris, color_scheme = \"jcolors::rainbow\", cex = 2, title = \"jcolors rainbow\")")
 
 If you would prefer to use a fuller extent of the palette, you can treat the
-palette as continuous, by appending `::c` to the name of the color scheme, 
+palette as continuous, by appending `::c` to the name of the color scheme,
 e.g. `"jcolors::rainbow::c"`. Now the result is:
 
 ![iris PCA with continuous rainbow color scheme](img/embed_jcrainbowc.png "embed_plot(pca_iris$x, iris, color_scheme = \"jcolors::rainbow::c\", cex = 2, title = \"jcolors rainbow (continuous)\")")
@@ -303,13 +303,13 @@ e.g. `"jcolors::rainbow::c"`. Now the result is:
 where the colors come from the left-most, right-most and center positions on
 the swatch.
 
-The downside to treating these palettes as continuous is that there is no 
+The downside to treating these palettes as continuous is that there is no
 guarantee that the interpolation will result in colors that actually come from
 the palette. In fact, they probably won't. We just got lucky in the above
 example, because interpolating between colors was not required. For colors which
 show a natural progression like `jcolors::rainbow`, results should still be ok.
 However, for palettes like `RColorBrewer::Dark2`, interpolation may not turn out
-so well. The iris PCA with the "continuous" version of Dark2, i.e. specifying 
+so well. The iris PCA with the "continuous" version of Dark2, i.e. specifying
 `RColorBrewer::Dark2::c` results in:
 
 ![iris PCA with continuous Dark2 color scheme](img/embed_dark2c.png "embed_plot(pca_iris$x, iris, color_scheme = \"RColorBrewer::Dark2::c\", cex = 2, title = \"RColorBrewer Dark2 (continuous)\")")
@@ -319,13 +319,13 @@ right cluster is colored in the gray color from the right-hand side. But the
 middle cluster isn't any of the other colors and mixes rather murkily with the
 gray cluster. It doesn't make sense to use interpolation in this case.
 
-In summary, avoid interpolation of discrete color schemes if you can, and 
+In summary, avoid interpolation of discrete color schemes if you can, and
 *definitely* do avoid for those like `RColorBrewer::Dark2` which don't work on a
 color scale.
 
 ## License
 
-[GPL-3](https://www.gnu.org/licenses/gpl-3.0.en.html). The code for the
+[GPL (>= 3)](https://www.gnu.org/licenses/gpl-3.0.en.html). The code for the
 `turbo` color scheme is from <https://gist.github.com/jlmelville/be981e2f36485d8ef9616aef60fd52ab>
 and is licensed under Apache 2.
 
