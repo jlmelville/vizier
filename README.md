@@ -32,7 +32,7 @@ you can pass them by name, e.g. `color_scheme = "Okabe-Ito"`.
 if you ask for more colors than exist in the palette). Colors will now be
 returned in the order they appear in the palette.
 
-**September 27 2018**: Color schemes with `embed_plotly` was badly messed up.
+**September 27 2018**: Color schemes with `embed_plotly` were badly messed up.
 This is now fixed. You now also have control over whether to interpolate a discrete
 palette.
 
@@ -100,7 +100,7 @@ embed_plot(pca_iris$x, iris$Species, color_scheme = rainbow, alpha_scale = 0.5)
 
 If you already have colors you want to use for each point, you can use the
 `colors` parameter. In the example below, 
-`colorRampPalette(c("red", "yellow"))(nrow(iris)))` produces a vector of 150
+`colorRampPalette(c("red", "yellow"))(nrow(iris))` produces a vector of 150
 colors going from red to yellow:
 
 ```R
@@ -285,7 +285,7 @@ If you use this palette to color the iris PCA:
 The three colors from the lefthand side of the swatch are used to color the
 species.
 
-However, some discrete palettes have an ordering to them, e.g. they go to from
+However, some discrete palettes have an ordering to them, e.g. they go from
 red to blue via yellow. Here's `rainbow` from the `jcolors` package:
 
 ![jcolors rainbow](img/rainbow_swatch.png "swatches::show_palette(paletteer::paletteer_d(\"jcolors\", \"rainbow\"))")
@@ -314,7 +314,7 @@ so well. The iris PCA with the "continuous" version of Dark2, i.e. specifying
 
 ![iris PCA with continuous Dark2 color scheme](img/embed_dark2c.png "embed_plot(pca_iris$x, iris, color_scheme = \"RColorBrewer::Dark2::c\", cex = 2, title = \"RColorBrewer Dark2 (continuous)\")")
 
-The left cluster uses the green from the left-hand of the Dark2 swatch, and the
+The left cluster uses the green from the left-hand side of the Dark2 swatch, and the
 right cluster is colored in the gray color from the right-hand side. But the
 middle cluster isn't any of the other colors and mixes rather murkily with the
 gray cluster. It doesn't make sense to use interpolation in this case.
