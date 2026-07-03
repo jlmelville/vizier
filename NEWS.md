@@ -1,17 +1,22 @@
-# News
+# snedata 0.6.0
 
-**July 2 2026**: version 0.6.0 is released. General housekeeping and fixed some palette bugs.
-Plotly support stopped working at some point probably due to the palette bugs, but is now working
-again. However, it is now an optional dependency, so `install.packages("plotly")` if you want to
-use it.
+*July 2 2026*: General housekeeping and fixed some palette bugs. Plotly support stopped working at
+some point probably due to the palette bugs, but is now working again. However, it is now an
+optional dependency, so `install.packages("plotly")` if you want to use it.
 
-**November 25 2023**: use [Polychrome](https://cran.r-project.org/package=Polychrome)
-to generate default color schemes for categorical data.
+# snedata 0.5.4
 
-**September 6 2020**: fix `alpha_scale` with `embed_plotly`. Also, new parameter: `limits` for
+*November 25 2023*: use [Polychrome](https://cran.r-project.org/package=Polychrome) to generate
+default color schemes for categorical data.
+
+# snedata 0.4.2
+
+*September 6 2020*: fix `alpha_scale` with `embed_plotly`. Also, new parameter: `limits` for
 `embed_plotly`.
 
-**August 26 2020**: version 0.4 includes the following improvements and fixes:
+# snedata 0.4.0
+
+*August 26 2020*: version 0.4 includes the following improvements and fixes:
 
 * Fixed bug where using recent versions of 
 [paletteer](https://cran.r-project.org/package=paletteer) for choosing the color scheme was broken.
@@ -28,5 +33,11 @@ you can pass them by name, e.g. `color_scheme = "Okabe-Ito"`.
 colors than exist in the palette). Colors will now be returned in the order they appear in the
 palette.
 
-**September 27 2018**: Color schemes with `embed_plotly` were badly messed up. This is now fixed.
+# snedata 0.2.0
+
+*September 27 2018*: Color schemes with `embed_plotly` were badly messed up. This is now fixed.
 You now also have control over whether to interpolate a discrete palette.
+
+# snedata 0.0.0.9000
+
+*August 10 2018*: Last MIT-licensed version. Future versions will be GPL 3+.
