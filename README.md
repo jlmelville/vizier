@@ -2,8 +2,9 @@
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/jlmelville/vizier/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/jlmelville/vizier/actions/workflows/R-CMD-check.yaml)
-[![Codecov test coverage](https://codecov.io/gh/jlmelville/vizier/branch/master/graph/badge.svg)](https://app.codecov.io/gh/jlmelville/vizier?branch=master)
+[![codecov](https://codecov.io/github/jlmelville/vizier/graph/badge.svg?token=7QJD0e9arV)](https://codecov.io/github/jlmelville/vizier)
 [![Last Commit](https://img.shields.io/github/last-commit/jlmelville/vizier)](https://github.com/jlmelville/vizier)
+[![Codecov test coverage](https://codecov.io/gh/jlmelville/vizier/graph/badge.svg)](https://app.codecov.io/gh/jlmelville/vizier)
 <!-- badges: end -->
 
 An R Package for Visualization of 2D Datasets.
