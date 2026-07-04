@@ -16,6 +16,13 @@ make_palette <- function(ncolors, color_scheme = NULL, verbose = FALSE) {
 # something a bit like the Python package glasbey provides
 # a categorical palette with easily distinguishable colors
 make_polychrome_palette <- function(ncolors) {
+  if (is_r_palette("Polychrome 36")) {
+    polychrome36 <- grDevices::palette.colors(palette = "Polychrome 36")
+    if (ncolors <= length(polychrome36)) {
+      return(unname(polychrome36[seq_len(ncolors)]))
+    }
+  }
+
   as.vector(Polychrome::createPalette(
     ncolors + 2,
     seedcolors = c("#ffffff", "#000000"),

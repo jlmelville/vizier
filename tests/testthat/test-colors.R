@@ -55,6 +55,21 @@ test_that("custom palettes return the requested length", {
   )
 })
 
+test_that("default categorical palette uses Polychrome 36 when possible", {
+  expect_identical(
+    vizier:::make_palette(10),
+    unname(grDevices::palette.colors(10, palette = "Polychrome 36"))
+  )
+  expect_identical(
+    vizier:::make_palette(36),
+    unname(grDevices::palette.colors(36, palette = "Polychrome 36"))
+  )
+})
+
+test_that("default categorical palette falls back for more than 36 colors", {
+  expect_length(suppressWarnings(vizier:::make_palette(37)), 37)
+})
+
 test_that("paletteer shorthand supports continuous and discrete types", {
   expect_length(vizier:::make_palette(3, "RColorBrewer::Dark2::c"), 3)
   expect_length(vizier:::make_palette(3, "RColorBrewer::Dark2::continuous"), 3)
