@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">vizier</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,6 +33,10 @@
       <small>Source: <a href="https://github.com/jlmelville/vizier/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.6.1" id="vizier-061">vizier 0.6.1<a class="anchor" aria-label="anchor" href="#vizier-061"></a></h2>
+<p><em>July 4 2026</em>: use the <code>Polychrome 36</code> palette as the default categorical palette. This will prevent the default categorical palettes changing color when you don’t set the seed right before calling <code>embed_plot</code>. Also should prevent a sporadic “In sweep(<a href="mailto:luv@coords" class="email">luv@coords</a>, 2, y0,”-“) : STATS is longer than the extent of ‘dim(x)[MARGIN]’” warning that comes from the <code>Polychrome</code> package.</p>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.0" id="vizier-060">vizier 0.6.0<a class="anchor" aria-label="anchor" href="#vizier-060"></a></h2>
 <p><em>July 2 2026</em>: General housekeeping and fixed some palette bugs. Plotly support stopped working at some point probably due to the palette bugs, but is now working again. However, it is now an optional dependency, so <code>install.packages("plotly")</code> if you want to use it.</p>
