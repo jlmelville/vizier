@@ -7,7 +7,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/jlmelville/vizier/blob/v0.6.0/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/jlmelville/vizier/blob/master/DESCRIPTION)
 
 Melville J (2026). *vizier: Visualization of 2D Datasets in R*. R
 package version 0.6.0, <https://github.com/jlmelville/vizier>.
