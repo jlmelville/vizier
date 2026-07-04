@@ -81,4 +81,4 @@ and is licensed under Apache 2.
   in the [snedata](https://github.com/jlmelville/snedata) and
   [COIL-20](https://github.com/jlmelville/coil20) packages.
 - [quadra](https://github.com/jlmelville/quadra) for assessing the
-  results quantitatively. This one’s a bit rough at the moment, though.
+  results quantitatively.
