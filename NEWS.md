@@ -1,3 +1,10 @@
+# vizier 0.6.1
+
+*July 4 2026*: use the `Polychrome 36` palette as the default categorical palette. This will
+prevent the default categorical palettes changing color when you don't set the seed right before
+calling `embed_plot`. Also should prevent a sporadic "In sweep(luv@coords, 2, y0, "-") : STATS is
+longer than the extent of 'dim(x)[MARGIN]'" warning that comes from the `Polychrome` package.
+
 # vizier 0.6.0
 
 *July 2 2026*: General housekeeping and fixed some palette bugs. Plotly support stopped working at
