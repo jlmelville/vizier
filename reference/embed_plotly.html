@@ -85,15 +85,15 @@ suitable vector of colors. Ignored if <code>colors</code> is provided.</p></dd>
 
 
 <dt id="arg-color-scheme">color_scheme<a class="anchor" aria-label="anchor" href="#arg-color-scheme"></a></dt>
-<dd><p>A color scheme. See 'Details'. Ignored if <code>colors</code>
+<dd><p>A color scheme. See Details. Ignored if <code>colors</code>
 is specified.</p></dd>
 
 
 <dt id="arg-num-colors">num_colors<a class="anchor" aria-label="anchor" href="#arg-num-colors"></a></dt>
 <dd><p>Number of distinct colors to use in the palette, when
-<code>x</code> is a numeric vector, on the assumption that the palette is
-continuous (which it probably should be). Ignored if <code>x</code> is not a
-numeric vector. If set to <code>NULL</code>, it will be set to <code>length(x)</code>.</p></dd>
+<code>x</code> is a numeric vector, on the assumption that the palette is continuous
+(which it probably should be). Ignored if <code>x</code> is not a numeric vector. If
+set to <code>NULL</code>, it will be set to <code>length(x)</code>.</p></dd>
 
 
 <dt id="arg-alpha-scale">alpha_scale<a class="anchor" aria-label="anchor" href="#arg-alpha-scale"></a></dt>
@@ -110,11 +110,11 @@ if there is some external absolute scale that should be used. Ignored if
 
 
 <dt id="arg-clip-limit-values">clip_limit_values<a class="anchor" aria-label="anchor" href="#arg-clip-limit-values"></a></dt>
-<dd><p>If <code>TRUE</code> (the default) and <code>limits</code> is
-provided, then any value that lies outside the <code>limits</code> is clipped to
-the limiting values. If <code>tooltip = NULL</code> then the original values will
-be preserved in the tooltip. If <code>clip_limit_values = FALSE</code>, then
-values outside the <code>limits</code> will be shown in the "missing" color.</p></dd>
+<dd><p>If <code>TRUE</code> (the default) and <code>limits</code> is provided,
+then any value that lies outside the <code>limits</code> is clipped to the limiting
+values. If <code>tooltip = NULL</code> then the original values will be preserved in
+the tooltip. If <code>clip_limit_values = FALSE</code>, then values outside the
+<code>limits</code> will be shown in the "missing" color.</p></dd>
 
 
 <dt id="arg-title">title<a class="anchor" aria-label="anchor" href="#arg-title"></a></dt>
@@ -154,12 +154,12 @@ along the X-axis. Should not have any other scaling effect.</p></dd>
 
 
 <dt id="arg-xlim">xlim<a class="anchor" aria-label="anchor" href="#arg-xlim"></a></dt>
-<dd><p>Vector two numeric value to give the numeric extent of the
+<dd><p>Vector of two numeric values to give the numeric extent of the
 X-axis. Ignored if <code>equal_axes = TRUE</code> or <code>pc_axes = TRUE</code>.</p></dd>
 
 
 <dt id="arg-ylim">ylim<a class="anchor" aria-label="anchor" href="#arg-ylim"></a></dt>
-<dd><p>Vector two numeric value to give the numeric extent of the
+<dd><p>Vector of two numeric values to give the numeric extent of the
 Y-axis. Ignored if <code>equal_axes = TRUE</code> or <code>pc_axes = TRUE</code>.</p></dd>
 
 
@@ -190,28 +190,28 @@ encountered is used.</p>
 <p>If a vector is provided, a similar procedure to the data frame is used when
 mapping from its content to a vector of colors. Additionally, a numeric vector
 can be provided, which will be linearly mapped to a color scheme.</p>
-<p>The <code>color_scheme</code> parameter can be one of:</p><ul><li><p>A palette function that takes an integer <code>n</code> and returns a vector
-of colors, e.g. <code><a href="https://rdrr.io/r/grDevices/palettes.html" class="external-link">grDevices::rainbow</a></code>. For some other applicable
-functions, see the <code>Palettes</code> help page in the <code>grDevices</code>
-package (e.g. by running the <code><a href="https://rdrr.io/r/grDevices/palettes.html" class="external-link">?rainbow</a></code> command).</p></li>
-<li><p>A vector of colors making up a custom color scheme of your own
-devising, e.g. <code>c('red', 'green', 'blue')</code>. There must be at least two
-colors in the list.</p></li>
+<p>The <code>color_scheme</code> parameter can be one of:</p><ul><li><p>A palette function that takes an integer <code>n</code> and returns a vector of colors,
+e.g. <code><a href="https://rdrr.io/r/grDevices/palettes.html" class="external-link">grDevices::rainbow()</a></code>. For some other applicable functions, see the
+<code>Palettes</code> help page in the <code>grDevices</code> package (e.g. by running the
+<code><a href="https://rdrr.io/r/grDevices/palettes.html" class="external-link">?rainbow</a></code> command).</p></li>
+<li><p>A vector of colors making up a custom color scheme of your own devising,
+e.g. <code>c("red", "green", "blue")</code>. There must be at least two colors in the
+list.</p></li>
 <li><p>The name of a color scheme provided by the
-<a href="https://cran.r-project.org/package=paletteer" class="external-link">paletteer</a> package, in
-the form <code>"package::palette"</code>. Some examples include
+<a href="https://cran.r-project.org/package=paletteer" class="external-link">paletteer</a> package, in the
+form <code>"package::palette"</code>. Some examples include
 <code>"dutchmasters::milkmaid"</code>, <code>"cartography::green.pal"</code>,
-<code>"viridis::inferno"</code> and <code>"RColorBrewer::Dark2"</code>. If more colors
-are required than supported by the color scheme, interpolation will be used
-to create the required number of colors.</p></li>
-</ul><p>The default for a numeric scale is to use <code><a href="https://rdrr.io/r/grDevices/palettes.html" class="external-link">rainbow</a></code>
+<code>"viridis::inferno"</code> and <code>"RColorBrewer::Dark2"</code>. If more colors are
+required than supported by the color scheme, interpolation will be used to
+create the required number of colors.</p></li>
+</ul><p>The default for a numeric scale is to use <code><a href="https://rdrr.io/r/grDevices/palettes.html" class="external-link">grDevices::rainbow()</a></code>
 and for factor columns to use a palette generated by
-<code><a href="https://rdrr.io/pkg/Polychrome/man/createPalette.html" class="external-link">createPalette</a></code>.</p>
+<code><a href="https://rdrr.io/pkg/Polychrome/man/createPalette.html" class="external-link">Polychrome::createPalette()</a></code>.</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># interactive()</span></span></span>
 <span class="r-in"><span><span class="co"># Embed with PCA</span></span></span>
 <span class="r-in"><span><span class="va">pca_iris</span> <span class="op">&lt;-</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/prcomp.html" class="external-link">prcomp</a></span><span class="op">(</span><span class="va">iris</span><span class="op">[</span>, <span class="op">-</span><span class="fl">5</span><span class="op">]</span>, retx <span class="op">=</span> <span class="cn">TRUE</span>, rank. <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
@@ -254,7 +254,7 @@ and for factor columns to use a palette generated by
 <span class="r-in"><span>  color_scheme <span class="op">=</span> <span class="st">"RColorBrewer::Blues"</span>,</span></span>
 <span class="r-in"><span>  equal_axes <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

@@ -48,7 +48,7 @@
 
 
 <dl><dt id="arg-n">n<a class="anchor" aria-label="anchor" href="#arg-n"></a></dt>
-<dd><p>the number of colors (<em>&gt;= 1</em>) to be in the palette.</p></dd>
+<dd><p>the number of colors (<code>&gt;= 1</code>) to be in the palette.</p></dd>
 
 
 <dt id="arg-start">start<a class="anchor" aria-label="anchor" href="#arg-start"></a></dt>
@@ -66,9 +66,9 @@ reversed.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A character vector <code>cv</code> containing n hex color codes. This can
+    <p>A character vector <code>cv</code> containing <code>n</code> hex color codes. This can
 be used either to create a user-defined color palette for subsequent graphics
-by <code><a href="https://rdrr.io/r/grDevices/palette.html" class="external-link">palette</a>(cv)</code>, a <code>col =</code> specification in
+by passing <code>cv</code> to <code><a href="https://rdrr.io/r/grDevices/palette.html" class="external-link">grDevices::palette()</a></code>, as a <code>col =</code> specification in
 graphics functions or in <code>par</code>.</p>
     </div>
     <div class="section level2">

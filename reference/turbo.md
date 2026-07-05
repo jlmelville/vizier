@@ -12,7 +12,7 @@ turbo(n, start = 0, end = 1, rev = FALSE)
 
 - n:
 
-  the number of colors (*\>= 1*) to be in the palette.
+  the number of colors (`>= 1`) to be in the palette.
 
 - start:
 
@@ -29,10 +29,11 @@ turbo(n, start = 0, end = 1, rev = FALSE)
 
 ## Value
 
-A character vector `cv` containing n hex color codes. This can be used
+A character vector `cv` containing `n` hex color codes. This can be used
 either to create a user-defined color palette for subsequent graphics by
-[`palette`](https://rdrr.io/r/grDevices/palette.html)`(cv)`, a `col =`
-specification in graphics functions or in `par`.
+passing `cv` to
+[`grDevices::palette()`](https://rdrr.io/r/grDevices/palette.html), as a
+`col =` specification in graphics functions or in `par`.
 
 ## References
 
