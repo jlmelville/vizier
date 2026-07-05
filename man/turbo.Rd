@@ -7,7 +7,7 @@
 turbo(n, start = 0, end = 1, rev = FALSE)
 }
 \arguments{
-\item{n}{the number of colors (\emph{>= 1}) to be in the palette.}
+\item{n}{the number of colors (\verb{>= 1}) to be in the palette.}
 
 \item{start}{the (corrected) hue in \verb{[0, 1]} at which the rainbow begins.}
 
@@ -17,9 +17,9 @@ turbo(n, start = 0, end = 1, rev = FALSE)
 reversed.}
 }
 \value{
-A character vector \code{cv} containing n hex color codes. This can
+A character vector \code{cv} containing \code{n} hex color codes. This can
 be used either to create a user-defined color palette for subsequent graphics
-by \code{\link[grDevices]{palette}(cv)}, a \code{col =} specification in
+by passing \code{cv} to \code{\link[grDevices:palette]{grDevices::palette()}}, as a \verb{col =} specification in
 graphics functions or in \code{par}.
 }
 \description{

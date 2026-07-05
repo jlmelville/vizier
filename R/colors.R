@@ -6,7 +6,7 @@
 # of colors in the palette (where reasonable is 20 or fewer), Polychrome is used
 # to generate a categorical palette. This is very slow for large number of
 # colors (anyway it seems quite hard to find 20 distinct colors!), so if this
-# is detected, a warning is issued and the fallback)color_scheme is used.
+# is detected, a warning is issued and the fallback color scheme is used.
 # if numeric_ok is TRUE, then if no suitable color-ish column is found in x,
 # the last numeric column is used.
 get_colors <- function(
@@ -77,10 +77,10 @@ get_colors <- function(
 
 # Given a data frame or a vector, return a vector of colors appropriately
 # mapped to the color scheme.
-# If \code{x} is a vector, it can either be a vector of colors, a factor vector
+# If `x` is a vector, it can either be a vector of colors, a factor vector
 # or factor-like character vector (in which case each level is mapped to a
 # color), or a numeric vector (in which case the range is mapped linearly). If
-# \code{x} is a data frame, then it is checked for a color column. If there
+# `x` is a data frame, then it is checked for a color column. If there
 # isn't one, a factor column (or character column that can be treated like a
 # factor) is looked for. If there's more than one suitable column, the last
 # found column is used. Numeric columns aren't searched for in the data frame
@@ -134,7 +134,7 @@ color_helper <- function(
 # In the latter two cases where we can't find a categorical-like column, the
 # `fallback_color_scheme` will be used, so it probably should be a continuous
 # color scheme
-# @note R considers numbers to be acceptable colors because \code{col2rgb}
+# @note R considers numbers to be acceptable colors because `col2rgb()`
 # interprets them as indexes into a palette. Columns of numbers are NOT treated
 # as colors by color_helper. Stick with color names (e.g. "goldenrod") or
 # rgb strings (e.g. "#140000" or "#140000FF" if including alpha values).
@@ -308,19 +308,19 @@ factor_to_palette <- function(x, color_scheme = NULL, verbose = FALSE) {
 #  BrBG PiYG PRGn PuOr RdBu RdGy RdYlBu RdYlGn Spectral
 #
 # This function is based off a Stack Overflow answer by user "Dave X":
-#  \url{http://stackoverflow.com/a/18749392}
+#  <http://stackoverflow.com/a/18749392>
 #
 # @param x Numeric vector.
 # @param name Name of the ColorBrewer palette.
-# @param n Number of unique colors to map values in \code{x} to.
+# @param n Number of unique colors to map values in `x` to.
 # @param limits The range that the colors should map over. If not specified,
-#  then the range of \code{x}. This is useful if there is some external
+#  then the range of `x`. This is useful if there is some external
 #  absolute scale that should be used.
 # @seealso
 # More information on ColorBrewer is available at its website,
-# \url{http://www.colorbrewer2.org}.
+# <http://www.colorbrewer2.org>.
 # @examples
-# \dontrun{
+# if (interactive()) {
 # # Plot Iris dataset sepal width vs length, colored by petal length, using
 # # 20 colors ranging from Purple to Green (PRGn):
 # plot(iris[, c("Sepal.Length", "Sepal.Width")], cex = 1.5, pch = 20,
@@ -444,7 +444,7 @@ filter_column_names <- function(df, pred) {
 # where each element is a boolean indicating if the element in x is a valid
 # color.
 # @note Taken from
-# \url{http://stackoverflow.com/questions/13289009/check-if-character-string-is-a-valid-color-representation}
+# <http://stackoverflow.com/questions/13289009/check-if-character-string-is-a-valid-color-representation>
 # @note numeric values are always seen as being valid colors!
 is_color <- function(x) {
   vapply(

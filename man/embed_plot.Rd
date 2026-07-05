@@ -37,13 +37,13 @@ suitable vector of colors. Ignored if \code{colors} is provided.}
 \item{colors}{Vector containing colors for each observation. If fewer colors
 than than observations are provided, then the colors are recycled.}
 
-\item{color_scheme}{A color scheme. See 'Details'. Ignored if \code{colors}
+\item{color_scheme}{A color scheme. See Details. Ignored if \code{colors}
 is specified.}
 
 \item{num_colors}{Number of distinct colors to use in the palette, when
-\code{x} is a numeric vector, on the assumption that the palette is
-continuous (which it probably should be). Ignored if \code{x} is not a
-numeric vector. If set to \code{NULL}, it will be set to \code{length(x)}.}
+\code{x} is a numeric vector, on the assumption that the palette is continuous
+(which it probably should be). Ignored if \code{x} is not a numeric vector. If
+set to \code{NULL}, it will be set to \code{length(x)}.}
 
 \item{alpha_scale}{Scale the opacity alpha of the colors, between 0 and 1.
 Useful for increasing the transparency of points, especially with large
@@ -76,18 +76,18 @@ two (unscaled) principal components, which should have the effect of
 rotating the data (with a potential reflection) so the main variance aligns
 along the X-axis. Should not have any other scaling effect.}
 
-\item{xlim}{Vector two numeric value to give the numeric extent of the
+\item{xlim}{Vector of two numeric values to give the numeric extent of the
 X-axis. Ignored if \code{equal_axes = TRUE} or \code{pc_axes = TRUE}.}
 
-\item{ylim}{Vector two numeric value to give the numeric extent of the
+\item{ylim}{Vector of two numeric values to give the numeric extent of the
 Y-axis. Ignored if \code{equal_axes = TRUE} or \code{pc_axes = TRUE}.}
 
 \item{show_axes}{If \code{TRUE}, the axes, axis labels (and frame) are
 displayed.}
 
 \item{NA_color}{Color to use for \code{NA} values, which can arise if using
-a factor column for \code{x} (or if any item in \code{colors} is
-\code{NA}). By default, these points won't be displayed.}
+a factor column for \code{x} (or if any item in \code{colors} is \code{NA}). By default,
+these points won't be displayed.}
 
 \item{rev}{logical indicating whether the ordering of the colors should be
 reversed.}
@@ -116,29 +116,29 @@ vector can be provided, which will be linearly mapped to a color scheme.
 
 The \code{color_scheme} parameter can be one of:
 \itemize{
-\item A palette function that takes an integer \code{n} and returns a vector
-of colors, e.g. \code{grDevices::rainbow}. For some other applicable
-functions, see the \code{Palettes} help page in the \code{grDevices}
-package (e.g. by running the \code{?rainbow} command).
-\item A vector of colors making up a custom palette of your own
-devising, e.g. \code{c('red', 'green', 'blue')}. There must be at least two
-colors in the list.
+\item A palette function that takes an integer \code{n} and returns a vector of colors,
+e.g. \code{\link[grDevices:rainbow]{grDevices::rainbow()}}. For some other applicable functions, see the
+\code{Palettes} help page in the \code{grDevices} package (e.g. by running the
+\code{?rainbow} command).
+\item A vector of colors making up a custom palette of your own devising, e.g.
+\code{c("red", "green", "blue")}. There must be at least two colors in the list.
 \item The name of a color scheme provided by the
-\href{https://cran.r-project.org/package=paletteer}{paletteer} package, in
-the form \code{"package::palette"}. Some examples include
+\href{https://cran.r-project.org/package=paletteer}{paletteer} package, in the
+form \code{"package::palette"}. Some examples include
 \code{"dutchmasters::milkmaid"}, \code{"cartography::green.pal"},
-\code{"viridis::inferno"} and \code{"RColorBrewer::Dark2"}. If more colors
-are required than supported by the color scheme, interpolation will be used
-to create the required number of colors.
+\code{"viridis::inferno"} and \code{"RColorBrewer::Dark2"}. If more colors are
+required than supported by the color scheme, interpolation will be used to
+create the required number of colors.
 \item The name of a pre-defined R palette, if you are running R 4.0 or later.
-Some examples include \code{"Okabe-Ito"}, \code{"Tableau 10"} and
-\code{"Alphabet"}. See \code{\link[grDevices]{palette.pals}} for the list of
-possible names. Note that is function is not available prior to R 4.0.
-For more details, see \url{https://developer.r-project.org/Blog/public/2019/11/21/a-new-palette-for-r/index.html}.
+Some examples include \code{"Okabe-Ito"}, \code{"Tableau 10"} and \code{"Alphabet"}. See
+\code{\link[grDevices:palette.pals]{grDevices::palette.pals()}} for the list of possible names. Note that this
+function is not available prior to R 4.0. For more details, see
+\url{https://developer.r-project.org/Blog/public/2019/11/21/a-new-palette-for-r/index.html}.
 }
-The default for a numeric scale is to use \code{\link[grDevices]{rainbow}}
+
+The default for a numeric scale is to use \code{\link[grDevices:rainbow]{grDevices::rainbow()}}
 and for factor columns to use a palette generated by
-\code{\link[Polychrome]{createPalette}}.
+\code{\link[Polychrome:createPalette]{Polychrome::createPalette()}}.
 
 If you just want one color for all points, then you can pass a single color
 to the \code{colors} argument, e.g. \code{colors = "blue"}.
