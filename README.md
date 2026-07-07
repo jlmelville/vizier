@@ -68,5 +68,7 @@ and is licensed under Apache 2.
 
 ## See Also
 
-* More example datasets that I've used these functions with can be found in the [snedata](https://github.com/jlmelville/snedata) and [COIL-20](https://github.com/jlmelville/coil20) packages.
+* More example datasets that I've used these functions with can be found in the 
+[snedata](https://github.com/jlmelville/snedata) and 
+[COIL-20](https://github.com/jlmelville/coil20) packages.
 * [quadra](https://github.com/jlmelville/quadra) for assessing the results quantitatively.
