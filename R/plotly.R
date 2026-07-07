@@ -335,7 +335,7 @@ embed_plotly <- function(
         zeroline = FALSE,
         showline = TRUE,
         showgrid = FALSE,
-        range = xlim * 1.15
+        range = xlim
       ),
       yaxis = list(
         title = "Y",

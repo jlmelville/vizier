@@ -156,10 +156,10 @@ embed_plot <- function(
   }
 
   colors <- get_colors(
-    nrow(coords),
     x = x,
     color_scheme = color_scheme,
-    num_colors = num_colors,
+    num_colors = if (is.null(x) && is.null(colors)) nrow(coords) else
+      num_colors,
     limits = limits,
     top = top,
     colors = colors,
