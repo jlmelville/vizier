@@ -106,3 +106,88 @@ test_that("embed_plotly handles numeric limit clipping explicitly", {
     c(NA, 2, 3, 4, NA)
   )
 })
+
+test_that("embed_plotly preserves list coordinates and explicit ranges", {
+  testthat::skip_if_not_installed("plotly")
+
+  coords <- cbind(c(0, 2, 4), c(10, 20, 30))
+
+  p <- embed_plotly(
+    list(coords = coords),
+    colors = "#AA0000",
+    xlim = c(-1, 5),
+    ylim = c(9, 31)
+  )
+  built <- plotly::plotly_build(p)
+  trace <- built$x$data[[1]]
+
+  expect_equal(as.numeric(trace$x), coords[, 1])
+  expect_equal(as.numeric(trace$y), coords[, 2])
+  expect_equal(built$x$layout$xaxis$range, c(-1, 5))
+  expect_equal(built$x$layout$yaxis$range, c(9, 31))
+})
+
+test_that("embed_plotly equal_axes uses the shared coordinate range", {
+  testthat::skip_if_not_installed("plotly")
+
+  coords <- cbind(c(0, 2, 4), c(10, 20, 30))
+
+  p <- embed_plotly(coords, colors = "#AA0000", equal_axes = TRUE)
+  built <- plotly::plotly_build(p)
+
+  expect_equal(built$x$layout$xaxis$range, range(coords))
+  expect_equal(built$x$layout$yaxis$range, range(coords))
+})
+
+test_that("embed_plotly pc_axes writes rotated coordinates to the trace", {
+  testthat::skip_if_not_installed("plotly")
+
+  coords <- cbind(
+    x = c(0, 1, 4, 6),
+    y = c(1, 3, 2, 8)
+  )
+  rotated <- vizier:::pc_rotate(coords)
+
+  p <- embed_plotly(coords, colors = "#AA0000", pc_axes = TRUE)
+  trace <- plotly::plotly_build(p)$x$data[[1]]
+
+  expect_equal(as.numeric(trace$x), rotated[, 1])
+  expect_equal(as.numeric(trace$y), rotated[, 2])
+})
+
+test_that("embed_plotly exposes direct marker and text colors", {
+  testthat::skip_if_not_installed("plotly")
+
+  coords <- cbind(c(0, 2, 4), c(10, 20, 30))
+  colors <- c("#AA0000", "#0055AA", "#118833")
+
+  markers <- plotly::plotly_build(embed_plotly(
+    coords,
+    color_scheme = colors
+  ))
+  marker_trace <- markers$x$data[[1]]
+
+  expect_identical(marker_trace$mode, "markers")
+  expect_equal(as.character(marker_trace$marker$color), colors)
+  expect_false(markers$x$layout$showlegend)
+
+  text <- plotly::plotly_build(embed_plotly(
+    coords,
+    colors = colors,
+    text = c("a", "b", "c")
+  ))
+  text_trace <- text$x$data[[1]]
+
+  expect_identical(text_trace$mode, "text")
+  expect_equal(as.character(text_trace$text), c("a", "b", "c"))
+  expect_equal(as.character(text_trace$textfont$color), colors)
+  expect_equal(as.character(text_trace$hovertext), c("1: a", "2: b", "3: c"))
+})
+
+test_that("plotly helpers handle scalar and missing numeric color scales", {
+  colorscale <- vizier:::plotly_colorscale("#AA0000")
+
+  expect_equal(colorscale, list(list(0, "#AA0000"), list(1, "#AA0000")))
+  expect_null(vizier:::plotly_numeric_limits(c(NA_real_, Inf, -Inf)))
+  expect_equal(vizier:::plotly_hover_text(3), c("1: ", "2: ", "3: "))
+})
