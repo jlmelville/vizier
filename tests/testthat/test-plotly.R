@@ -191,3 +191,54 @@ test_that("plotly helpers handle scalar and missing numeric color scales", {
   expect_null(vizier:::plotly_numeric_limits(c(NA_real_, Inf, -Inf)))
   expect_equal(vizier:::plotly_hover_text(3), c("1: ", "2: ", "3: "))
 })
+
+test_that("embed_plotly uses the resolved Viridis scale and numeric text mode", {
+  testthat::skip_if_not_installed("plotly")
+
+  coords <- cbind(1:3, 4:6)
+  values <- c(1, 2, 3)
+  built <- plotly::plotly_build(embed_plotly(coords, values))
+  trace <- built$x$data[[1]]
+  text_built <- plotly::plotly_build(embed_plotly(
+    coords,
+    values,
+    text = c("one", "two", "three")
+  ))
+  text_trace <- text_built$x$data[[1]]
+
+  expect_equal(
+    vapply(trace$marker$colorscale, `[[`, character(1), 2),
+    grDevices::hcl.colors(15, palette = "Viridis")
+  )
+  expect_identical(text_trace$mode, "text")
+  expect_equal(as.character(text_trace$text), c("one", "two", "three"))
+  expect_equal(
+    as.character(text_trace$textfont$color),
+    vizier:::resolve_colors(values, NULL, n = 3)$colors
+  )
+  expect_equal(
+    as.character(text_trace$hovertext),
+    c("1: one", "2: two", "3: three")
+  )
+})
+
+test_that("embed_plotly keeps identity colors out of default hover content", {
+  testthat::skip_if_not_installed("plotly")
+
+  built <- plotly::plotly_build(embed_plotly(
+    cbind(1:2, 3:4),
+    colors = c("#AA0000", "#0055AA")
+  ))
+  trace <- built$x$data[[1]]
+
+  expect_equal(as.character(trace$hovertext), c("1: ", "2: "))
+})
+
+test_that("embed_plotly validates tooltip length at its public boundary", {
+  testthat::skip_if_not_installed("plotly")
+
+  expect_error(
+    embed_plotly(cbind(1:2, 3:4), tooltip = letters[1:3]),
+    "length 1"
+  )
+})

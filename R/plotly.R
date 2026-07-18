@@ -162,77 +162,40 @@ embed_plotly <- function(
     )
   }
 
-  if (methods::is(coords, "list") && !is.null(coords$coords)) {
-    coords <- coords$coords
+  validate_logical_scalar(clip_limit_values, "'clip_limit_values'")
+  validate_logical_scalar(show_legend, "'show_legend'")
+  validate_logical_scalar(equal_axes, "'equal_axes'")
+  validate_logical_scalar(pc_axes, "'pc_axes'")
+  validate_logical_scalar(rev, "'rev'")
+  validate_logical_scalar(verbose, "'verbose'")
+  validate_alpha_scale(alpha_scale)
+  validate_cex(cex)
+  if (!is.null(xlim)) {
+    validate_numeric_limits(xlim)
   }
-
-  mode <- if (is.null(text)) "markers" else "text"
-  labels <- NULL
-  trace_type <- "direct"
-  numeric_values <- NULL
-  numeric_tooltip <- NULL
-
-  if (is.null(colors)) {
-    if (!is.null(x)) {
-      if (methods::is(x, "numeric")) {
-        trace_type <- "numeric"
-        labels <- x
-        numeric_values <- x
-        color_limits <- plotly_numeric_limits(numeric_values, limits)
-        if (!is.null(color_limits)) {
-          below_limits <- numeric_values < color_limits[1]
-          above_limits <- numeric_values > color_limits[2]
-          outside_limits <- is.finite(numeric_values) &
-            (below_limits | above_limits)
-
-          if (clip_limit_values) {
-            if (any(outside_limits) && is.null(tooltip)) {
-              numeric_tooltip <- labels
-            }
-            numeric_values[numeric_values > color_limits[2]] <- color_limits[2]
-            numeric_values[numeric_values < color_limits[1]] <- color_limits[1]
-          } else {
-            numeric_values[outside_limits] <- NA_real_
-          }
-        }
-
-        numeric_values[!is.finite(numeric_values)] <- NA_real_
-        mode <- "markers"
-        if (is.null(num_colors)) {
-          num_colors <- length(x)
-        }
-        if (is.null(color_scheme)) {
-          color_scheme <- grDevices::rainbow
-        }
-        colors <- make_palette(
-          ncolors = max(1, num_colors),
-          color_scheme = color_scheme
-        )
-      } else {
-        res <- color_helper(x, color_scheme = color_scheme, verbose = verbose)
-        if (!is.null(res$labels)) {
-          trace_type <- "categorical"
-          labels <- res$labels
-          colors <- res$palette
-        } else {
-          colors <- res$colors
-        }
-      }
-    } else {
-      # one color per point
-      colors <- make_palette(
-        ncolors = nrow(coords),
-        color_scheme = color_scheme,
-        verbose = verbose
-      )
-      show_legend <- FALSE
-    }
-  } else if (is.null(text)) {
-    labels <- colors
+  if (!is.null(ylim)) {
+    validate_numeric_limits(ylim)
   }
-  if (rev) {
-    colors <- rev(colors)
+  coords <- validate_coords(coords, pc_axes = pc_axes)
+  n <- nrow(coords)
+  if (!is.null(text)) {
+    text <- recycle_input(text, n, "'text'")
   }
+  if (!is.null(tooltip)) {
+    tooltip <- recycle_input(tooltip, n, "'tooltip'")
+  }
+  color_res <- resolve_colors(
+    x = x,
+    colors = colors,
+    n = n,
+    color_scheme = color_scheme,
+    num_colors = num_colors,
+    limits = limits,
+    alpha_scale = alpha_scale,
+    rev = rev,
+    verbose = verbose,
+    clip_limit_values = clip_limit_values
+  )
 
   if (pc_axes) {
     coords <- pc_rotate(coords)
@@ -244,83 +207,87 @@ embed_plotly <- function(
     ylim <- lims
   }
 
+  rows <- which(color_res$keep)
+  labels <- color_res$labels
   hover_text <- plotly_hover_text(
-    n = nrow(coords),
-    tooltip = tooltip,
-    text = text,
-    labels = labels,
-    numeric_tooltip = numeric_tooltip
+    n = length(rows),
+    row_ids = rows,
+    tooltip = if (is.null(tooltip)) NULL else tooltip[rows],
+    text = if (is.null(text)) NULL else text[rows],
+    labels = if (is.null(labels)) NULL else labels[rows]
   )
 
-  if (trace_type == "categorical") {
+  if (color_res$kind == "discrete") {
     p <- plotly::plot_ly(
-      x = coords[, 1],
-      y = coords[, 2],
+      x = coords[rows, 1],
+      y = coords[rows, 2],
       color = ~labels,
-      colors = colors,
+      colors = color_res$palette,
       type = "scatter",
-      mode = mode,
-      text = if (mode == "text") text else hover_text,
+      mode = if (is.null(text)) "markers" else "text",
+      text = if (is.null(text)) hover_text else text[rows],
       hovertext = hover_text,
       hoverinfo = "text",
-      marker = if (mode == "markers") {
+      marker = if (is.null(text)) {
         list(size = cex * 6, opacity = alpha_scale)
       } else {
         NULL
       }
     )
     layout_show_legend <- show_legend
-  } else if (trace_type == "numeric") {
+  } else if (color_res$kind == "continuous") {
     marker <- list(
       size = cex * 6,
       opacity = alpha_scale,
-      color = numeric_values,
-      colorscale = plotly_colorscale(colors),
+      color = color_res$mapped_values[rows],
+      colorscale = plotly_colorscale(color_res$palette),
       showscale = show_legend
     )
-    if (!is.null(color_limits)) {
-      marker$cmin <- color_limits[1]
-      marker$cmax <- color_limits[2]
+    if (!is.null(color_res$limits)) {
+      marker$cmin <- color_res$limits[1]
+      marker$cmax <- color_res$limits[2]
     }
     if (show_legend) {
       marker$colorbar <- list(title = "")
     }
     p <- plotly::plot_ly(
-      x = coords[, 1],
-      y = coords[, 2],
+      x = coords[rows, 1],
+      y = coords[rows, 2],
       type = "scatter",
-      mode = mode,
-      text = hover_text,
+      mode = if (is.null(text)) "markers" else "text",
+      text = if (is.null(text)) hover_text else text[rows],
       hovertext = hover_text,
       hoverinfo = "text",
-      marker = marker
+      marker = if (is.null(text)) marker else NULL,
+      textfont = if (is.null(text)) NULL else
+        list(color = color_res$colors[rows])
     )
     layout_show_legend <- FALSE
   } else {
-    if (mode == "text") {
+    if (!is.null(text)) {
       p <- plotly::plot_ly(
-        x = coords[, 1],
-        y = coords[, 2],
+        x = coords[rows, 1],
+        y = coords[rows, 2],
         type = "scatter",
-        mode = mode,
-        text = text,
+        mode = "text",
+        text = text[rows],
         hovertext = hover_text,
         hoverinfo = "text",
-        textfont = list(color = colors)
+        textfont = list(color = color_res$colors[rows])
       )
     } else {
       p <- plotly::plot_ly(
-        x = coords[, 1],
-        y = coords[, 2],
+        x = coords[rows, 1],
+        y = coords[rows, 2],
         type = "scatter",
-        mode = mode,
+        mode = "markers",
         text = hover_text,
         hovertext = hover_text,
         hoverinfo = "text",
         marker = list(
           size = cex * 6,
           opacity = alpha_scale,
-          color = colors
+          color = color_res$colors[rows]
         )
       )
     }
@@ -371,15 +338,13 @@ plotly_numeric_limits <- function(x, limits = NULL) {
 
 plotly_hover_text <- function(
   n,
+  row_ids = seq_len(n),
   tooltip = NULL,
   text = NULL,
-  labels = NULL,
-  numeric_tooltip = NULL
+  labels = NULL
 ) {
   if (!is.null(tooltip)) {
     hover <- tooltip
-  } else if (!is.null(numeric_tooltip)) {
-    hover <- numeric_tooltip
   } else if (!is.null(text)) {
     hover <- text
   } else if (!is.null(labels)) {
@@ -388,5 +353,5 @@ plotly_hover_text <- function(
     hover <- rep("", n)
   }
 
-  paste0(as.character(seq_along(hover)), ": ", hover)
+  paste0(as.character(row_ids), ": ", hover)
 }
