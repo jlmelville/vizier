@@ -3,6 +3,7 @@
 # Returns a palette with the specified size, based on an existing palette,
 # color scheme name or color ramp function.
 make_palette <- function(ncolors, color_scheme = NULL, verbose = FALSE) {
+  validate_num_colors(ncolors)
   if (is.null(color_scheme)) {
     palette <- make_polychrome_palette(ncolors)
   } else if (methods::is(color_scheme, "function")) {
@@ -11,6 +12,32 @@ make_palette <- function(ncolors, color_scheme = NULL, verbose = FALSE) {
     palette <- make_palette_function(color_scheme, verbose = verbose)(ncolors)
   }
   as.character(palette)
+}
+
+make_continuous_palette <- function(
+  ncolors,
+  color_scheme = NULL,
+  verbose = FALSE
+) {
+  validate_num_colors(ncolors)
+  if (is.null(color_scheme)) {
+    return(grDevices::hcl.colors(ncolors, palette = "Viridis"))
+  }
+  make_palette(ncolors, color_scheme, verbose = verbose)
+}
+
+validate_num_colors <- function(num_colors) {
+  if (
+    !is.numeric(num_colors) ||
+      length(num_colors) != 1 ||
+      is.na(num_colors) ||
+      !is.finite(num_colors) ||
+      num_colors < 1 ||
+      num_colors != as.integer(num_colors)
+  ) {
+    stop("'num_colors' must be a positive integer.", call. = FALSE)
+  }
+  invisible(as.integer(num_colors))
 }
 
 # something a bit like the Python package glasbey provides
@@ -23,11 +50,7 @@ make_polychrome_palette <- function(ncolors) {
     }
   }
 
-  as.vector(Polychrome::createPalette(
-    ncolors + 2,
-    seedcolors = c("#ffffff", "#000000"),
-    range = c(10, 90)
-  )[-(1:2)])
+  grDevices::hcl.colors(ncolors, palette = "Dynamic")
 }
 
 # Custom Palette Function

@@ -1,14 +1,3 @@
-# return a vector of n colors used to directly color each point, can be
-# passed to the colors arg of embed_plot
-# if x is a numeric scalar, it is assumed to be num_colors, the number of actual
-# colors to return (one per point)
-# if you don't specify a color_scheme and you are asking for a reasonable number
-# of colors in the palette (where reasonable is 20 or fewer), Polychrome is used
-# to generate a categorical palette. This is very slow for large number of
-# colors (anyway it seems quite hard to find 20 distinct colors!), so if this
-# is detected, a warning is issued and the fallback color scheme is used.
-# if numeric_ok is TRUE, then if no suitable color-ish column is found in x,
-# the last numeric column is used.
 get_colors <- function(
   x,
   color_scheme = NULL,
@@ -23,55 +12,354 @@ get_colors <- function(
   fallback_color_scheme = grDevices::rainbow,
   verbose = FALSE
 ) {
-  if (is.numeric(x) && length(x) == 1) {
-    num_colors <- x
-    x <- NULL
+  n <- if (!is.null(colors)) {
+    length(colors)
+  } else if (methods::is(x, "data.frame")) {
+    nrow(x)
+  } else if (!is.null(x)) {
+    length(x)
+  } else {
+    num_colors
+  }
+  res <- resolve_colors(
+    x = x,
+    colors = colors,
+    n = n,
+    color_scheme = color_scheme,
+    num_colors = num_colors,
+    limits = limits,
+    top = top,
+    alpha_scale = alpha_scale,
+    NA_color = NA_color,
+    rev = rev,
+    numeric_ok = numeric_ok,
+    fallback_color_scheme = fallback_color_scheme,
+    verbose = verbose
+  )
+  grDevices::adjustcolor(res$colors, alpha.f = alpha_scale)
+}
+
+# Resolve every color-related public input once so renderers do not make their
+# own classification, palette, reversal, or selection decisions.
+resolve_colors <- function(
+  x,
+  colors,
+  n,
+  color_scheme = NULL,
+  num_colors = 15,
+  limits = NULL,
+  top = NULL,
+  alpha_scale = 1,
+  NA_color = NULL,
+  rev = FALSE,
+  numeric_ok = FALSE,
+  fallback_color_scheme = grDevices::rainbow,
+  verbose = FALSE,
+  clip_limit_values = TRUE
+) {
+  validate_alpha_scale(alpha_scale)
+  validate_logical_scalar(rev, "'rev'")
+  validate_logical_scalar(clip_limit_values, "'clip_limit_values'")
+  if (!is.null(limits)) {
+    validate_numeric_limits(limits)
+  }
+  if (
+    !is.null(top) &&
+      (!is.null(colors) || methods::is(x, "data.frame") || !is.numeric(x))
+  ) {
+    stop("'top' is only supported for a numeric 'x' vector.", call. = FALSE)
   }
 
-  if (is.null(colors)) {
-    if (!is.null(x)) {
-      res <- color_helper(
-        x,
-        color_scheme = color_scheme,
-        num_colors = num_colors,
-        limits = limits,
-        top = top,
-        numeric_ok = numeric_ok,
-        fallback_color_scheme = fallback_color_scheme,
-        verbose = verbose
-      )
-      if (!is.null(res$colors)) {
-        colors <- res$colors
-      } else {
-        colors <- res$palette[as.character(res$labels)]
-      }
+  if (!is.null(colors)) {
+    colors <- recycle_input(colors, n, "'colors'")
+    return(color_spec(
+      kind = "identity",
+      colors = replace_na_color(colors, NA_color),
+      keep = rep(TRUE, n)
+    ))
+  }
+
+  source <- resolve_color_source(x, n, numeric_ok, verbose)
+  if (source$kind == "identity") {
+    return(color_spec(
+      kind = "identity",
+      colors = replace_na_color(source$values, NA_color),
+      keep = rep(TRUE, n)
+    ))
+  }
+
+  if (source$kind == "row") {
+    palette <- make_palette(n, color_scheme, verbose = verbose)
+    if (rev) {
+      palette <- rev(palette)
+    }
+    return(color_spec(
+      kind = "row",
+      colors = replace_na_color(palette, NA_color),
+      palette = palette,
+      keep = rep(TRUE, n)
+    ))
+  }
+
+  if (source$kind == "discrete") {
+    labels <- source$values
+    category_names <- category_levels(labels)
+    palette <- categorical_palette(
+      category_names,
+      color_scheme = color_scheme,
+      rev = rev,
+      verbose = verbose
+    )
+    mapped <- unname(palette[as.character(labels)])
+    return(color_spec(
+      kind = "discrete",
+      values = labels,
+      colors = replace_na_color(mapped, NA_color),
+      palette = palette,
+      keep = rep(TRUE, n),
+      labels = labels
+    ))
+  }
+
+  validate_num_colors(num_colors)
+  values <- source$values
+  finite <- is.finite(values)
+  if (!is.null(top)) {
+    validate_top(top, sum(finite))
+    keep <- rep(FALSE, n)
+    selected <- order(values[finite], decreasing = TRUE, method = "radix")
+    keep[which(finite)[selected[seq_len(top)]]] <- TRUE
+  } else {
+    keep <- rep(TRUE, n)
+  }
+
+  color_limits <- numeric_color_limits(values, limits)
+  mapped_values <- values
+  if (!is.null(color_limits)) {
+    outside <- finite & (values < color_limits[1] | values > color_limits[2])
+    if (clip_limit_values) {
+      mapped_values[outside & values < color_limits[1]] <- color_limits[1]
+      mapped_values[outside & values > color_limits[2]] <- color_limits[2]
     } else {
-      if (num_colors > 20 && is.null(color_scheme)) {
-        if (verbose) {
-          message(
-            "Warning: more than 20 palette colors requested without ",
-            "specifying a color scheme. Using fallback color scheme"
-          )
-        }
-        color_scheme <- fallback_color_scheme
-      }
-      colors <- make_palette(
-        ncolors = num_colors,
-        color_scheme = color_scheme,
-        verbose = verbose
-      )
+      mapped_values[outside] <- NA_real_
     }
   }
+  mapped_values[!is.finite(mapped_values)] <- NA_real_
+  palette <- make_continuous_palette(
+    num_colors,
+    color_scheme,
+    verbose = verbose
+  )
+  if (rev) {
+    palette <- rev(palette)
+  }
+  mapped <- numeric_to_colors(
+    mapped_values,
+    palette,
+    n = length(palette),
+    limits = color_limits
+  )
+  mapped[!keep] <- NA_character_
+  if (!is.null(NA_color)) {
+    mapped[is.na(mapped) & keep] <- NA_color
+  }
+  color_spec(
+    kind = "continuous",
+    values = values,
+    colors = mapped,
+    palette = palette,
+    limits = color_limits,
+    keep = keep,
+    missing = !finite,
+    mapped_values = mapped_values,
+    labels = values
+  )
+}
+
+color_spec <- function(
+  kind,
+  colors,
+  values = NULL,
+  palette = NULL,
+  limits = NULL,
+  keep,
+  missing = rep(FALSE, length(colors)),
+  mapped_values = NULL,
+  labels = NULL
+) {
+  list(
+    kind = kind,
+    values = values,
+    colors = colors,
+    palette = palette,
+    limits = limits,
+    keep = keep,
+    missing = missing,
+    mapped_values = mapped_values,
+    labels = labels
+  )
+}
+
+resolve_color_source <- function(x, n, numeric_ok, verbose) {
+  if (is.null(x)) {
+    return(list(kind = "row"))
+  }
+  if (methods::is(x, "data.frame")) {
+    if (nrow(x) != n) {
+      stop("'x' data frame must have one row per coordinate.", call. = FALSE)
+    }
+    color_name <- last_color_column_name(x)
+    if (!is.null(color_name)) {
+      return(list(kind = "identity", values = x[[color_name]]))
+    }
+    factor_name <- last_factor_column_name(x)
+    if (!is.null(factor_name)) {
+      return(list(kind = "discrete", values = x[[factor_name]]))
+    }
+    character_name <- last_character_column_name(x)
+    if (!is.null(character_name) && is_factorish(x[[character_name]])) {
+      return(list(kind = "discrete", values = x[[character_name]]))
+    }
+    if (numeric_ok) {
+      numeric_name <- last_numeric_column_name(x)
+      if (!is.null(numeric_name)) {
+        return(list(kind = "continuous", values = x[[numeric_name]]))
+      }
+    }
+    return(list(kind = "row"))
+  }
+  if (length(x) != n) {
+    stop("'x' must have one value per coordinate.", call. = FALSE)
+  }
+  if (is.numeric(x)) {
+    return(list(kind = "continuous", values = x))
+  }
+  if (is_color_column(x)) {
+    return(list(kind = "identity", values = x))
+  }
+  if (is.factor(x) || is.character(x)) {
+    return(list(kind = "discrete", values = x))
+  }
+  list(kind = "row")
+}
+
+category_levels <- function(x) {
+  if (is.factor(x)) {
+    return(levels(x))
+  }
+  levels(as.factor(x))
+}
+
+categorical_palette <- function(category_names, color_scheme, rev, verbose) {
+  if (is_named_palette(color_scheme)) {
+    palette <- color_scheme[category_names]
+    if (anyNA(palette)) {
+      missing <- category_names[is.na(palette)]
+      stop(
+        "Named 'color_scheme' is missing observed categories: ",
+        paste(missing, collapse = ", "),
+        ".",
+        call. = FALSE
+      )
+    }
+  } else {
+    palette <- make_palette(
+      length(category_names),
+      color_scheme,
+      verbose = verbose
+    )
+    names(palette) <- category_names
+  }
+  if (rev) {
+    palette[] <- rev(unname(palette))
+  }
+  palette
+}
+
+is_named_palette <- function(color_scheme) {
+  if (is.null(color_scheme) || methods::is(color_scheme, "function")) {
+    return(FALSE)
+  }
+  palette_names <- names(color_scheme)
+  if (is.null(palette_names)) {
+    return(FALSE)
+  }
+  if (
+    anyNA(palette_names) ||
+      any(palette_names == "") ||
+      anyDuplicated(palette_names)
+  ) {
+    stop(
+      "'color_scheme' names must be complete, unique, and non-empty.",
+      call. = FALSE
+    )
+  }
+  TRUE
+}
+
+replace_na_color <- function(colors, NA_color) {
   if (!is.null(NA_color)) {
     colors[is.na(colors)] <- NA_color
   }
-
-  colors <- grDevices::adjustcolor(colors, alpha.f = alpha_scale)
-  if (rev) {
-    colors <- rev(colors)
-  }
-
   colors
+}
+
+recycle_input <- function(x, n, name) {
+  if (length(x) != 1 && length(x) != n) {
+    stop(
+      name,
+      " must have length 1 or one value per coordinate.",
+      call. = FALSE
+    )
+  }
+  rep(x, length.out = n)
+}
+
+validate_alpha_scale <- function(alpha_scale) {
+  if (
+    !is.numeric(alpha_scale) ||
+      length(alpha_scale) != 1 ||
+      is.na(alpha_scale) ||
+      !is.finite(alpha_scale) ||
+      alpha_scale < 0 ||
+      alpha_scale > 1
+  ) {
+    stop("'alpha_scale' must be a finite number in [0, 1].", call. = FALSE)
+  }
+}
+
+validate_logical_scalar <- function(x, name) {
+  if (!is.logical(x) || length(x) != 1 || is.na(x)) {
+    stop(name, " must be a single non-missing logical value.", call. = FALSE)
+  }
+}
+
+validate_top <- function(top, n_finite) {
+  if (
+    !is.numeric(top) ||
+      length(top) != 1 ||
+      is.na(top) ||
+      !is.finite(top) ||
+      top < 1 ||
+      top != as.integer(top) ||
+      top > n_finite
+  ) {
+    stop(
+      "'top' must be a positive integer no greater than the number of finite values.",
+      call. = FALSE
+    )
+  }
+}
+
+numeric_color_limits <- function(x, limits) {
+  if (!is.null(limits)) {
+    return(validate_numeric_limits(limits))
+  }
+  finite_x <- x[is.finite(x)]
+  if (length(finite_x) == 0) {
+    return(NULL)
+  }
+  range(finite_x)
 }
 
 
@@ -431,7 +719,7 @@ last_numeric_column_name <- function(df) {
 
 # returns TRUE if vector x consists of colors
 is_color_column <- function(x) {
-  !is.numeric(x) && all(is_color(x))
+  !is.numeric(x) && all(is.na(x) | is_color(x))
 }
 
 # Applies pred to each column in df and returns the names of each column that
