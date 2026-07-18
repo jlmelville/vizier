@@ -151,23 +151,38 @@ embed_plot <- function(
   rev = FALSE,
   verbose = FALSE
 ) {
-  if (methods::is(coords, "list") && !is.null(coords$coords)) {
-    coords <- coords$coords
+  validate_logical_scalar(equal_axes, "'equal_axes'")
+  validate_logical_scalar(pc_axes, "'pc_axes'")
+  validate_logical_scalar(show_axes, "'show_axes'")
+  validate_logical_scalar(rev, "'rev'")
+  validate_logical_scalar(verbose, "'verbose'")
+  validate_alpha_scale(alpha_scale)
+  validate_cex(cex)
+  if (!is.null(xlim)) {
+    validate_numeric_limits(xlim)
+  }
+  if (!is.null(ylim)) {
+    validate_numeric_limits(ylim)
+  }
+  coords <- validate_coords(coords, pc_axes = pc_axes)
+  if (!is.null(text)) {
+    text <- recycle_input(text, nrow(coords), "'text'")
   }
 
-  colors <- get_colors(
+  color_res <- resolve_colors(
     x = x,
+    colors = colors,
+    n = nrow(coords),
     color_scheme = color_scheme,
-    num_colors = if (is.null(x) && is.null(colors)) nrow(coords) else
-      num_colors,
+    num_colors = num_colors,
     limits = limits,
     top = top,
-    colors = colors,
     alpha_scale = alpha_scale,
     NA_color = NA_color,
     rev = rev,
     verbose = verbose
   )
+  colors <- grDevices::adjustcolor(color_res$colors, alpha.f = alpha_scale)
 
   if (pc_axes) {
     coords <- pc_rotate(coords)
