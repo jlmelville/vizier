@@ -4,6 +4,8 @@
 
 *July 17 2026*:
 
+- After many years, ggplot2 support is back via
+  [`embed_ggplot()`](https://jlmelville.github.io/vizier/reference/embed_ggplot.md).
 - numeric color vectors now default to a sequential HCL Viridis palette.
   Categorical and no-input row colors use the built-in `Polychrome 36`
   palette when available, with an HCL Dynamic fallback.

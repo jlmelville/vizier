@@ -11,11 +11,12 @@ more informative if the points are colored, using something like:
 
 This package is to make doing that a bit easier, using the
 [`graphics::plot`](https://rdrr.io/r/graphics/plot.default.html)
-function, or via the [plotly](https://plotly.com/r/) JavaScript library.
-If you don’t specify a specific column to color by, it will attempt to
-find a suitable factor or color column automatically, using the last
-suitable column found, so you can add a custom column to a dataframe if
-needed and have it picked out automatically.
+function, a returned [ggplot2](https://ggplot2.tidyverse.org/) object,
+or the [plotly](https://plotly.com/r/) JavaScript library. If you don’t
+specify a specific column to color by, it will attempt to find a
+suitable factor or color column automatically, using the last suitable
+column found, so you can add a custom column to a dataframe if needed
+and have it picked out automatically.
 
 ## Installing
 
@@ -30,6 +31,7 @@ pak::pak("jlmelville/vizier")
 ``` r
 
 ?embed_plot
+?embed_ggplot
 ?embed_plotly
 ```
 

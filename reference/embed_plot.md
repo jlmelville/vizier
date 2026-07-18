@@ -44,8 +44,7 @@ embed_plot(
 
 - colors:
 
-  Vector containing colors for each observation. If fewer colors than
-  than observations are provided, then the colors are recycled.
+  A single color or one color per observation.
 
 - color_scheme:
 

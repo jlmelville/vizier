@@ -36,7 +36,8 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.1" id="vizier-061">vizier 0.6.1<a class="anchor" aria-label="anchor" href="#vizier-061"></a></h2>
 <p><em>July 17 2026</em>:</p>
-<ul><li>numeric color vectors now default to a sequential HCL Viridis palette. Categorical and no-input row colors use the built-in <code>Polychrome 36</code> palette when available, with an HCL Dynamic fallback.</li>
+<ul><li>After many years, ggplot2 support is back via <code><a href="../reference/embed_ggplot.html">embed_ggplot()</a></code>.</li>
+<li>numeric color vectors now default to a sequential HCL Viridis palette. Categorical and no-input row colors use the built-in <code>Polychrome 36</code> palette when available, with an HCL Dynamic fallback.</li>
 <li>fix for a bug with <code>rev = TRUE</code>, where the wrong color could be assigned to an observation.</li>
 <li>minor fixes for some <code>top</code> corner cases (e.g. ties, missing data).</li>
 <li>

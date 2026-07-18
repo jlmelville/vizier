@@ -59,7 +59,7 @@
 <li>A numeric value mapped to a color scale.</li>
 <li>A string encoding a color.</li>
 </ul>
-<p>This package is to make doing that a bit easier, using the <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">graphics::plot</a></code> function, or via the <a href="https://plotly.com/r/" class="external-link">plotly</a> JavaScript library. If you don’t specify a specific column to color by, it will attempt to find a suitable factor or color column automatically, using the last suitable column found, so you can add a custom column to a dataframe if needed and have it picked out automatically.</p>
+<p>This package is to make doing that a bit easier, using the <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">graphics::plot</a></code> function, a returned <a href="https://ggplot2.tidyverse.org/" class="external-link">ggplot2</a> object, or the <a href="https://plotly.com/r/" class="external-link">plotly</a> JavaScript library. If you don’t specify a specific column to color by, it will attempt to find a suitable factor or color column automatically, using the last suitable column found, so you can add a custom column to a dataframe if needed and have it picked out automatically.</p>
 <div class="section level2">
 <h2 id="installing">Installing<a class="anchor" aria-label="anchor" href="#installing"></a>
 </h2>
@@ -72,6 +72,7 @@
 </h2>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="op">?</span><span class="va">embed_plot</span></span>
+<span><span class="op">?</span><span class="va">embed_ggplot</span></span>
 <span><span class="op">?</span><span class="va">embed_plotly</span></span></code></pre></div>
 <p>The pkgdown site has longer guides:</p>
 <ul>

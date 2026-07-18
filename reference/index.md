@@ -2,6 +2,8 @@
 
 ## All functions
 
+- [`embed_ggplot()`](https://jlmelville.github.io/vizier/reference/embed_ggplot.md)
+  : Embedding Plot Using ggplot2
 - [`embed_plot()`](https://jlmelville.github.io/vizier/reference/embed_plot.md)
   : Embedding Plot
 - [`embed_plotly()`](https://jlmelville.github.io/vizier/reference/embed_plotly.md)
