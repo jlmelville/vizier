@@ -1,17 +1,15 @@
 # vizier 0.6.1
 
-*July 17 2026*: numeric color vectors now default to a sequential HCL Viridis
-palette. Categorical and no-input row colors use the built-in `Polychrome 36`
-palette when available, with an HCL Dynamic fallback; this no longer requires
-the Polychrome package. Generated palettes reverse before mapping to values,
-whereas explicit per-observation colors do not reverse. Named categorical
-palettes map by category name, and numeric `top` selection now retains exactly
-the requested number of finite rows in stable decreasing-value order.
+*July 17 2026*:
 
-`equal_axes = TRUE` now also preserves equal physical X/Y units in base and
-Plotly output. Plotly numeric scales retain their native continuous colorbar;
-text labels work with numeric values and hover content retains original row
-numbers without exposing literal input colors.
+- numeric color vectors now default to a sequential HCL Viridis palette. Categorical and no-input
+  row colors use the built-in `Polychrome 36` palette when available, with an HCL Dynamic fallback.
+- fix for a bug with `rev = TRUE`, where the wrong color could be assigned to an observation.
+- minor fixes for some `top` corner cases (e.g. ties, missing data).
+- `equal_axes = TRUE` now also preserves equal physical X/Y units in base and Plotly output.
+- Plotly numeric scales retain their native continuous colorbar.
+- fix regression where Plotly tooltip content showed literal input colors.
+- text labels work with numeric values.
 
 *July 4 2026*: use the `Polychrome 36` palette as the default categorical palette. This will
 prevent the default categorical palettes changing color when you don't set the seed right before
