@@ -58,7 +58,6 @@ embed_plot(pca_iris$x, iris)
 ```
 ![Default embed plot result](man/figures/embed_ex.png "embed_plot(pca_iris$x, iris)")
 
-
 For more examples, see the [Getting started](https://jlmelville.github.io/vizier/articles/getting-started.html)
 article.
 
