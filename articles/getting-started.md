@@ -323,7 +323,13 @@ Embed plot as a webpage with plotly
 ``` r
 
 # Don't have to see a legend if custom tooltips will do
-embed_plotly(pca_iris$x, iris, color_scheme = rainbow,show_legend = FALSE, tooltip = paste("Species:", iris$Species))
+embed_plotly(
+  pca_iris$x,
+  iris,
+  color_scheme = rainbow,
+  show_legend = FALSE,
+  tooltip = paste("Species:", iris$Species)
+)
 ```
 
 ![plotly with custom

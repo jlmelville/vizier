@@ -274,7 +274,13 @@ preserves original row numbers without showing literal input colors:</p>
 </div>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Don't have to see a legend if custom tooltips will do</span></span>
-<span><span class="fu"><a href="../reference/embed_plotly.html">embed_plotly</a></span><span class="op">(</span><span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>, <span class="va">iris</span>, color_scheme <span class="op">=</span> <span class="va">rainbow</span>,show_legend <span class="op">=</span> <span class="cn">FALSE</span>, tooltip <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Species:"</span>, <span class="va">iris</span><span class="op">$</span><span class="va">Species</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/embed_plotly.html">embed_plotly</a></span><span class="op">(</span></span>
+<span>  <span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>,</span>
+<span>  <span class="va">iris</span>,</span>
+<span>  color_scheme <span class="op">=</span> <span class="va">rainbow</span>,</span>
+<span>  show_legend <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  tooltip <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Species:"</span>, <span class="va">iris</span><span class="op">$</span><span class="va">Species</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <div class="float">
 <img src="img/embed_ex_plotly_tooltip.png" title='embed_plotly(pca_iris$x, iris, color_scheme = rainbow, show_legend = FALSE, tooltip = paste("Species:", iris$Species))' alt="plotly with custom tooltips"><div class="figcaption">plotly with custom tooltips</div>
 </div>
