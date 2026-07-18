@@ -1,0 +1,10 @@
+utils::globalVariables(c(
+  "make_continuous_palette",
+  "prepare_coords",
+  "recycle_input",
+  "resolve_colors",
+  "validate_alpha_scale",
+  "validate_cex",
+  "validate_logical_scalar",
+  "validate_num_colors"
+))
