@@ -20,6 +20,23 @@ scheme, use the `color_scheme` parameter, passing one of:
   distinction between the continuous, fixed-width or dynamic palette
   classification used by `paletteer`.
 
+For categories, a fully named color vector is a value-to-color mapping.
+This is useful when subsets or reordered factor levels should retain the
+same colors:
+
+``` r
+
+pca_iris <- stats::prcomp(iris[, -5], retx = TRUE, rank. = 2)
+species_colors <- c(setosa = "#E69F00", versicolor = "#56B4E9", virginica = "#009E73")
+embed_plot(pca_iris$x, iris$Species, color_scheme = species_colors)
+```
+
+Extra names are ignored, but every observed category must have a color.
+An unnamed vector remains a positional palette. The `rev` argument
+reverses a generated or named category palette before values are mapped;
+it does not reorder explicit per-observation colors supplied with
+`colors`.
+
 ## Palette Interpolation
 
 If the color scheme you select has a maximum number of colors, and

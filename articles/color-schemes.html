@@ -79,6 +79,18 @@ page</a>. Some examples include <code>"dutchmasters::milkmaid"</code>,
 distinction between the continuous, fixed-width or dynamic palette
 classification used by <code>paletteer</code>.</li>
 </ul>
+<p>For categories, a fully named color vector is a value-to-color
+mapping. This is useful when subsets or reordered factor levels should
+retain the same colors:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pca_iris</span> <span class="op">&lt;-</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/prcomp.html" class="external-link">prcomp</a></span><span class="op">(</span><span class="va">iris</span><span class="op">[</span>, <span class="op">-</span><span class="fl">5</span><span class="op">]</span>, retx <span class="op">=</span> <span class="cn">TRUE</span>, rank. <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">species_colors</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>setosa <span class="op">=</span> <span class="st">"#E69F00"</span>, versicolor <span class="op">=</span> <span class="st">"#56B4E9"</span>, virginica <span class="op">=</span> <span class="st">"#009E73"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/embed_plot.html">embed_plot</a></span><span class="op">(</span><span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>, <span class="va">iris</span><span class="op">$</span><span class="va">Species</span>, color_scheme <span class="op">=</span> <span class="va">species_colors</span><span class="op">)</span></span></code></pre></div>
+<p>Extra names are ignored, but every observed category must have a
+color. An unnamed vector remains a positional palette. The
+<code>rev</code> argument reverses a generated or named category palette
+before values are mapped; it does not reorder explicit per-observation
+colors supplied with <code>colors</code>.</p>
 <div class="section level2">
 <h2 id="palette-interpolation">Palette Interpolation<a class="anchor" aria-label="anchor" href="#palette-interpolation"></a>
 </h2>
@@ -160,7 +172,7 @@ and <em>definitely</em> do avoid for those like
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

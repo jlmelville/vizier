@@ -11,8 +11,10 @@ pca_iris <- stats::prcomp(iris[, -5], retx = TRUE, rank. = 2)
 ```
 
 Simplest use of embed_plot: pass in data frame and it will use the last
-(in this case, only) factor column it finds and the `rainbow` color
-scheme
+(in this case, only) factor column it finds and the stable built-in
+`Polychrome 36` categorical palette. Numeric vectors instead use a
+sequential HCL Viridis palette by default. If the built-in categorical
+palette is not available, Vizier uses an HCL Dynamic fallback.
 
 ``` r
 
@@ -92,7 +94,9 @@ scheme](img/embed_ex_turbo.png "embed_plot(pca_iris$x, iris$Species, color_schem
 
 Embed plot with the turbo color scheme
 
-The `rev` argument can be used to reverse a color scheme:
+The `rev` argument reverses a generated color scheme before it is mapped
+to categories or numeric values. It does not reorder explicitly supplied
+per-row colors:
 
 ``` r
 
@@ -120,6 +124,16 @@ Note that if you have more colors in your palette than needed, the extra
 ones are ignored: e.g. if `c("black", "red", "gray", "blue")`, `"blue"`
 would have been unused, because we only needed three colors from the
 palette for this plot for the three species.
+
+A fully named palette maps categories by name, so it remains stable
+after reordering or subsetting. Extra names are ignored; every observed
+category must have a named color:
+
+``` r
+
+species_colors <- c(setosa = "#E69F00", versicolor = "#56B4E9", virginica = "#009E73")
+embed_plot(pca_iris$x, iris$Species, color_scheme = species_colors)
+```
 
 Watch out for the opposite situation where you need *more* colors than
 your palette provides. In this case `vizier` will use interpolation to
@@ -155,8 +169,8 @@ name as a shortcut:
 
     embed_plot(pca_iris$x, iris$Species, color_scheme = "Okabe-Ito")
 
-To force axes to be equal size to stop clusters being distorted in one
-direction:
+To use common limits and equal physical X/Y units, preventing clusters
+from being stretched on a non-square device:
 
 ``` r
 
@@ -227,10 +241,20 @@ lengths](img/embed_ex_top.png "embed_plot(pca_iris$x, iris$Petal.Length, color_s
 
 Embed plot only showing top 10 petal lengths
 
+`top` selects exactly that many finite numeric values in decreasing
+order; ties are resolved by their existing row order. Direct character
+vectors are treated as categories unless every non-missing entry is a
+literal color. Character columns discovered from a data frame remain
+conservatively inferred only when they are factor-like, avoiding
+accidental coloring by identifier columns.
+
 If you install the [plotly](https://cran.r-project.org/package=plotly)
 package, you can use the `embed_plotly` function which has the same
 interface as `embed_plot` (except the `top` and `sub` parameters are
-missing). This has the advantage of showing a legend and tooltips:
+missing). This has the advantage of showing categorical legends or
+numeric colorbars and tooltips. `text` works for numeric colors as well;
+default hover text preserves original row numbers without showing
+literal input colors:
 
 ``` r
 

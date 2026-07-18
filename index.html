@@ -85,12 +85,13 @@
 <p>Create a plot of the first two principal components (PCA) for the <code>iris</code> dataset:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pca_iris</span> <span class="op">&lt;-</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/prcomp.html" class="external-link">prcomp</a></span><span class="op">(</span><span class="va">iris</span><span class="op">[</span>, <span class="op">-</span><span class="fl">5</span><span class="op">]</span>, retx <span class="op">=</span> <span class="cn">TRUE</span>, rank. <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
-<p>Simplest use of embed_plot: pass in data frame and it will use the last (in this case, only) factor column it finds and the <code>rainbow</code> color scheme</p>
+<p>Simplest use of embed_plot: pass in data frame and it will use the last (in this case, only) factor column it finds and the stable built-in <code>Polychrome 36</code> categorical palette</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/embed_plot.html">embed_plot</a></span><span class="op">(</span><span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>, <span class="va">iris</span><span class="op">)</span></span></code></pre></div>
 <div class="float">
 <img src="reference/figures/embed_ex.png" title="embed_plot(pca_iris$x, iris)" alt="Default embed plot result"><div class="figcaption">Default embed plot result</div>
 </div>
+<p>Numeric vectors use a sequential HCL Viridis palette by default. Categorical and no-input row colors use <code>Polychrome 36</code> when R provides it, with an HCL Dynamic fallback. To reverse a generated palette, use <code>rev = TRUE</code>; explicitly supplied per-row <code>colors</code> retain their order.</p>
 <p>For more examples, see the <a href="https://jlmelville.github.io/vizier/articles/getting-started.html">Getting started</a> article.</p>
 </div>
 <div class="section level2">
@@ -156,7 +157,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

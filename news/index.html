@@ -35,7 +35,16 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.1" id="vizier-061">vizier 0.6.1<a class="anchor" aria-label="anchor" href="#vizier-061"></a></h2>
-<p><em>July 4 2026</em>: use the <code>Polychrome 36</code> palette as the default categorical palette. This will prevent the default categorical palettes changing color when you don’t set the seed right before calling <code>embed_plot</code>. Also should prevent a sporadic “In sweep(<a href="mailto:luv@coords" class="email">luv@coords</a>, 2, y0,”-“) : STATS is longer than the extent of ‘dim(x)[MARGIN]’” warning that comes from the <code>Polychrome</code> package.</p>
+<p><em>July 17 2026</em>:</p>
+<ul><li>numeric color vectors now default to a sequential HCL Viridis palette. Categorical and no-input row colors use the built-in <code>Polychrome 36</code> palette when available, with an HCL Dynamic fallback.</li>
+<li>fix for a bug with <code>rev = TRUE</code>, where the wrong color could be assigned to an observation.</li>
+<li>minor fixes for some <code>top</code> corner cases (e.g. ties, missing data).</li>
+<li>
+<code>equal_axes = TRUE</code> now also preserves equal physical X/Y units in base and Plotly output.</li>
+<li>Plotly numeric scales retain their native continuous colorbar.</li>
+<li>fix regression where Plotly tooltip content showed literal input colors.</li>
+<li>text labels work with numeric values.</li>
+</ul><p><em>July 4 2026</em>: use the <code>Polychrome 36</code> palette as the default categorical palette. This will prevent the default categorical palettes changing color when you don’t set the seed right before calling <code>embed_plot</code>.</p>
 </div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.0" id="vizier-060">vizier 0.6.0<a class="anchor" aria-label="anchor" href="#vizier-060"></a></h2>
@@ -76,7 +85,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>
