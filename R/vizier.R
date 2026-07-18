@@ -58,8 +58,7 @@
 #'  observations, and 2 columns.
 #' @param x Either a data frame or a column that can be used to derive a
 #'  suitable vector of colors. Ignored if `colors` is provided.
-#' @param colors Vector containing colors for each observation. If fewer colors
-#'  than than observations are provided, then the colors are recycled.
+#' @param colors A single color or one color per observation.
 #' @param color_scheme A color scheme. See Details. Ignored if `colors`
 #'  is specified.
 #' @param alpha_scale Scale the opacity alpha of the colors, between 0 and 1.

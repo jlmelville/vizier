@@ -34,8 +34,7 @@ observations, and 2 columns.}
 \item{x}{Either a data frame or a column that can be used to derive a
 suitable vector of colors. Ignored if \code{colors} is provided.}
 
-\item{colors}{Vector containing colors for each observation. If fewer colors
-than than observations are provided, then the colors are recycled.}
+\item{colors}{A single color or one color per observation.}
 
 \item{color_scheme}{A color scheme. See Details. Ignored if \code{colors}
 is specified.}

@@ -15,11 +15,11 @@ points are colored, using something like:
 * A numeric value mapped to a color scale.
 * A string encoding a color.
 
-This package is to make doing that a bit easier, using the `graphics::plot` function, or via the
-[plotly](https://plotly.com/r/) JavaScript library. If you don't specify a specific column to color
-by, it will attempt to find a suitable factor or color column automatically, using the last
-suitable column found, so you can add a custom column to a dataframe if needed and have it picked
-out automatically.
+This package is to make doing that a bit easier, using the `graphics::plot` function, a returned
+[ggplot2](https://ggplot2.tidyverse.org/) object, or the [plotly](https://plotly.com/r/) JavaScript
+library. If you don't specify a specific column to color by, it will attempt to find a suitable
+factor or color column automatically, using the last suitable column found, so you can add a custom
+column to a dataframe if needed and have it picked out automatically.
 
 ## Installing
 
@@ -32,6 +32,7 @@ pak::pak("jlmelville/vizier")
 
 ```R
 ?embed_plot
+?embed_ggplot
 ?embed_plotly
 ```
 
