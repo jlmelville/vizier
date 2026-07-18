@@ -43,8 +43,7 @@ The pkgdown site has longer guides:
 
 ## Example
 
-Create a plot of the first two principal components (PCA) for the `iris`
-dataset:
+Create a plot of the first two principal components (PCA) for the `iris` dataset:
 
 ```R
 pca_iris <- stats::prcomp(iris[, -5], retx = TRUE, rank. = 2)
@@ -56,10 +55,11 @@ factor column it finds and the stable built-in `Polychrome 36` categorical palet
 ```R
 embed_plot(pca_iris$x, iris)
 ```
+
 ![Default embed plot result](man/figures/embed_ex.png "embed_plot(pca_iris$x, iris)")
 
-For more examples, see the [Getting started](https://jlmelville.github.io/vizier/articles/getting-started.html)
-article.
+For more examples, see the
+[Getting started](https://jlmelville.github.io/vizier/articles/getting-started.html) article.
 
 ## License
 

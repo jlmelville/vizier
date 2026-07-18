@@ -4,17 +4,15 @@ title: "Getting Started"
 
 ## Examples
 
-Create a plot of the first two principal components (PCA) for the `iris`
-dataset:
+Create a plot of the first two principal components (PCA) for the `iris` dataset:
 
 ```R
 pca_iris <- stats::prcomp(iris[, -5], retx = TRUE, rank. = 2)
 ```
 
-Simplest use of embed_plot: pass in data frame and it will use the last
-(in this case, only) factor column it finds and the stable built-in
-`Polychrome 36` categorical palette. Numeric vectors instead use a sequential
-HCL Viridis palette by default. If the built-in categorical palette is not
+Simplest use of embed_plot: pass in data frame and it will use the last (in this case, only) factor
+column it finds and the stable built-in `Polychrome 36` categorical palette. Numeric vectors
+instead use a sequential HCL Viridis palette by default. If the built-in categorical palette is not
 available, Vizier uses an HCL Dynamic fallback.
 
 ```R
@@ -23,14 +21,13 @@ embed_plot(pca_iris$x, iris)
 ![Default embed plot result](img/embed_ex.png "embed_plot(pca_iris$x, iris)")
 
 
-More explicitly color by iris species, use the rainbow color scheme and also
-provide a title and subtitle:
+More explicitly color by iris species, use the rainbow color scheme and also provide a title and
+subtitle:
 
 ```R
 embed_plot(pca_iris$x, iris$Species, color_scheme = rainbow, title = "iris PCA", sub = "rainbow color scheme")
 ```
 ![Embed plot with a title](img/embed_ex_title.png "embed_plot(pca_iris$x, iris$Species, color_scheme = rainbow, title = \"iris PCA\")")
-
 
 Increase the transparency of the fill color by scaling the alpha by 0.5:
 
@@ -39,9 +36,8 @@ embed_plot(pca_iris$x, iris$Species, color_scheme = rainbow, alpha_scale = 0.5)
 ```
 ![Embed plot with transparency](img/embed_ex_alpha.png "embed_plot(pca_iris$x, iris$Species, color_scheme = rainbow, alpha_scale = 0.5)")
 
-If you already have colors you want to use for each point, you can use the
-`colors` parameter. In the example below, 
-`colorRampPalette(c("red", "yellow"))(nrow(iris))` produces a vector of 150
+If you already have colors you want to use for each point, you can use the `colors` parameter. In
+the example below, `colorRampPalette(c("red", "yellow"))(nrow(iris))` produces a vector of 150
 colors going from red to yellow:
 
 ```R
@@ -51,9 +47,9 @@ embed_plot(pca_iris$x, iris$Species, colors = my_iris_colors)
 
 ![Embed plot with colors](img/embed_ex_colors.png "embed_plot(pca_iris$x, iris$Species, colors = my_iris_colors)")
 
-If you just want the points to be all one color you need only pass a single
-value, e.g. `colors = "blue"`. In general, if you pass fewer colors than there
-are points, the colors are recycled.
+If you just want the points to be all one color you need only pass a single value, e.g. 
+`colors = "blue"`. In general, if you pass fewer colors than there are points, the colors are
+recycled.
 
 Here's another example of using a built-in palette, `topo.colors`:
 
@@ -61,8 +57,8 @@ Here's another example of using a built-in palette, `topo.colors`:
 
 This package also includes the
 [turbo colormap](https://ai.googleblog.com/2019/08/turbo-improved-rainbow-colormap-for.html)
-as a palette, via the `turbo` function, which works a lot like
-`grDevices::rainbow` (although reversed in terms of colors):
+as a palette, via the `turbo` function, which works a lot like `grDevices::rainbow` (although
+reversed in terms of colors):
 
 ```R
 embed_plot(pca_iris$x, iris$Species, color_scheme = turbo)
@@ -70,9 +66,8 @@ embed_plot(pca_iris$x, iris$Species, color_scheme = turbo)
 
 ![Embed plot with the turbo color scheme](img/embed_ex_turbo.png "embed_plot(pca_iris$x, iris$Species, color_scheme = turbo)")
 
-The `rev` argument reverses a generated color scheme before it is mapped to
-categories or numeric values. It does not reorder explicitly supplied per-row
-colors:
+The `rev` argument reverses a generated color scheme before it is mapped to categories or numeric
+values. It does not reorder explicitly supplied per-row colors:
 
 ```R
 embed_plot(pca_iris$x, iris$Species, color_scheme = turbo, rev = TRUE)
@@ -88,50 +83,46 @@ embed_plot(pca_iris$x, iris$Species, color_scheme = c("black", "red", "gray"))
 
 ![Embed plot with custom palette](img/embed_ex_custom.png "embed_plot(pca_iris$x, iris$Species, color_scheme = c(\"black\", \"red\", \"gray\"))")
 
-Note that if you have more colors in your palette than needed, the extra ones
-are ignored: e.g. if `c("black", "red", "gray", "blue")`, `"blue"` would have
-been unused, because we only needed three colors from the palette for this plot
-for the three species.
+Note that if you have more colors in your palette than needed, the extra ones are ignored: e.g. if 
+`c("black", "red", "gray", "blue")`, `"blue"` would have been unused, because we only needed three
+colors from the palette for this plot for the three species.
 
-A fully named palette maps categories by name, so it remains stable after
-reordering or subsetting. Extra names are ignored; every observed category must
-have a named color:
+A fully named palette maps categories by name, so it remains stable after reordering or subsetting.
+Extra names are ignored; every observed category must have a named color:
 
 ```R
 species_colors <- c(setosa = "#E69F00", versicolor = "#56B4E9", virginica = "#009E73")
 embed_plot(pca_iris$x, iris$Species, color_scheme = species_colors)
 ```
 
-Watch out for the opposite situation where you need *more* colors than your
-palette provides. In this case `vizier` will use interpolation to get the colors
-it needs. This might work out for some palettes that represent a continuous
-color scale (like `rainbow`), but will give weird and probably undesirable
-results for discrete palettes. For more details, see the 
+Watch out for the opposite situation where you need *more* colors than your palette provides. In
+this case `vizier` will use interpolation to get the colors it needs. This might work out for some
+palettes that represent a continuous color scale (like `rainbow`), but will give weird and probably
+undesirable results for discrete palettes. For more details, see the 
 [Discrete Palettes with `continuous` Type](color-schemes.html#discrete-palettes-with-continuous-type)
 section in the color schemes article.
 
 As of R 4.0, there are some 
 [new color palettes](https://developer.r-project.org/Blog/public/2019/11/21/a-new-palette-for-r/index.html).
-You can see the options available via `grDevices::palette.pals()` and generate
-the palette using `grDevices::palette.colors`. Here's an example using the `"Okabe-Ito"`
-palette:
+You can see the options available via `grDevices::palette.pals()` and generate the palette using 
+`grDevices::palette.colors`. Here's an example using the `"Okabe-Ito"` palette:
 
 ```R
 if (exists("palette.colors", where = "package:grDevices")) {
   embed_plot(pca_iris$x, iris$Species, color_scheme = palette.colors(palette = "Okabe-Ito"))
 }
 ```
+
 ![Embed plot with new built-in palette](img/embed_ex_okabe_ito.png "embed_plot(pca_iris$x, iris$Species, color_scheme = palette.colors(palette = \"Okabe-Ito\"))")
 
-For any palette in `palette.pals`, you can also just provide the palette name
-as a shortcut:
+For any palette in `palette.pals`, you can also just provide the palette name as a shortcut:
 
 ```
 embed_plot(pca_iris$x, iris$Species, color_scheme = "Okabe-Ito")
 ```
 
-To use common limits and equal physical X/Y units, preventing clusters from
-being stretched on a non-square device:
+To use common limits and equal physical X/Y units, preventing clusters from being stretched on a
+non-square device:
 
 ```R
 embed_plot(pca_iris$x, iris$Species, color_scheme = topo.colors, equal_axes = TRUE)
@@ -139,9 +130,8 @@ embed_plot(pca_iris$x, iris$Species, color_scheme = topo.colors, equal_axes = TR
 
 ![Embed plot with equal axes](img/embed_ex_ax.png "embed_plot(pca_iris$x, iris$Species, color_scheme = topo.colors, equal_axes = TRUE)")
 
-You can plot the category names instead of points, but it looks bad if they're
-long (or the dataset is large). Making the text a bit smaller with the `cex`
-param can help:
+You can plot the category names instead of points, but it looks bad if they're long (or the dataset
+is large). Making the text a bit smaller with the `cex` param can help:
 
 ```R
 embed_plot(pca_iris$x, iris$Species, cex = 0.75, text = iris$Species)
@@ -149,40 +139,44 @@ embed_plot(pca_iris$x, iris$Species, cex = 0.75, text = iris$Species)
 
 ![Embed plot with text labels](img/embed_ex_text.png "embed_plot(pca_iris$x, iris$Species, cex = 0.75, text = iris$Species)")
 
-For more color schemes, Vizier makes use of the excellent
-[paletteer](https://cran.r-project.org/package=paletteer) package.
-You can select one of the palettes on offer by (among other ways) passing a
-string with the format `"package::palette"`. For example, to use the `Dark2`
-scheme from the 
-[RColorBrewer](https://cran.r-project.org/package=RColorBrewer) package
-(itself based on [ColorBrewer](http://www.colorbrewer2.org) schemes):
+For more color schemes, Vizier makes use of the excellent 
+[paletteer](https://cran.r-project.org/package=paletteer) package. You can select one of the
+palettes on offer by (among other ways) passing a string with the format `"package::palette"`. For
+example, to use the `Dark2` scheme from the 
+[RColorBrewer](https://cran.r-project.org/package=RColorBrewer) package (itself based on
+[ColorBrewer](http://www.colorbrewer2.org) schemes):
 
 ```R
 embed_plot(pca_iris$x, iris, color_scheme = "RColorBrewer::Dark2")
 ```
+
 ![Embed plot with ColorBrewer color scheme](img/embed_ex_cb.png "embed_plot(pca_iris$x, iris, color_scheme = \"RColorBrewer::Dark2\")")
 
-For more on selecting color schemes, see the [Color schemes](color-schemes.html)
-article. Here's another example, using a continuous palette from RColorBrewer, useful
-for mapping numeric vectors to the color:
+For more on selecting color schemes, see the [Color schemes](color-schemes.html) article. Here's
+another example, using a continuous palette from RColorBrewer, useful for mapping numeric vectors
+to the color:
 
 ```R
 # Visualize numeric value (petal length) as a color
 embed_plot(pca_iris$x, iris$Petal.Length, color_scheme = "RColorBrewer::Blues")
 ```
+
 ![Embed plot with quantitative color scale](img/embed_ex_quant.png "embed_plot(pca_iris$x, iris$Petal.Length, color_scheme = \"RColorBrewer::Blues\")")
 
 ```R
 # Just show the points with the 10 longest petals
 embed_plot(pca_iris$x, iris$Petal.Length, color_scheme = "RColorBrewer::Blues", top = 10)
 ```
+
 ![Embed plot only showing top 10 petal lengths](img/embed_ex_top.png "embed_plot(pca_iris$x, iris$Petal.Length, color_scheme = \"RColorBrewer::Blues\", top = 10)")
 
-`top` selects exactly that many finite numeric values in decreasing order; ties
-are resolved by their existing row order. Direct character vectors are treated
-as categories unless every non-missing entry is a literal color. Character
-columns discovered from a data frame remain conservatively inferred only when
-they are factor-like, avoiding accidental coloring by identifier columns.
+`top` selects exactly that many finite numeric values in decreasing order; ties are resolved by
+their existing row order. Direct character vectors are treated as categories unless every
+non-missing entry is a literal color. Character columns discovered from a data frame remain
+conservatively inferred only when they are factor-like, avoiding accidental coloring by identifier
+columns.
+
+## Plotly support
 
 If you install the [plotly](https://cran.r-project.org/package=plotly) package,
 you can use the `embed_plotly` function which has the same interface as 
@@ -192,13 +186,14 @@ for numeric colors as well; default hover text preserves original row numbers
 without showing literal input colors:
 
 ```R
-embed_plotly(pca_iris$x, iris)
+embed_plotly(pca_iris$x, iris, color_scheme = rainbow)
 ```
-![Embed plot as a webpage with plotly](img/embed_ex_plotly.png "embed_plotly(pca_iris$x, iris)")
+
+![Embed plot as a webpage with plotly](img/embed_ex_plotly.png "embed_plotly(pca_iris$x, iris, color_scheme = rainbow)")
 
 ```R
 # Don't have to see a legend if custom tooltips will do
-embed_plotly(pca_iris$x, iris, show_legend = FALSE, tooltip = paste("Species:", iris$Species))
+embed_plotly(pca_iris$x, iris, color_scheme = rainbow,show_legend = FALSE, tooltip = paste("Species:", iris$Species))
 ```
 
-![plotly with custom tooltips](img/embed_ex_plotly_tooltip.png "embed_plotly(pca_iris$x, iris, show_legend = FALSE, tooltip = paste(\"Species:\", iris$Species))")
+![plotly with custom tooltips](img/embed_ex_plotly_tooltip.png "embed_plotly(pca_iris$x, iris, color_scheme = rainbow, show_legend = FALSE, tooltip = paste(\"Species:\", iris$Species))")
