@@ -139,16 +139,14 @@ make_palette_function <- function(name, verbose = FALSE) {
     },
     "c" = function(package_name, palette_name, n) {
       pack_and_pal <- paste0(package_name, "::", palette_name)
-      forceAndCall(2, paletteer::paletteer_c, pack_and_pal, n)
+      paletteer::paletteer_c(pack_and_pal, n)
     },
     "d" = function(package_name, palette_name, n) {
       pack_and_pal <- paste0(package_name, "::", palette_name)
       if (is.null(type)) {
-        forceAndCall(2, paletteer::paletteer_d, pack_and_pal, n)
+        paletteer::paletteer_d(pack_and_pal, n)
       } else {
-        forceAndCall(
-          3,
-          paletteer::paletteer_d,
+        paletteer::paletteer_d(
           pack_and_pal,
           n = n,
           type = type
@@ -157,7 +155,7 @@ make_palette_function <- function(name, verbose = FALSE) {
     },
     "dynamic" = function(package_name, palette_name, n) {
       pack_and_pal <- paste0(package_name, "::", palette_name)
-      forceAndCall(2, paletteer::paletteer_dynamic, pack_and_pal, n)
+      paletteer::paletteer_dynamic(pack_and_pal, n)
     }
   )
   max_colors <- pal$length
@@ -174,7 +172,7 @@ make_palette_function <- function(name, verbose = FALSE) {
       }
       ncols <- max_colors
     }
-    palette <- forceAndCall(4, pal_fn, package_name, palette_name, ncols)
+    palette <- pal_fn(package_name, palette_name, ncols)
     if (n > max_colors) {
       palette <- grDevices::colorRampPalette(palette)(n)
     }

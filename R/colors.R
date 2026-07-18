@@ -562,12 +562,6 @@ color_helper_column <- function(
   list(colors = make_palette(ncolors = length(x), color_scheme = color_scheme))
 }
 
-# Map a vector of factor levels, x, to a vector of colors taken from either
-# a color ramp function, color scheme name or existing palette
-factor_to_colors <- function(x, color_scheme = NULL, verbose = FALSE) {
-  factor_to_palette(x, color_scheme, verbose = verbose)[as.character(x)]
-}
-
 # Map a vector of factor levels, x, to a palette based on the specified
 # color scheme
 factor_to_palette <- function(x, color_scheme = NULL, verbose = FALSE) {

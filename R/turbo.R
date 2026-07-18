@@ -340,33 +340,7 @@ turbo_colormap_data <- matrix(
   byrow = TRUE
 )
 
-interpolate <- function(colormap, x) {
-  x <- max(0.0, min(1.0, x))
-  a <- floor(x * 255.0)
-  b <- min(255, a + 1)
-  f <- x * 255.0 - a
-  a <- a + 1
-  b <- b + 1
-
-  c(
-    colormap[a, 1] + (colormap[b, 1] - colormap[a, 1]) * f,
-    colormap[a, 2] + (colormap[b, 2] - colormap[a, 2]) * f,
-    colormap[a, 3] + (colormap[b, 3] - colormap[a, 3]) * f
-  )
-}
-
-interpolate_or_clip <- function(colormap, x) {
-  if (x < 0.0) {
-    c(0.0, 0.0, 0.0)
-  } else if (x > 1.0) {
-    c(1.0, 1.0, 1.0)
-  } else {
-    interpolate(colormap, x)
-  }
-}
-
-# Better, shorter, more idiomatic, vectorized versions of the interpolate and turbo functions
-# thanks to @onesandzeroes
+# Vectorized interpolation adapted from @onesandzeroes' implementation.
 interpolate_vec <- function(colormap, x) {
   x <- pmax(0.0, pmin(1.0, x))
   a <- floor(x * 255.0)
@@ -377,9 +351,4 @@ interpolate_vec <- function(colormap, x) {
 
   colormap[a, , drop = FALSE] +
     (colormap[b, , drop = FALSE] - colormap[a, , drop = FALSE]) * f
-}
-
-turbo_vec <- function(n, start = 0, end = 1) {
-  xs <- seq.int(from = start, to = end, length.out = n)
-  grDevices::rgb(interpolate_vec(turbo_colormap_data, xs))
 }

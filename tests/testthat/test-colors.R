@@ -306,3 +306,33 @@ test_that("numeric top selection is exact, stable, and distinct from missing val
     "only supported"
   )
 })
+
+test_that("resolve_colors returns renderer-neutral specifications", {
+  specs <- list(
+    identity = vizier:::resolve_colors(NULL, "#AA0000", n = 2),
+    discrete = vizier:::resolve_colors(
+      factor(c("a", "b")),
+      NULL,
+      n = 2,
+      color_scheme = c("red", "blue")
+    ),
+    continuous = vizier:::resolve_colors(
+      c(3, 1, NA),
+      NULL,
+      n = 3,
+      color_scheme = c("black", "white"),
+      top = 1
+    ),
+    row = vizier:::resolve_colors(NULL, NULL, n = 2)
+  )
+
+  expect_identical(
+    unname(vapply(specs, `[[`, character(1), "kind")),
+    names(specs)
+  )
+  expect_identical(specs$identity$keep, c(TRUE, TRUE))
+  expect_identical(specs$discrete$palette, c(a = "red", b = "blue"))
+  expect_identical(specs$continuous$keep, c(TRUE, FALSE, FALSE))
+  expect_identical(specs$continuous$missing, c(FALSE, FALSE, TRUE))
+  expect_length(specs$row$colors, 2)
+})
