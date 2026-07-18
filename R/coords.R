@@ -7,7 +7,13 @@ pc_rotate <- function(X) {
   s$u %*% diag(c(s$d[1:2]))
 }
 
-validate_coords <- function(coords, pc_axes = FALSE) {
+prepare_coords <- function(
+  coords,
+  pc_axes = FALSE,
+  xlim = NULL,
+  ylim = NULL,
+  equal_axes = FALSE
+) {
   if (methods::is(coords, "list") && !is.null(coords$coords)) {
     coords <- coords$coords
   }
@@ -29,7 +35,28 @@ validate_coords <- function(coords, pc_axes = FALSE) {
   if (pc_axes && nrow(coords) < 2) {
     stop("'pc_axes' requires at least two coordinate rows.", call. = FALSE)
   }
-  coords
+  if (!is.null(xlim)) {
+    xlim <- validate_numeric_limits(xlim)
+  }
+  if (!is.null(ylim)) {
+    ylim <- validate_numeric_limits(ylim)
+  }
+
+  if (pc_axes) {
+    coords <- pc_rotate(coords)
+  }
+  if (equal_axes) {
+    limits <- base::range(coords)
+    xlim <- limits
+    ylim <- limits
+  }
+
+  list(
+    coords = coords,
+    xlim = xlim,
+    ylim = ylim,
+    fixed_aspect = equal_axes
+  )
 }
 
 validate_cex <- function(cex) {

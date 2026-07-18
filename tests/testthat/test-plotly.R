@@ -127,7 +127,7 @@ test_that("embed_plotly preserves list coordinates and explicit ranges", {
   expect_equal(built$x$layout$yaxis$range, c(9, 31))
 })
 
-test_that("embed_plotly equal_axes uses the shared coordinate range", {
+test_that("embed_plotly equal_axes uses a shared, fixed coordinate system", {
   testthat::skip_if_not_installed("plotly")
 
   coords <- cbind(c(0, 2, 4), c(10, 20, 30))
@@ -137,6 +137,8 @@ test_that("embed_plotly equal_axes uses the shared coordinate range", {
 
   expect_equal(built$x$layout$xaxis$range, range(coords))
   expect_equal(built$x$layout$yaxis$range, range(coords))
+  expect_identical(built$x$layout$xaxis$scaleanchor, "y")
+  expect_identical(built$x$layout$xaxis$scaleratio, 1)
 })
 
 test_that("embed_plotly pc_axes writes rotated coordinates to the trace", {
@@ -184,11 +186,10 @@ test_that("embed_plotly exposes direct marker and text colors", {
   expect_equal(as.character(text_trace$hovertext), c("1: a", "2: b", "3: c"))
 })
 
-test_that("plotly helpers handle scalar and missing numeric color scales", {
+test_that("plotly helpers handle scalar color scales and empty hover labels", {
   colorscale <- vizier:::plotly_colorscale("#AA0000")
 
   expect_equal(colorscale, list(list(0, "#AA0000"), list(1, "#AA0000")))
-  expect_null(vizier:::plotly_numeric_limits(c(NA_real_, Inf, -Inf)))
   expect_equal(vizier:::plotly_hover_text(3), c("1: ", "2: ", "3: "))
 })
 

@@ -95,3 +95,17 @@ test_that("one-row numeric x remains a continuous color input", {
   resolved <- vizier:::resolve_colors(5, NULL, n = 1)
   expect_identical(resolved$kind, "continuous")
 })
+
+test_that("embed_plot passes a fixed physical aspect to base graphics", {
+  captured <- NULL
+  testthat::local_mocked_bindings(
+    plot = function(..., asp = NA) {
+      captured <<- asp
+    },
+    .package = "base"
+  )
+
+  embed_plot(cbind(c(0, 2), c(10, 20)), colors = "#AA0000", equal_axes = TRUE)
+
+  expect_identical(captured, 1)
+})
