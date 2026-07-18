@@ -50,12 +50,18 @@ pca_iris <- stats::prcomp(iris[, -5], retx = TRUE, rank. = 2)
 ```
 
 Simplest use of embed_plot: pass in data frame and it will use the last
-(in this case, only) factor column it finds and the `rainbow` color scheme
+(in this case, only) factor column it finds and the stable built-in
+`Polychrome 36` categorical palette
 
 ```R
 embed_plot(pca_iris$x, iris)
 ```
 ![Default embed plot result](man/figures/embed_ex.png "embed_plot(pca_iris$x, iris)")
+
+Numeric vectors use a sequential HCL Viridis palette by default. Categorical
+and no-input row colors use `Polychrome 36` when R provides it, with an HCL
+Dynamic fallback. To reverse a generated palette, use `rev = TRUE`; explicitly
+supplied per-row `colors` retain their order.
 
 For more examples, see the [Getting started](https://jlmelville.github.io/vizier/articles/getting-started.html)
 article.

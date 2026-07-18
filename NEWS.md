@@ -1,9 +1,21 @@
 # vizier 0.6.1
 
+*July 17 2026*: numeric color vectors now default to a sequential HCL Viridis
+palette. Categorical and no-input row colors use the built-in `Polychrome 36`
+palette when available, with an HCL Dynamic fallback; this no longer requires
+the Polychrome package. Generated palettes reverse before mapping to values,
+whereas explicit per-observation colors do not reverse. Named categorical
+palettes map by category name, and numeric `top` selection now retains exactly
+the requested number of finite rows in stable decreasing-value order.
+
+`equal_axes = TRUE` now also preserves equal physical X/Y units in base and
+Plotly output. Plotly numeric scales retain their native continuous colorbar;
+text labels work with numeric values and hover content retains original row
+numbers without exposing literal input colors.
+
 *July 4 2026*: use the `Polychrome 36` palette as the default categorical palette. This will
 prevent the default categorical palettes changing color when you don't set the seed right before
-calling `embed_plot`. Also should prevent a sporadic "In sweep(luv@coords, 2, y0, "-") : STATS is
-longer than the extent of 'dim(x)[MARGIN]'" warning that comes from the `Polychrome` package.
+calling `embed_plot`.
 
 # vizier 0.6.0
 
