@@ -103,8 +103,8 @@ vector of 150 colors going from red to yellow:</p>
 <img src="img/embed_ex_colors.png" title="embed_plot(pca_iris$x, iris$Species, colors = my_iris_colors)" alt="Embed plot with colors"><div class="figcaption">Embed plot with colors</div>
 </div>
 <p>If you just want the points to be all one color you need only pass a
-single value, e.g. <code>colors = "blue"</code>. In general, if you pass
-fewer colors than there are points, the colors are recycled.</p>
+single value, e.g.  <code>colors = "blue"</code>. In general, if you
+pass fewer colors than there are points, the colors are recycled.</p>
 <p>Here’s another example of using a built-in palette,
 <code>topo.colors</code>:</p>
 <div class="float">
@@ -215,6 +215,51 @@ character vectors are treated as categories unless every non-missing
 entry is a literal color. Character columns discovered from a data frame
 remain conservatively inferred only when they are factor-like, avoiding
 accidental coloring by identifier columns.</p>
+</div>
+<div class="section level2">
+<h2 id="ggplot2-support">ggplot2 support<a class="anchor" aria-label="anchor" href="#ggplot2-support"></a>
+</h2>
+<p>If you install the <a href="https://ggplot2.tidyverse.org/" class="external-link">ggplot2</a> package,
+<code><a href="../reference/embed_ggplot.html">embed_ggplot()</a></code> returns an ordinary ggplot object with the
+same coordinate and color handling as <code><a href="../reference/embed_plot.html">embed_plot()</a></code>. This
+makes it easy to add ggplot2 layers, labels, and themes. For example, we
+can add an ellipse for each species:</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">iris_ggplot</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/embed_ggplot.html">embed_ggplot</a></span><span class="op">(</span></span>
+<span>  <span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>,</span>
+<span>  <span class="va">iris</span><span class="op">$</span><span class="va">Species</span>,</span>
+<span>  cex <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  title <span class="op">=</span> <span class="st">"iris PCA"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">iris_ggplot</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/stat_ellipse.html" class="external-link">stat_ellipse</a></span><span class="op">(</span>level <span class="op">=</span> <span class="fl">0.8</span>, linewidth <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">"Species"</span>, subtitle <span class="op">=</span> <span class="st">"80% confidence ellipses"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">12</span><span class="op">)</span></span></code></pre></div>
+<div class="float">
+<img src="img/embed_ex_ggplot_ellipse.png" title="embed_ggplot(pca_iris$x, iris$Species) with stat_ellipse and theme_minimal" alt="ggplot2 embedding with confidence ellipses"><div class="figcaption">ggplot2 embedding with confidence ellipses</div>
+</div>
+<p>Numeric inputs use a native continuous ggplot2 scale and colorbar.
+The usual ggplot2 labeling and theme functions can be added while Vizier
+continues to handle the colors and fixed coordinates:</p>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/embed_ggplot.html">embed_ggplot</a></span><span class="op">(</span></span>
+<span>  <span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>,</span>
+<span>  <span class="va">iris</span><span class="op">$</span><span class="va">Petal.Length</span>,</span>
+<span>  cex <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  equal_axes <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  title <span class="op">=</span> <span class="st">"iris petal length"</span></span>
+<span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">"Petal length"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">12</span><span class="op">)</span></span></code></pre></div>
+<div class="float">
+<img src="img/embed_ex_ggplot_numeric.png" title="embed_ggplot(pca_iris$x, iris$Petal.Length, equal_axes = TRUE) with theme_minimal" alt="ggplot2 embedding with a continuous colorbar"><div class="figcaption">ggplot2 embedding with a continuous
+colorbar</div>
+</div>
+</div>
+<div class="section level2">
+<h2 id="plotly-support">Plotly support<a class="anchor" aria-label="anchor" href="#plotly-support"></a>
+</h2>
 <p>If you install the <a href="https://cran.r-project.org/package=plotly" class="external-link">plotly</a> package, you
 can use the <code>embed_plotly</code> function which has the same
 interface as <code>embed_plot</code> (except the <code>top</code> and
@@ -222,19 +267,20 @@ interface as <code>embed_plot</code> (except the <code>top</code> and
 showing categorical legends or numeric colorbars and tooltips.
 <code>text</code> works for numeric colors as well; default hover text
 preserves original row numbers without showing literal input colors:</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/embed_plotly.html">embed_plotly</a></span><span class="op">(</span><span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>, <span class="va">iris</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/embed_plotly.html">embed_plotly</a></span><span class="op">(</span><span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>, <span class="va">iris</span>, color_scheme <span class="op">=</span> <span class="va">rainbow</span><span class="op">)</span></span></code></pre></div>
 <div class="float">
-<img src="img/embed_ex_plotly.png" title="embed_plotly(pca_iris$x, iris)" alt="Embed plot as a webpage with plotly"><div class="figcaption">Embed plot as a webpage with plotly</div>
+<img src="img/embed_ex_plotly.png" title="embed_plotly(pca_iris$x, iris, color_scheme = rainbow)" alt="Embed plot as a webpage with plotly"><div class="figcaption">Embed plot as a webpage with plotly</div>
 </div>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Don't have to see a legend if custom tooltips will do</span></span>
-<span><span class="fu"><a href="../reference/embed_plotly.html">embed_plotly</a></span><span class="op">(</span><span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>, <span class="va">iris</span>, show_legend <span class="op">=</span> <span class="cn">FALSE</span>, tooltip <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Species:"</span>, <span class="va">iris</span><span class="op">$</span><span class="va">Species</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/embed_plotly.html">embed_plotly</a></span><span class="op">(</span><span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>, <span class="va">iris</span>, color_scheme <span class="op">=</span> <span class="va">rainbow</span>,show_legend <span class="op">=</span> <span class="cn">FALSE</span>, tooltip <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Species:"</span>, <span class="va">iris</span><span class="op">$</span><span class="va">Species</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="float">
-<img src="img/embed_ex_plotly_tooltip.png" title='embed_plotly(pca_iris$x, iris, show_legend = FALSE, tooltip = paste("Species:", iris$Species))' alt="plotly with custom tooltips"><div class="figcaption">plotly with custom tooltips</div>
+<img src="img/embed_ex_plotly_tooltip.png" title='embed_plotly(pca_iris$x, iris, color_scheme = rainbow, show_legend = FALSE, tooltip = paste("Species:", iris$Species))' alt="plotly with custom tooltips"><div class="figcaption">plotly with custom tooltips</div>
 </div>
 </div>
-  </main>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 

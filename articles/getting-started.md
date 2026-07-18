@@ -68,7 +68,7 @@ colors](img/embed_ex_colors.png "embed_plot(pca_iris$x, iris$Species, colors = m
 Embed plot with colors
 
 If you just want the points to be all one color you need only pass a
-single value, e.g. `colors = "blue"`. In general, if you pass fewer
+single value, e.g.  `colors = "blue"`. In general, if you pass fewer
 colors than there are points, the colors are recycled.
 
 Here’s another example of using a built-in palette, `topo.colors`:
@@ -248,6 +248,60 @@ literal color. Character columns discovered from a data frame remain
 conservatively inferred only when they are factor-like, avoiding
 accidental coloring by identifier columns.
 
+## ggplot2 support
+
+If you install the [ggplot2](https://ggplot2.tidyverse.org/) package,
+[`embed_ggplot()`](https://jlmelville.github.io/vizier/reference/embed_ggplot.md)
+returns an ordinary ggplot object with the same coordinate and color
+handling as
+[`embed_plot()`](https://jlmelville.github.io/vizier/reference/embed_plot.md).
+This makes it easy to add ggplot2 layers, labels, and themes. For
+example, we can add an ellipse for each species:
+
+``` r
+
+iris_ggplot <- embed_ggplot(
+  pca_iris$x,
+  iris$Species,
+  cex = 2,
+  title = "iris PCA"
+)
+
+iris_ggplot +
+  ggplot2::stat_ellipse(level = 0.8, linewidth = 0.8) +
+  ggplot2::labs(color = "Species", subtitle = "80% confidence ellipses") +
+  ggplot2::theme_minimal(base_size = 12)
+```
+
+![ggplot2 embedding with confidence
+ellipses](img/embed_ex_ggplot_ellipse.png "embed_ggplot(pca_iris$x, iris$Species) with stat_ellipse and theme_minimal")
+
+ggplot2 embedding with confidence ellipses
+
+Numeric inputs use a native continuous ggplot2 scale and colorbar. The
+usual ggplot2 labeling and theme functions can be added while Vizier
+continues to handle the colors and fixed coordinates:
+
+``` r
+
+embed_ggplot(
+  pca_iris$x,
+  iris$Petal.Length,
+  cex = 2,
+  equal_axes = TRUE,
+  title = "iris petal length"
+) +
+  ggplot2::labs(color = "Petal length") +
+  ggplot2::theme_minimal(base_size = 12)
+```
+
+![ggplot2 embedding with a continuous
+colorbar](img/embed_ex_ggplot_numeric.png "embed_ggplot(pca_iris$x, iris$Petal.Length, equal_axes = TRUE) with theme_minimal")
+
+ggplot2 embedding with a continuous colorbar
+
+## Plotly support
+
 If you install the [plotly](https://cran.r-project.org/package=plotly)
 package, you can use the `embed_plotly` function which has the same
 interface as `embed_plot` (except the `top` and `sub` parameters are
@@ -258,21 +312,21 @@ literal input colors:
 
 ``` r
 
-embed_plotly(pca_iris$x, iris)
+embed_plotly(pca_iris$x, iris, color_scheme = rainbow)
 ```
 
 ![Embed plot as a webpage with
-plotly](img/embed_ex_plotly.png "embed_plotly(pca_iris$x, iris)")
+plotly](img/embed_ex_plotly.png "embed_plotly(pca_iris$x, iris, color_scheme = rainbow)")
 
 Embed plot as a webpage with plotly
 
 ``` r
 
 # Don't have to see a legend if custom tooltips will do
-embed_plotly(pca_iris$x, iris, show_legend = FALSE, tooltip = paste("Species:", iris$Species))
+embed_plotly(pca_iris$x, iris, color_scheme = rainbow,show_legend = FALSE, tooltip = paste("Species:", iris$Species))
 ```
 
 ![plotly with custom
-tooltips](img/embed_ex_plotly_tooltip.png "embed_plotly(pca_iris$x, iris, show_legend = FALSE, tooltip = paste("Species:", iris$Species))")
+tooltips](img/embed_ex_plotly_tooltip.png "embed_plotly(pca_iris$x, iris, color_scheme = rainbow, show_legend = FALSE, tooltip = paste("Species:", iris$Species))")
 
 plotly with custom tooltips
