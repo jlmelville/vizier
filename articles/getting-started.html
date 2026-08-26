@@ -60,171 +60,146 @@
 
     
     
+<p>Vizier turns two-dimensional coordinates into a plot and handles
+common color mappings for you. This guide starts with a base R plot,
+then shows how to color by categories or numbers and how to switch to
+ggplot2 or Plotly.</p>
 <div class="section level2">
-<h2 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a>
+<h2 id="make-your-first-plot">Make your first plot<a class="anchor" aria-label="anchor" href="#make-your-first-plot"></a>
 </h2>
-<p>Create a plot of the first two principal components (PCA) for the
-<code>iris</code> dataset:</p>
+<p>Attach Vizier and create two-dimensional coordinates. Here, the
+coordinates are the first two principal components of the numeric
+columns in <code>iris</code>:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">pca_iris</span> <span class="op">&lt;-</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/prcomp.html" class="external-link">prcomp</a></span><span class="op">(</span><span class="va">iris</span><span class="op">[</span>, <span class="op">-</span><span class="fl">5</span><span class="op">]</span>, retx <span class="op">=</span> <span class="cn">TRUE</span>, rank. <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
-<p>Simplest use of embed_plot: pass in data frame and it will use the
-last (in this case, only) factor column it finds and the stable built-in
-<code>Polychrome 36</code> categorical palette. Numeric vectors instead
-use a sequential HCL Viridis palette by default. If the built-in
-categorical palette is not available, Vizier uses an HCL Dynamic
-fallback.</p>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/jlmelville/vizier" class="external-link">vizier</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">pca_iris</span> <span class="op">&lt;-</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/prcomp.html" class="external-link">prcomp</a></span><span class="op">(</span><span class="va">iris</span><span class="op">[</span>, <span class="op">-</span><span class="fl">5</span><span class="op">]</span>, retx <span class="op">=</span> <span class="cn">TRUE</span>, rank. <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<p>Pass the coordinates and the <code>iris</code> data frame to
+<code><a href="../reference/embed_plot.html">embed_plot()</a></code>:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/embed_plot.html">embed_plot</a></span><span class="op">(</span><span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>, <span class="va">iris</span><span class="op">)</span></span></code></pre></div>
 <div class="float">
-<img src="img/embed_ex.png" title="embed_plot(pca_iris$x, iris)" alt="Default embed plot result"><div class="figcaption">Default embed plot result</div>
+<img src="img/embed_ex.png" title="Default categorical colors for the iris PCA" alt="Three clusters in the iris PCA, colored by species"><div class="figcaption">Three clusters in the iris PCA, colored by
+species</div>
 </div>
-<p>More explicitly color by iris species, use the rainbow color scheme
-and also provide a title and subtitle:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/embed_plot.html">embed_plot</a></span><span class="op">(</span><span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>, <span class="va">iris</span><span class="op">$</span><span class="va">Species</span>, color_scheme <span class="op">=</span> <span class="va">rainbow</span>, title <span class="op">=</span> <span class="st">"iris PCA"</span>, sub <span class="op">=</span> <span class="st">"rainbow color scheme"</span><span class="op">)</span></span></code></pre></div>
-<div class="float">
-<img src="img/embed_ex_title.png" title='embed_plot(pca_iris$x, iris$Species, color_scheme = rainbow, title = "iris PCA")' alt="Embed plot with a title"><div class="figcaption">Embed plot with a title</div>
-</div>
-<p>Increase the transparency of the fill color by scaling the alpha by
-0.5:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/embed_plot.html">embed_plot</a></span><span class="op">(</span><span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>, <span class="va">iris</span><span class="op">$</span><span class="va">Species</span>, color_scheme <span class="op">=</span> <span class="va">rainbow</span>, alpha_scale <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></code></pre></div>
-<div class="float">
-<img src="img/embed_ex_alpha.png" title="embed_plot(pca_iris$x, iris$Species, color_scheme = rainbow, alpha_scale = 0.5)" alt="Embed plot with transparency"><div class="figcaption">Embed plot with transparency</div>
-</div>
-<p>If you already have colors you want to use for each point, you can
-use the <code>colors</code> parameter. In the example below,
-<code>colorRampPalette(c("red", "yellow"))(nrow(iris))</code> produces a
-vector of 150 colors going from red to yellow:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">my_iris_colors</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/colorRamp.html" class="external-link">colorRampPalette</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"red"</span>, <span class="st">"yellow"</span><span class="op">)</span><span class="op">)</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">iris</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/embed_plot.html">embed_plot</a></span><span class="op">(</span><span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>, <span class="va">iris</span><span class="op">$</span><span class="va">Species</span>, colors <span class="op">=</span> <span class="va">my_iris_colors</span><span class="op">)</span></span></code></pre></div>
-<div class="float">
-<img src="img/embed_ex_colors.png" title="embed_plot(pca_iris$x, iris$Species, colors = my_iris_colors)" alt="Embed plot with colors"><div class="figcaption">Embed plot with colors</div>
-</div>
-<p>If you just want the points to be all one color you need only pass a
-single value, e.g.  <code>colors = "blue"</code>. In general, if you
-pass fewer colors than there are points, the colors are recycled.</p>
-<p>Here’s another example of using a built-in palette,
-<code>topo.colors</code>:</p>
-<div class="float">
-<img src="img/embed_ex_topo.png" title="embed_plot(pca_iris$x, iris$Species, color_scheme = topo.colors)" alt="Embed plot with a topo color scheme"><div class="figcaption">Embed plot with a topo color scheme</div>
-</div>
-<p>This package also includes the <a href="https://ai.googleblog.com/2019/08/turbo-improved-rainbow-colormap-for.html" class="external-link">turbo
-colormap</a> as a palette, via the <code>turbo</code> function, which
-works a lot like <code><a href="https://rdrr.io/r/grDevices/palettes.html" class="external-link">grDevices::rainbow</a></code> (although reversed in
-terms of colors):</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/embed_plot.html">embed_plot</a></span><span class="op">(</span><span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>, <span class="va">iris</span><span class="op">$</span><span class="va">Species</span>, color_scheme <span class="op">=</span> <span class="va">turbo</span><span class="op">)</span></span></code></pre></div>
-<div class="float">
-<img src="img/embed_ex_turbo.png" title="embed_plot(pca_iris$x, iris$Species, color_scheme = turbo)" alt="Embed plot with the turbo color scheme"><div class="figcaption">Embed plot with the turbo color scheme</div>
-</div>
-<p>The <code>rev</code> argument reverses a generated color scheme
-before it is mapped to categories or numeric values. It does not reorder
-explicitly supplied per-row colors:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/embed_plot.html">embed_plot</a></span><span class="op">(</span><span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>, <span class="va">iris</span><span class="op">$</span><span class="va">Species</span>, color_scheme <span class="op">=</span> <span class="va">turbo</span>, rev <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<div class="float">
-<img src="img/embed_ex_turbo_rev.png" title="embed_plot(pca_iris$x, iris$Species, color_scheme = turbo, rev = TRUE)" alt="Embed plot with the turbo color scheme reversed"><div class="figcaption">Embed plot with the turbo color scheme
-reversed</div>
-</div>
-<p>You can also provide your own palette (i.e. a vector of colors):</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/embed_plot.html">embed_plot</a></span><span class="op">(</span><span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>, <span class="va">iris</span><span class="op">$</span><span class="va">Species</span>, color_scheme <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"black"</span>, <span class="st">"red"</span>, <span class="st">"gray"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<div class="float">
-<img src="img/embed_ex_custom.png" title='embed_plot(pca_iris$x, iris$Species, color_scheme = c("black", "red", "gray"))' alt="Embed plot with custom palette"><div class="figcaption">Embed plot with custom palette</div>
-</div>
-<p>Note that if you have more colors in your palette than needed, the
-extra ones are ignored: e.g. if
-<code>c("black", "red", "gray", "blue")</code>, <code>"blue"</code>
-would have been unused, because we only needed three colors from the
-palette for this plot for the three species.</p>
-<p>A fully named palette maps categories by name, so it remains stable
-after reordering or subsetting. Extra names are ignored; every observed
-category must have a named color:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">species_colors</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>setosa <span class="op">=</span> <span class="st">"#E69F00"</span>, versicolor <span class="op">=</span> <span class="st">"#56B4E9"</span>, virginica <span class="op">=</span> <span class="st">"#009E73"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/embed_plot.html">embed_plot</a></span><span class="op">(</span><span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>, <span class="va">iris</span><span class="op">$</span><span class="va">Species</span>, color_scheme <span class="op">=</span> <span class="va">species_colors</span><span class="op">)</span></span></code></pre></div>
-<p>Watch out for the opposite situation where you need <em>more</em>
-colors than your palette provides. In this case <code>vizier</code> will
-use interpolation to get the colors it needs. This might work out for
-some palettes that represent a continuous color scale (like
-<code>rainbow</code>), but will give weird and probably undesirable
-results for discrete palettes. For more details, see the <a href="color-schemes.html#discrete-palettes-with-continuous-type">Discrete
-Palettes with <code>continuous</code> Type</a> section in the color
-schemes article.</p>
-<p>As of R 4.0, there are some <a href="https://developer.r-project.org/Blog/public/2019/11/21/a-new-palette-for-r/index.html" class="external-link">new
-color palettes</a>. You can see the options available via
-<code><a href="https://rdrr.io/r/grDevices/palette.html" class="external-link">grDevices::palette.pals()</a></code> and generate the palette using
-<code><a href="https://rdrr.io/r/grDevices/palette.html" class="external-link">grDevices::palette.colors</a></code>. Here’s an example using the
-<code>"Okabe-Ito"</code> palette:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/exists.html" class="external-link">exists</a></span><span class="op">(</span><span class="st">"palette.colors"</span>, where <span class="op">=</span> <span class="st">"package:grDevices"</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="../reference/embed_plot.html">embed_plot</a></span><span class="op">(</span><span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>, <span class="va">iris</span><span class="op">$</span><span class="va">Species</span>, color_scheme <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/palette.html" class="external-link">palette.colors</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"Okabe-Ito"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="op">}</span></span></code></pre></div>
-<div class="float">
-<img src="img/embed_ex_okabe_ito.png" title='embed_plot(pca_iris$x, iris$Species, color_scheme = palette.colors(palette = "Okabe-Ito"))' alt="Embed plot with new built-in palette"><div class="figcaption">Embed plot with new built-in palette</div>
-</div>
-<p>For any palette in <code>palette.pals</code>, you can also just
-provide the palette name as a shortcut:</p>
-<pre><code><span><span class="fu"><a href="../reference/embed_plot.html">embed_plot</a></span><span class="op">(</span><span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>, <span class="va">iris</span><span class="op">$</span><span class="va">Species</span>, color_scheme <span class="op">=</span> <span class="st">"Okabe-Ito"</span><span class="op">)</span></span></code></pre>
-<p>To use common limits and equal physical X/Y units, preventing
-clusters from being stretched on a non-square device:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/embed_plot.html">embed_plot</a></span><span class="op">(</span><span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>, <span class="va">iris</span><span class="op">$</span><span class="va">Species</span>, color_scheme <span class="op">=</span> <span class="va">topo.colors</span>, equal_axes <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<div class="float">
-<img src="img/embed_ex_ax.png" title="embed_plot(pca_iris$x, iris$Species, color_scheme = topo.colors, equal_axes = TRUE)" alt="Embed plot with equal axes"><div class="figcaption">Embed plot with equal axes</div>
-</div>
-<p>You can plot the category names instead of points, but it looks bad
-if they’re long (or the dataset is large). Making the text a bit smaller
-with the <code>cex</code> param can help:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/embed_plot.html">embed_plot</a></span><span class="op">(</span><span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>, <span class="va">iris</span><span class="op">$</span><span class="va">Species</span>, cex <span class="op">=</span> <span class="fl">0.75</span>, text <span class="op">=</span> <span class="va">iris</span><span class="op">$</span><span class="va">Species</span><span class="op">)</span></span></code></pre></div>
-<div class="float">
-<img src="img/embed_ex_text.png" title="embed_plot(pca_iris$x, iris$Species, cex = 0.75, text = iris$Species)" alt="Embed plot with text labels"><div class="figcaption">Embed plot with text labels</div>
-</div>
-<p>For more color schemes, Vizier makes use of the excellent <a href="https://cran.r-project.org/package=paletteer" class="external-link">paletteer</a>
-package. You can select one of the palettes on offer by (among other
-ways) passing a string with the format <code>"package::palette"</code>.
-For example, to use the <code>Dark2</code> scheme from the <a href="https://cran.r-project.org/package=RColorBrewer" class="external-link">RColorBrewer</a>
-package (itself based on <a href="http://www.colorbrewer2.org" class="external-link">ColorBrewer</a> schemes):</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/embed_plot.html">embed_plot</a></span><span class="op">(</span><span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>, <span class="va">iris</span>, color_scheme <span class="op">=</span> <span class="st">"RColorBrewer::Dark2"</span><span class="op">)</span></span></code></pre></div>
-<div class="float">
-<img src="img/embed_ex_cb.png" title='embed_plot(pca_iris$x, iris, color_scheme = "RColorBrewer::Dark2")' alt="Embed plot with ColorBrewer color scheme"><div class="figcaption">Embed plot with ColorBrewer color scheme</div>
-</div>
-<p>For more on selecting color schemes, see the <a href="color-schemes.html">Color schemes</a> article. Here’s another
-example, using a continuous palette from RColorBrewer, useful for
-mapping numeric vectors to the color:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Visualize numeric value (petal length) as a color</span></span>
-<span><span class="fu"><a href="../reference/embed_plot.html">embed_plot</a></span><span class="op">(</span><span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>, <span class="va">iris</span><span class="op">$</span><span class="va">Petal.Length</span>, color_scheme <span class="op">=</span> <span class="st">"RColorBrewer::Blues"</span><span class="op">)</span></span></code></pre></div>
-<div class="float">
-<img src="img/embed_ex_quant.png" title='embed_plot(pca_iris$x, iris$Petal.Length, color_scheme = "RColorBrewer::Blues")' alt="Embed plot with quantitative color scale"><div class="figcaption">Embed plot with quantitative color scale</div>
-</div>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Just show the points with the 10 longest petals</span></span>
-<span><span class="fu"><a href="../reference/embed_plot.html">embed_plot</a></span><span class="op">(</span><span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>, <span class="va">iris</span><span class="op">$</span><span class="va">Petal.Length</span>, color_scheme <span class="op">=</span> <span class="st">"RColorBrewer::Blues"</span>, top <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></code></pre></div>
-<div class="float">
-<img src="img/embed_ex_top.png" title='embed_plot(pca_iris$x, iris$Petal.Length, color_scheme = "RColorBrewer::Blues", top = 10)' alt="Embed plot only showing top 10 petal lengths"><div class="figcaption">Embed plot only showing top 10 petal
-lengths</div>
-</div>
-<p><code>top</code> selects exactly that many finite numeric values in
-decreasing order; ties are resolved by their existing row order. Direct
-character vectors are treated as categories unless every non-missing
-entry is a literal color. Character columns discovered from a data frame
-remain conservatively inferred only when they are factor-like, avoiding
-accidental coloring by identifier columns.</p>
+<p>Vizier finds the factor column <code>Species</code> and gives each
+species a stable categorical color. If you pass a numeric vector
+instead, Vizier uses a sequential Viridis color scale. These defaults
+let you inspect an embedding before choosing a palette yourself.</p>
 </div>
 <div class="section level2">
-<h2 id="ggplot2-support">ggplot2 support<a class="anchor" aria-label="anchor" href="#ggplot2-support"></a>
+<h2 id="choose-what-color-represents">Choose what color represents<a class="anchor" aria-label="anchor" href="#choose-what-color-represents"></a>
 </h2>
-<p>If you install the <a href="https://ggplot2.tidyverse.org/" class="external-link">ggplot2</a> package,
-<code><a href="../reference/embed_ggplot.html">embed_ggplot()</a></code> returns an ordinary ggplot object with the
-same coordinate and color handling as <code><a href="../reference/embed_plot.html">embed_plot()</a></code>. This
-makes it easy to add ggplot2 layers, labels, and themes. For example, we
-can add an ellipse for each species:</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<p>Pass a factor or character vector when color should identify
+categories. You can also supply a palette function and add a title and
+subtitle in the same call:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/embed_plot.html">embed_plot</a></span><span class="op">(</span></span>
+<span>  <span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>,</span>
+<span>  <span class="va">iris</span><span class="op">$</span><span class="va">Species</span>,</span>
+<span>  color_scheme <span class="op">=</span> <span class="fu">grDevices</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/grDevices/palettes.html" class="external-link">rainbow</a></span>,</span>
+<span>  title <span class="op">=</span> <span class="st">"iris PCA"</span>,</span>
+<span>  sub <span class="op">=</span> <span class="st">"rainbow color scheme"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<div class="float">
+<img src="img/embed_ex_title.png" title="Categorical colors, title, and subtitle" alt="Iris species shown with red, green, and blue points beneath a title and subtitle"><div class="figcaption">Iris species shown with red, green, and blue
+points beneath a title and subtitle</div>
+</div>
+<p>For a crowded plot, reduce opacity with <code>alpha_scale</code>:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/embed_plot.html">embed_plot</a></span><span class="op">(</span></span>
+<span>  <span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>,</span>
+<span>  <span class="va">iris</span><span class="op">$</span><span class="va">Species</span>,</span>
+<span>  color_scheme <span class="op">=</span> <span class="fu">grDevices</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/grDevices/palettes.html" class="external-link">rainbow</a></span>,</span>
+<span>  alpha_scale <span class="op">=</span> <span class="fl">0.5</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<div class="float">
+<img src="img/embed_ex_alpha.png" title="Half-opacity points" alt="The iris PCA drawn with semi-transparent points"><div class="figcaption">The iris PCA drawn with semi-transparent
+points</div>
+</div>
+<p>If you already have one color for each observation, pass it through
+<code>colors</code>. This bypasses category and numeric mapping:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">my_iris_colors</span> <span class="op">&lt;-</span> <span class="fu">grDevices</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grDevices/colorRamp.html" class="external-link">colorRampPalette</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"red"</span>, <span class="st">"yellow"</span><span class="op">)</span></span>
+<span><span class="op">)</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">iris</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/embed_plot.html">embed_plot</a></span><span class="op">(</span><span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>, colors <span class="op">=</span> <span class="va">my_iris_colors</span><span class="op">)</span></span></code></pre></div>
+<div class="float">
+<img src="img/embed_ex_colors.png" title="Explicit per-row colors" alt="Iris observations colored along a per-row red-to-yellow gradient"><div class="figcaption">Iris observations colored along a per-row
+red-to-yellow gradient</div>
+</div>
+<p>A single value such as <code>colors = "blue"</code> colors every
+point blue. Otherwise, provide exactly one color per row.</p>
+<p>Pass a numeric vector when color should show magnitude. The
+light-to-dark scale below follows petal length:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/embed_plot.html">embed_plot</a></span><span class="op">(</span></span>
+<span>  <span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>,</span>
+<span>  <span class="va">iris</span><span class="op">$</span><span class="va">Petal.Length</span>,</span>
+<span>  color_scheme <span class="op">=</span> <span class="st">"RColorBrewer::Blues"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<div class="float">
+<img src="img/embed_ex_quant.png" title="Numeric color scale for petal length" alt="Iris PCA with point color increasing from light to dark blue with petal length"><div class="figcaption">Iris PCA with point color increasing from light
+to dark blue with petal length</div>
+</div>
+<p>For a directly supplied numeric vector, <code>top</code> keeps only
+the largest finite values. This call shows the ten observations with the
+longest petals:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/embed_plot.html">embed_plot</a></span><span class="op">(</span></span>
+<span>  <span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>,</span>
+<span>  <span class="va">iris</span><span class="op">$</span><span class="va">Petal.Length</span>,</span>
+<span>  color_scheme <span class="op">=</span> <span class="st">"RColorBrewer::Blues"</span>,</span>
+<span>  top <span class="op">=</span> <span class="fl">10</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<div class="float">
+<img src="img/embed_ex_top.png" title="Top ten petal lengths" alt="The ten iris observations with the longest petals"><div class="figcaption">The ten iris observations with the longest
+petals</div>
+</div>
+<p>Ties are resolved by the existing row order. See the <a href="../reference/embed_plot.html"><code>embed_plot()</code>
+reference</a> for numeric limits, missing-value colors, and the full
+selection contract.</p>
+</div>
+<div class="section level2">
+<h2 id="adjust-the-coordinate-display">Adjust the coordinate display<a class="anchor" aria-label="anchor" href="#adjust-the-coordinate-display"></a>
+</h2>
+<p>On a non-square graphics device, unequal physical units can visually
+stretch a cluster. Set <code>equal_axes = TRUE</code> to use common
+limits and equal units on both axes:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/embed_plot.html">embed_plot</a></span><span class="op">(</span></span>
+<span>  <span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>,</span>
+<span>  <span class="va">iris</span><span class="op">$</span><span class="va">Species</span>,</span>
+<span>  color_scheme <span class="op">=</span> <span class="fu">grDevices</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/grDevices/palettes.html" class="external-link">topo.colors</a></span>,</span>
+<span>  equal_axes <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<div class="float">
+<img src="img/embed_ex_ax.png" title="Equal coordinate units" alt="Iris PCA with a common coordinate range and equal units on both axes"><div class="figcaption">Iris PCA with a common coordinate range and
+equal units on both axes</div>
+</div>
+<p>You can replace points with text. Labels work best when they are
+short and the data set is small enough to avoid heavy overlap:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/embed_plot.html">embed_plot</a></span><span class="op">(</span></span>
+<span>  <span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>,</span>
+<span>  <span class="va">iris</span><span class="op">$</span><span class="va">Species</span>,</span>
+<span>  text <span class="op">=</span> <span class="va">iris</span><span class="op">$</span><span class="va">Species</span>,</span>
+<span>  cex <span class="op">=</span> <span class="fl">0.75</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<div class="float">
+<img src="img/embed_ex_text.png" title="Text labels instead of points" alt="Iris species names drawn at each PCA coordinate"><div class="figcaption">Iris species names drawn at each PCA
+coordinate</div>
+</div>
+</div>
+<div class="section level2">
+<h2 id="extend-the-plot-with-ggplot2">Extend the plot with ggplot2<a class="anchor" aria-label="anchor" href="#extend-the-plot-with-ggplot2"></a>
+</h2>
+<p>Install the optional <a href="https://ggplot2.tidyverse.org/" class="external-link">ggplot2</a> package to use
+<code><a href="../reference/embed_ggplot.html">embed_ggplot()</a></code>. It returns an ordinary ggplot object, so
+you can add layers, labels, and themes. For example, add an 80% ellipse
+around each species:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">iris_ggplot</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/embed_ggplot.html">embed_ggplot</a></span><span class="op">(</span></span>
 <span>  <span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>,</span>
 <span>  <span class="va">iris</span><span class="op">$</span><span class="va">Species</span>,</span>
@@ -234,15 +209,18 @@ can add an ellipse for each species:</p>
 <span></span>
 <span><span class="va">iris_ggplot</span> <span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/stat_ellipse.html" class="external-link">stat_ellipse</a></span><span class="op">(</span>level <span class="op">=</span> <span class="fl">0.8</span>, linewidth <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">"Species"</span>, subtitle <span class="op">=</span> <span class="st">"80% confidence ellipses"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
+<span>    color <span class="op">=</span> <span class="st">"Species"</span>,</span>
+<span>    subtitle <span class="op">=</span> <span class="st">"80% confidence ellipses"</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">12</span><span class="op">)</span></span></code></pre></div>
 <div class="float">
-<img src="img/embed_ex_ggplot_ellipse.png" title="embed_ggplot(pca_iris$x, iris$Species) with stat_ellipse and theme_minimal" alt="ggplot2 embedding with confidence ellipses"><div class="figcaption">ggplot2 embedding with confidence ellipses</div>
+<img src="img/embed_ex_ggplot_ellipse.png" title="Vizier plot extended with ggplot2 layers" alt="Iris PCA with one confidence ellipse around each species cluster"><div class="figcaption">Iris PCA with one confidence ellipse around each
+species cluster</div>
 </div>
-<p>Numeric inputs use a native continuous ggplot2 scale and colorbar.
-The usual ggplot2 labeling and theme functions can be added while Vizier
-continues to handle the colors and fixed coordinates:</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<p>Numeric input creates a native continuous ggplot2 scale and
+colorbar:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/embed_ggplot.html">embed_ggplot</a></span><span class="op">(</span></span>
 <span>  <span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>,</span>
 <span>  <span class="va">iris</span><span class="op">$</span><span class="va">Petal.Length</span>,</span>
@@ -253,37 +231,66 @@ continues to handle the colors and fixed coordinates:</p>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">"Petal length"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">12</span><span class="op">)</span></span></code></pre></div>
 <div class="float">
-<img src="img/embed_ex_ggplot_numeric.png" title="embed_ggplot(pca_iris$x, iris$Petal.Length, equal_axes = TRUE) with theme_minimal" alt="ggplot2 embedding with a continuous colorbar"><div class="figcaption">ggplot2 embedding with a continuous
-colorbar</div>
+<img src="img/embed_ex_ggplot_numeric.png" title="Numeric color scale in ggplot2" alt="Iris PCA with a ggplot2 continuous colorbar for petal length"><div class="figcaption">Iris PCA with a ggplot2 continuous colorbar for
+petal length</div>
 </div>
 </div>
 <div class="section level2">
-<h2 id="plotly-support">Plotly support<a class="anchor" aria-label="anchor" href="#plotly-support"></a>
+<h2 id="add-interaction-with-plotly">Add interaction with Plotly<a class="anchor" aria-label="anchor" href="#add-interaction-with-plotly"></a>
 </h2>
-<p>If you install the <a href="https://cran.r-project.org/package=plotly" class="external-link">plotly</a> package, you
-can use the <code>embed_plotly</code> function which has the same
-interface as <code>embed_plot</code> (except the <code>top</code> and
-<code>sub</code> parameters are missing). This has the advantage of
-showing categorical legends or numeric colorbars and tooltips.
-<code>text</code> works for numeric colors as well; default hover text
-preserves original row numbers without showing literal input colors:</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/embed_plotly.html">embed_plotly</a></span><span class="op">(</span><span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>, <span class="va">iris</span>, color_scheme <span class="op">=</span> <span class="va">rainbow</span><span class="op">)</span></span></code></pre></div>
-<div class="float">
-<img src="img/embed_ex_plotly.png" title="embed_plotly(pca_iris$x, iris, color_scheme = rainbow)" alt="Embed plot as a webpage with plotly"><div class="figcaption">Embed plot as a webpage with plotly</div>
-</div>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Don't have to see a legend if custom tooltips will do</span></span>
-<span><span class="fu"><a href="../reference/embed_plotly.html">embed_plotly</a></span><span class="op">(</span></span>
+<p>Install the optional <a href="https://plotly.com/r/" class="external-link">Plotly</a>
+package to use <code><a href="../reference/embed_plotly.html">embed_plotly()</a></code>. It follows the same
+coordinate and color conventions while adding hover text, categorical
+legends, and numeric colorbars:</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/embed_plotly.html">embed_plotly</a></span><span class="op">(</span></span>
 <span>  <span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>,</span>
-<span>  <span class="va">iris</span>,</span>
-<span>  color_scheme <span class="op">=</span> <span class="va">rainbow</span>,</span>
+<span>  <span class="va">iris</span><span class="op">$</span><span class="va">Species</span>,</span>
+<span>  color_scheme <span class="op">=</span> <span class="fu">grDevices</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/grDevices/palettes.html" class="external-link">rainbow</a></span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<div class="float">
+<img src="img/embed_ex_plotly.png" title="Plotly legend and default row-aware tooltip" alt="Interactive iris PCA with a species legend and a hovered virginica point"><div class="figcaption">Interactive iris PCA with a species legend and a
+hovered virginica point</div>
+</div>
+<p>When custom tooltips carry the category information, you can hide the
+legend:</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/embed_plotly.html">embed_plotly</a></span><span class="op">(</span></span>
+<span>  <span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>,</span>
+<span>  <span class="va">iris</span><span class="op">$</span><span class="va">Species</span>,</span>
+<span>  color_scheme <span class="op">=</span> <span class="fu">grDevices</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/grDevices/palettes.html" class="external-link">rainbow</a></span>,</span>
 <span>  show_legend <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  tooltip <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Species:"</span>, <span class="va">iris</span><span class="op">$</span><span class="va">Species</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <div class="float">
-<img src="img/embed_ex_plotly_tooltip.png" title='embed_plotly(pca_iris$x, iris, color_scheme = rainbow, show_legend = FALSE, tooltip = paste("Species:", iris$Species))' alt="plotly with custom tooltips"><div class="figcaption">plotly with custom tooltips</div>
+<img src="img/embed_ex_plotly_tooltip.png" title="Plotly custom tooltip" alt="Interactive iris PCA with a custom species tooltip and no legend"><div class="figcaption">Interactive iris PCA with a custom species
+tooltip and no legend</div>
 </div>
+<p><code><a href="../reference/embed_plotly.html">embed_plotly()</a></code> does not have the base renderer’s
+<code>top</code> or <code>sub</code> arguments. Its <a href="../reference/embed_plotly.html">API reference</a> documents
+Plotly-specific controls such as numeric clipping and tooltips.</p>
+</div>
+<div class="section level2">
+<h2 id="choose-a-different-palette">Choose a different palette<a class="anchor" aria-label="anchor" href="#choose-a-different-palette"></a>
+</h2>
+<p>Vizier accepts palette functions, custom vectors, built-in R palette
+names, and the palette catalogue exposed by <code>paletteer</code>. The
+<a href="color-schemes.html">Color Schemes</a> article shows how to
+choose among them, keep category mappings stable, reverse generated
+colors, and decide whether a discrete palette should be sampled as
+continuous.</p>
+<details><summary>
+Reproduce the article figures
+</summary><p>The tracked <code>vignettes/articles/reproduce-figures.R</code>
+script regenerates the base and ggplot2 figures and writes the two
+Plotly widgets used for bounded manual screenshots. After installing
+Vizier and its suggested plotting packages, run:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="ex">Rscript</span> <span class="at">--vanilla</span> vignettes/articles/reproduce-figures.R <span class="dt">\</span></span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a>  <span class="at">--output-dir</span> /tmp/vizier-article-figures</span></code></pre></div>
+<p>The script prints the viewport, hover-row, and output filename for
+each Plotly capture. Generate into a temporary directory and inspect the
+results before replacing committed images.</p>
+</details>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

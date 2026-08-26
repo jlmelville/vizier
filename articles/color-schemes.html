@@ -60,106 +60,268 @@
 
     
     
-<p>Vizier makes use of the wonderful <a href="https://cran.r-project.org/package=paletteer" class="external-link">paletteer</a>
-package which unifies the enormous number of palettes out there. To
-specify a color scheme, use the <code>color_scheme</code> parameter,
-passing one of:</p>
-<ul>
-<li>A palette function that takes an integer <code>n</code> and returns
-a vector of colors, e.g. <code><a href="https://rdrr.io/r/grDevices/palettes.html" class="external-link">grDevices::rainbow</a></code>.</li>
-<li>A vector of colors making up a custom color scheme of your own
-devising, e.g. <code>c('red', 'green', 'blue')</code>. There must be at
-least two colors in the list.</li>
-<li>The name of a color scheme provided by <code>paletteer</code>, in
-the form <code>"package::palette"</code>. For a list of the many, many
-palettes supported, see <a href="https://github.com/EmilHvitfeldt/paletteer" class="external-link">paletteer’s github
-page</a>. Some examples include <code>"dutchmasters::milkmaid"</code>,
-<code>"cartography::green.pal"</code>, <code>"viridis::inferno"</code>,
-<code>"RColorBrewer::Dark2"</code>. <code>vizier</code> makes no
-distinction between the continuous, fixed-width or dynamic palette
-classification used by <code>paletteer</code>.</li>
-</ul>
-<p>For categories, a fully named color vector is a value-to-color
-mapping. This is useful when subsets or reordered factor levels should
-retain the same colors:</p>
+<p>Choose a color scheme according to what color means in the plot.
+Categories need distinct colors that remain easy to tell apart. Numeric
+values need an ordered progression whose intermediate colors also have
+meaning.</p>
+<p>The examples use the same iris PCA as the <a href="getting-started.html">Getting Started</a> article:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">pca_iris</span> <span class="op">&lt;-</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/prcomp.html" class="external-link">prcomp</a></span><span class="op">(</span><span class="va">iris</span><span class="op">[</span>, <span class="op">-</span><span class="fl">5</span><span class="op">]</span>, retx <span class="op">=</span> <span class="cn">TRUE</span>, rank. <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="va">species_colors</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>setosa <span class="op">=</span> <span class="st">"#E69F00"</span>, versicolor <span class="op">=</span> <span class="st">"#56B4E9"</span>, virginica <span class="op">=</span> <span class="st">"#009E73"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/jlmelville/vizier" class="external-link">vizier</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">pca_iris</span> <span class="op">&lt;-</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/prcomp.html" class="external-link">prcomp</a></span><span class="op">(</span><span class="va">iris</span><span class="op">[</span>, <span class="op">-</span><span class="fl">5</span><span class="op">]</span>, retx <span class="op">=</span> <span class="cn">TRUE</span>, rank. <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<div class="section level2">
+<h2 id="choose-categorical-or-continuous-behavior">Choose categorical or continuous behavior<a class="anchor" aria-label="anchor" href="#choose-categorical-or-continuous-behavior"></a>
+</h2>
+<p>Vizier derives the mapping behavior from the value supplied as
+<code>x</code>:</p>
+<ul>
+<li>A factor or character vector is categorical. Each observed value
+receives one color from the palette.</li>
+<li>A numeric vector is continuous. Values are mapped across a color
+ramp, so an ordered palette is usually the right choice.</li>
+<li>
+<code>colors</code> supplies literal per-observation colors and
+bypasses palette mapping.</li>
+</ul>
+<p>For categories, the default is R’s stable
+<code>"Polychrome 36"</code> palette when it is available, with an HCL
+Dynamic fallback. Numeric values default to a sequential HCL Viridis
+palette.</p>
+</div>
+<div class="section level2">
+<h2 id="specify-a-palette">Specify a palette<a class="anchor" aria-label="anchor" href="#specify-a-palette"></a>
+</h2>
+<p>The <code>color_scheme</code> argument accepts:</p>
+<ul>
+<li>A function that takes an integer <code>n</code> and returns
+<code>n</code> colors, such as <code><a href="https://rdrr.io/r/grDevices/palettes.html" class="external-link">grDevices::rainbow</a></code>.</li>
+<li>An unnamed vector of at least two colors, used as a positional
+palette.</li>
+<li>A fully named vector, used as a category-to-color mapping.</li>
+<li>A <code>paletteer</code> name in <code>"package::palette"</code>
+form, optionally followed by a type override such as <code>::c</code> or
+<code>::continuous</code>.</li>
+<li>The name of a built-in R palette, such as <code>"Okabe-Ito"</code>
+on R 4.0 or later.</li>
+</ul>
+<div class="section level3">
+<h3 id="palette-functions">Palette functions<a class="anchor" aria-label="anchor" href="#palette-functions"></a>
+</h3>
+<p>A palette function generates exactly the number of colors Vizier
+requests:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/embed_plot.html">embed_plot</a></span><span class="op">(</span></span>
+<span>  <span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>,</span>
+<span>  <span class="va">iris</span><span class="op">$</span><span class="va">Species</span>,</span>
+<span>  color_scheme <span class="op">=</span> <span class="fu">grDevices</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/grDevices/palettes.html" class="external-link">topo.colors</a></span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<div class="float">
+<img src="img/embed_ex_topo.png" title="Palette function" alt="Iris species colored with the first three colors generated by topo.colors"><div class="figcaption">Iris species colored with the first three colors
+generated by topo.colors</div>
+</div>
+</div>
+<div class="section level3">
+<h3 id="custom-vectors-and-named-mappings">Custom vectors and named mappings<a class="anchor" aria-label="anchor" href="#custom-vectors-and-named-mappings"></a>
+</h3>
+<p>An unnamed vector assigns colors by category position. Naming the
+same vector locks each color to a category, which keeps the mapping
+stable after reordering or subsetting:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">custom_colors</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"black"</span>, <span class="st">"red"</span>, <span class="st">"gray"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/embed_plot.html">embed_plot</a></span><span class="op">(</span><span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>, <span class="va">iris</span><span class="op">$</span><span class="va">Species</span>, color_scheme <span class="op">=</span> <span class="va">custom_colors</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">species_colors</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  setosa <span class="op">=</span> <span class="st">"black"</span>,</span>
+<span>  versicolor <span class="op">=</span> <span class="st">"red"</span>,</span>
+<span>  virginica <span class="op">=</span> <span class="st">"gray"</span></span>
+<span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/embed_plot.html">embed_plot</a></span><span class="op">(</span><span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>, <span class="va">iris</span><span class="op">$</span><span class="va">Species</span>, color_scheme <span class="op">=</span> <span class="va">species_colors</span><span class="op">)</span></span></code></pre></div>
-<p>Extra names are ignored, but every observed category must have a
-color. An unnamed vector remains a positional palette. The
-<code>rev</code> argument reverses a generated or named category palette
-before values are mapped; it does not reorder explicit per-observation
-colors supplied with <code>colors</code>.</p>
+<div class="float">
+<img src="img/embed_ex_custom.png" title="Custom category colors" alt="Setosa in black, versicolor in red, and virginica in gray"><div class="figcaption">Setosa in black, versicolor in red, and
+virginica in gray</div>
+</div>
+<p>The two calls produce the same full-data plot here. For a named
+mapping, extra names are ignored and every observed category must have a
+color.</p>
+<p>If an unnamed vector has fewer colors than Vizier needs, Vizier
+interpolates between its colors. That is appropriate only when the
+vector represents a meaningful progression. Set
+<code>verbose = TRUE</code> to report when interpolation is
+required.</p>
+</div>
+<div class="section level3">
+<h3 id="built-in-r-palette-names">Built-in R palette names<a class="anchor" aria-label="anchor" href="#built-in-r-palette-names"></a>
+</h3>
+<p>On R 4.0 or later, pass any name returned by
+<code><a href="https://rdrr.io/r/grDevices/palette.html" class="external-link">grDevices::palette.pals()</a></code>:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/embed_plot.html">embed_plot</a></span><span class="op">(</span></span>
+<span>  <span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>,</span>
+<span>  <span class="va">iris</span><span class="op">$</span><span class="va">Species</span>,</span>
+<span>  color_scheme <span class="op">=</span> <span class="st">"Okabe-Ito"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<div class="float">
+<img src="img/embed_ex_okabe_ito.png" title="Built-in R palette name" alt="Iris species colored with the first three Okabe-Ito colors"><div class="figcaption">Iris species colored with the first three
+Okabe-Ito colors</div>
+</div>
+</div>
+<div class="section level3">
+<h3 id="paletteer-names">Paletteer names<a class="anchor" aria-label="anchor" href="#paletteer-names"></a>
+</h3>
+<p><a href="https://github.com/EmilHvitfeldt/paletteer" class="external-link">paletteer</a>
+provides a common name for palettes from many R packages. Use
+<code>"package::palette"</code>, for example:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/embed_plot.html">embed_plot</a></span><span class="op">(</span></span>
+<span>  <span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>,</span>
+<span>  <span class="va">iris</span><span class="op">$</span><span class="va">Species</span>,</span>
+<span>  color_scheme <span class="op">=</span> <span class="st">"RColorBrewer::Dark2"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<div class="float">
+<img src="img/embed_ex_cb.png" title="Palette selected through paletteer" alt="Iris species colored with the RColorBrewer Dark2 palette"><div class="figcaption">Iris species colored with the RColorBrewer Dark2
+palette</div>
+</div>
+<p>Vizier looks up whether paletteer classifies the selected palette as
+continuous, fixed-width discrete, or dynamic and calls the corresponding
+paletteer generator. It does not collapse those types into one
+behavior.</p>
+</div>
+</div>
 <div class="section level2">
-<h2 id="palette-interpolation">Palette Interpolation<a class="anchor" aria-label="anchor" href="#palette-interpolation"></a>
+<h2 id="reverse-generated-colors">Reverse generated colors<a class="anchor" aria-label="anchor" href="#reverse-generated-colors"></a>
 </h2>
-<p>If the color scheme you select has a maximum number of colors, and
-<code>vizier</code> needs to use more than those that are available,
-then it will interpolate among the maximum number of colors to create
-the desired number. This may lead to results where different categories
-are hard to distinguish from each other. If you set
-<code>verbose = TRUE</code>, then if interpolation is required, a
-message will be logged to console to this effect. <code>paletteer</code>
-has information on the number of colors available in each palette.</p>
+<p>Set <code>rev = TRUE</code> to reverse a generated palette before
+Vizier maps it to categories or numeric values:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/embed_plot.html">embed_plot</a></span><span class="op">(</span></span>
+<span>  <span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>,</span>
+<span>  <span class="va">iris</span><span class="op">$</span><span class="va">Species</span>,</span>
+<span>  color_scheme <span class="op">=</span> <span class="va">turbo</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<div class="float">
+<img src="img/embed_ex_turbo.png" title="Turbo palette" alt="Iris species colored with Vizier’s turbo palette"><div class="figcaption">Iris species colored with Vizier’s turbo
+palette</div>
+</div>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/embed_plot.html">embed_plot</a></span><span class="op">(</span></span>
+<span>  <span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>,</span>
+<span>  <span class="va">iris</span><span class="op">$</span><span class="va">Species</span>,</span>
+<span>  color_scheme <span class="op">=</span> <span class="va">turbo</span>,</span>
+<span>  rev <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<div class="float">
+<img src="img/embed_ex_turbo_rev.png" title="Reversed turbo palette" alt="The same iris species with the turbo palette order reversed"><div class="figcaption">The same iris species with the turbo palette
+order reversed</div>
+</div>
+<p>Reversal also applies to named category mappings, while preserving
+their names. It does not reorder literal per-row colors supplied through
+<code>colors</code>.</p>
 </div>
 <div class="section level2">
-<h2 id="discrete-palettes-with-continuous-type">Discrete Palettes with <code>continuous</code> Type<a class="anchor" aria-label="anchor" href="#discrete-palettes-with-continuous-type"></a>
+<h2 id="sample-a-discrete-palette-across-its-full-extent">Sample a discrete palette across its full extent<a class="anchor" aria-label="anchor" href="#sample-a-discrete-palette-across-its-full-extent"></a>
 </h2>
-<p>For discrete palettes, if you ask for fewer colors than the full
-range, you will only get the first few colors from the palette. For some
-palettes this works fine. For example, here is the <code>Dark2</code>
-palette from <code>RColorBrewer</code>:</p>
+<p>By default, requesting three colors from a fixed-width discrete
+palette takes its first three colors. Appending <code>::c</code> or
+<code>::continuous</code> tells paletteer to treat that palette as
+continuous and sample across its full extent instead. The explicit
+<code>::d</code> and <code>::discrete</code> suffixes select the default
+discrete behavior.</p>
+<p>This choice is useful only when the order and intermediate colors
+have a meaningful progression.</p>
+<div class="section level3">
+<h3 id="a-qualitative-palette-dark2">A qualitative palette: Dark2<a class="anchor" aria-label="anchor" href="#a-qualitative-palette-dark2"></a>
+</h3>
+<p>The full <code>RColorBrewer::Dark2</code> palette contains unrelated
+qualitative colors:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">paletteer</span><span class="fu">::</span><span class="fu"><a href="https://emilhvitfeldt.github.io/paletteer/reference/paletteer_d.html" class="external-link">paletteer_d</a></span><span class="op">(</span><span class="st">"RColorBrewer::Dark2"</span><span class="op">)</span></span></code></pre></div>
 <div class="float">
-<img src="img/dark2_swatch.png" title='swatches::show_palette(paletteer::paletteer_d("RColorBrewer", "Dark2"))' alt="RColorBrewer Dark2 swatch"><div class="figcaption">RColorBrewer Dark2 swatch</div>
+<img src="img/dark2_swatch.png" title="Full Dark2 palette" alt="Eight distinct qualitative colors in the RColorBrewer Dark2 palette"><div class="figcaption">Eight distinct qualitative colors in the
+RColorBrewer Dark2 palette</div>
 </div>
-<p>If you use this palette to color the iris PCA:</p>
+<p>The default discrete behavior uses the first three colors:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/embed_plot.html">embed_plot</a></span><span class="op">(</span></span>
+<span>  <span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>,</span>
+<span>  <span class="va">iris</span><span class="op">$</span><span class="va">Species</span>,</span>
+<span>  color_scheme <span class="op">=</span> <span class="st">"RColorBrewer::Dark2"</span>,</span>
+<span>  cex <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  title <span class="op">=</span> <span class="st">"RColorBrewer Dark2"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <div class="float">
-<img src="img/embed_dark2.png" title='embed_plot(pca_iris$x, iris, color_scheme = "RColorBrewer::Dark2", cex = 2, title = "RColorBrewer Dark2")' alt="iris PCA with Dark2 color scheme"><div class="figcaption">iris PCA with Dark2 color scheme</div>
+<img src="img/embed_dark2.png" title="Default discrete Dark2 selection" alt="Iris species colored with the first three Dark2 colors"><div class="figcaption">Iris species colored with the first three Dark2
+colors</div>
 </div>
-<p>The three colors from the lefthand side of the swatch are used to
-color the species.</p>
-<p>However, some discrete palettes have an ordering to them, e.g. they
-go from red to blue via yellow. Here’s <code>rainbow</code> from the
-<code>jcolors</code> package:</p>
+<p>Forcing continuous sampling uses the two ends of the palette and
+synthesizes a middle color between them:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/embed_plot.html">embed_plot</a></span><span class="op">(</span></span>
+<span>  <span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>,</span>
+<span>  <span class="va">iris</span><span class="op">$</span><span class="va">Species</span>,</span>
+<span>  color_scheme <span class="op">=</span> <span class="st">"RColorBrewer::Dark2::c"</span>,</span>
+<span>  cex <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  title <span class="op">=</span> <span class="st">"RColorBrewer Dark2 (continuous)"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <div class="float">
-<img src="img/rainbow_swatch.png" title='swatches::show_palette(paletteer::paletteer_d("jcolors", "rainbow"))' alt="jcolors rainbow"><div class="figcaption">jcolors rainbow</div>
+<img src="img/embed_dark2c.png" title="Continuous override applied to Dark2" alt="Dark2 sampled as a continuous scale, with a brown middle cluster close to the gray cluster"><div class="figcaption">Dark2 sampled as a continuous scale, with a
+brown middle cluster close to the gray cluster</div>
 </div>
-<p>The PCA embedding now looks like:</p>
+<p>The synthesized brown is not one of Dark2’s original colors and is
+less distinct from the gray endpoint. Continuous sampling therefore
+weakens this qualitative palette rather than improving it.</p>
+</div>
+<div class="section level3">
+<h3 id="an-ordered-palette-jcolors-rainbow">An ordered palette: jcolors rainbow<a class="anchor" aria-label="anchor" href="#an-ordered-palette-jcolors-rainbow"></a>
+</h3>
+<p>The <code>jcolors::rainbow</code> palette has a visible red-to-purple
+order:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">paletteer</span><span class="fu">::</span><span class="fu"><a href="https://emilhvitfeldt.github.io/paletteer/reference/paletteer_d.html" class="external-link">paletteer_d</a></span><span class="op">(</span><span class="st">"jcolors::rainbow"</span><span class="op">)</span></span></code></pre></div>
 <div class="float">
-<img src="img/embed_jcrainbow.png" title='embed_plot(pca_iris$x, iris, color_scheme = "jcolors::rainbow", cex = 2, title = "jcolors rainbow")' alt="iris PCA with rainbow color scheme"><div class="figcaption">iris PCA with rainbow color scheme</div>
+<img src="img/rainbow_swatch.png" title="Full jcolors rainbow palette" alt="Nine ordered colors progressing from red through green and blue to purple"><div class="figcaption">Nine ordered colors progressing from red through
+green and blue to purple</div>
 </div>
-<p>If you would prefer to use a fuller extent of the palette, you can
-treat the palette as continuous, by appending <code>::c</code> to the
-name of the color scheme, e.g. <code>"jcolors::rainbow::c"</code>. Now
-the result is:</p>
+<p>Default discrete behavior again uses the first three colors, so all
+three iris species stay near the red-to-green end:</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/embed_plot.html">embed_plot</a></span><span class="op">(</span></span>
+<span>  <span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>,</span>
+<span>  <span class="va">iris</span><span class="op">$</span><span class="va">Species</span>,</span>
+<span>  color_scheme <span class="op">=</span> <span class="st">"jcolors::rainbow"</span>,</span>
+<span>  cex <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  title <span class="op">=</span> <span class="st">"jcolors rainbow"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <div class="float">
-<img src="img/embed_jcrainbowc.png" title='embed_plot(pca_iris$x, iris, color_scheme = "jcolors::rainbow::c", cex = 2, title = "jcolors rainbow (continuous)")' alt="iris PCA with continuous rainbow color scheme"><div class="figcaption">iris PCA with continuous rainbow color
-scheme</div>
+<img src="img/embed_jcrainbow.png" title="Default discrete jcolors rainbow selection" alt="Iris species colored with the first three jcolors rainbow colors"><div class="figcaption">Iris species colored with the first three
+jcolors rainbow colors</div>
 </div>
-<p>where the colors come from the left-most, right-most and center
-positions on the swatch.</p>
-<p>The downside to treating these palettes as continuous is that there
-is no guarantee that the interpolation will result in colors that
-actually come from the palette. In fact, they probably won’t. We just
-got lucky in the above example, because interpolating between colors was
-not required. For colors which show a natural progression like
-<code>jcolors::rainbow</code>, results should still be ok. However, for
-palettes like <code>RColorBrewer::Dark2</code>, interpolation may not
-turn out so well. The iris PCA with the “continuous” version of Dark2,
-i.e. specifying <code>RColorBrewer::Dark2::c</code> results in:</p>
+<p>The continuous override spreads three samples across the entire
+ordered palette:</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/embed_plot.html">embed_plot</a></span><span class="op">(</span></span>
+<span>  <span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>,</span>
+<span>  <span class="va">iris</span><span class="op">$</span><span class="va">Species</span>,</span>
+<span>  color_scheme <span class="op">=</span> <span class="st">"jcolors::rainbow::c"</span>,</span>
+<span>  cex <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  title <span class="op">=</span> <span class="st">"jcolors rainbow (continuous)"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <div class="float">
-<img src="img/embed_dark2c.png" title='embed_plot(pca_iris$x, iris, color_scheme = "RColorBrewer::Dark2::c", cex = 2, title = "RColorBrewer Dark2 (continuous)")' alt="iris PCA with continuous Dark2 color scheme"><div class="figcaption">iris PCA with continuous Dark2 color
-scheme</div>
+<img src="img/embed_jcrainbowc.png" title="Continuous sampling across jcolors rainbow" alt="Iris species colored from the red, middle blue, and purple regions of the full rainbow palette"><div class="figcaption">Iris species colored from the red, middle blue,
+and purple regions of the full rainbow palette</div>
 </div>
-<p>The left cluster uses the green from the left-hand side of the Dark2
-swatch, and the right cluster is colored in the gray color from the
-right-hand side. But the middle cluster isn’t any of the other colors
-and mixes rather murkily with the gray cluster. It doesn’t make sense to
-use interpolation in this case.</p>
-<p>In summary, avoid interpolation of discrete color schemes if you can,
-and <em>definitely</em> do avoid for those like
-<code>RColorBrewer::Dark2</code> which don’t work on a color scale.</p>
+<p>Here, sampling the full extent preserves the palette’s intended order
+and makes better use of its range. For unordered qualitative palettes,
+keep the default discrete behavior.</p>
+<details><summary>
+Reproduce the article figures
+</summary><p>The tracked <code>vignettes/articles/reproduce-figures.R</code>
+script generates every figure in this article using the public Vizier
+and paletteer interfaces. It draws the swatches with base graphics, so
+no swatch package is required:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="ex">Rscript</span> <span class="at">--vanilla</span> vignettes/articles/reproduce-figures.R <span class="dt">\</span></span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a>  <span class="at">--output-dir</span> /tmp/vizier-article-figures</span></code></pre></div>
+</details>
+</div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
