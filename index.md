@@ -24,6 +24,7 @@ and have it picked out automatically.
 
 install.packages("pak")
 pak::pak("jlmelville/vizier")
+library(vizier)
 ```
 
 ## Documentation
