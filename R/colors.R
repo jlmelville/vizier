@@ -1,44 +1,3 @@
-get_colors <- function(
-  x,
-  color_scheme = NULL,
-  num_colors = 15,
-  limits = NULL,
-  top = NULL,
-  colors = NULL,
-  alpha_scale = 1,
-  NA_color = NULL,
-  rev = FALSE,
-  numeric_ok = FALSE,
-  fallback_color_scheme = grDevices::rainbow,
-  verbose = FALSE
-) {
-  n <- if (!is.null(colors)) {
-    length(colors)
-  } else if (methods::is(x, "data.frame")) {
-    nrow(x)
-  } else if (!is.null(x)) {
-    length(x)
-  } else {
-    num_colors
-  }
-  res <- resolve_colors(
-    x = x,
-    colors = colors,
-    n = n,
-    color_scheme = color_scheme,
-    num_colors = num_colors,
-    limits = limits,
-    top = top,
-    alpha_scale = alpha_scale,
-    NA_color = NA_color,
-    rev = rev,
-    numeric_ok = numeric_ok,
-    fallback_color_scheme = fallback_color_scheme,
-    verbose = verbose
-  )
-  grDevices::adjustcolor(res$colors, alpha.f = alpha_scale)
-}
-
 # Resolve every color-related public input once so renderers do not make their
 # own classification, palette, reversal, or selection decisions.
 resolve_colors <- function(
@@ -52,10 +11,9 @@ resolve_colors <- function(
   alpha_scale = 1,
   NA_color = NULL,
   rev = FALSE,
-  numeric_ok = FALSE,
-  fallback_color_scheme = grDevices::rainbow,
   verbose = FALSE,
-  clip_limit_values = TRUE
+  clip_limit_values = TRUE,
+  map_colors = TRUE
 ) {
   validate_alpha_scale(alpha_scale)
   validate_logical_scalar(rev, "'rev'")
@@ -79,7 +37,7 @@ resolve_colors <- function(
     ))
   }
 
-  source <- resolve_color_source(x, n, numeric_ok, verbose)
+  source <- resolve_color_source(x, n)
   if (source$kind == "identity") {
     return(color_spec(
       kind = "identity",
@@ -104,13 +62,18 @@ resolve_colors <- function(
   if (source$kind == "discrete") {
     labels <- source$values
     category_names <- category_levels(labels)
+    observed <- category_names[category_names %in% as.character(labels)]
+    if (is_named_palette(color_scheme)) {
+      category_names <- observed
+    }
     palette <- categorical_palette(
       category_names,
       color_scheme = color_scheme,
       rev = rev,
       verbose = verbose
     )
-    mapped <- unname(palette[as.character(labels)])
+    palette <- palette[observed]
+    mapped <- if (map_colors) unname(palette[as.character(labels)]) else NULL
     return(color_spec(
       kind = "discrete",
       values = labels,
@@ -121,6 +84,9 @@ resolve_colors <- function(
     ))
   }
 
+  if (is.null(num_colors)) {
+    num_colors <- length(source$values)
+  }
   validate_num_colors(num_colors)
   values <- source$values
   finite <- is.finite(values)
@@ -153,15 +119,13 @@ resolve_colors <- function(
   if (rev) {
     palette <- rev(palette)
   }
-  mapped <- numeric_to_colors(
-    mapped_values,
-    palette,
-    n = length(palette),
-    limits = color_limits
-  )
-  mapped[!keep] <- NA_character_
-  if (!is.null(NA_color)) {
-    mapped[is.na(mapped) & keep] <- NA_color
+  mapped <- NULL
+  if (map_colors) {
+    mapped <- numeric_to_colors(mapped_values, palette, limits = color_limits)
+    mapped[!keep] <- NA_character_
+    if (!is.null(NA_color)) {
+      mapped[is.na(mapped) & keep] <- NA_color
+    }
   }
   color_spec(
     kind = "continuous",
@@ -200,7 +164,7 @@ color_spec <- function(
   )
 }
 
-resolve_color_source <- function(x, n, numeric_ok, verbose) {
+resolve_color_source <- function(x, n) {
   if (is.null(x)) {
     return(list(kind = "row"))
   }
@@ -217,14 +181,8 @@ resolve_color_source <- function(x, n, numeric_ok, verbose) {
       return(list(kind = "discrete", values = x[[factor_name]]))
     }
     character_name <- last_character_column_name(x)
-    if (!is.null(character_name) && is_factorish(x[[character_name]])) {
+    if (!is.null(character_name)) {
       return(list(kind = "discrete", values = x[[character_name]]))
-    }
-    if (numeric_ok) {
-      numeric_name <- last_numeric_column_name(x)
-      if (!is.null(numeric_name)) {
-        return(list(kind = "continuous", values = x[[numeric_name]]))
-      }
     }
     return(list(kind = "row"))
   }
@@ -363,291 +321,21 @@ numeric_color_limits <- function(x, limits) {
 }
 
 
-# Given a data frame or a vector, return a vector of colors appropriately
-# mapped to the color scheme.
-# If `x` is a vector, it can either be a vector of colors, a factor vector
-# or factor-like character vector (in which case each level is mapped to a
-# color), or a numeric vector (in which case the range is mapped linearly). If
-# `x` is a data frame, then it is checked for a color column. If there
-# isn't one, a factor column (or character column that can be treated like a
-# factor) is looked for. If there's more than one suitable column, the last
-# found column is used. Numeric columns aren't searched for in the data frame
-# case.
-color_helper <- function(
-  x,
-  color_scheme = NULL,
-  num_colors = 15,
-  limits = NULL,
-  top = NULL,
-  numeric_ok = FALSE,
-  fallback_color_scheme = grDevices::rainbow,
-  verbose = FALSE
-) {
-  if (methods::is(x, "data.frame")) {
-    res <- color_helper_df(
-      x,
-      color_scheme = color_scheme,
-      numeric_ok = numeric_ok,
-      fallback_color_scheme = fallback_color_scheme,
-      verbose = verbose
-    )
-  } else {
-    res <- color_helper_column(
-      x,
-      color_scheme = color_scheme,
-      num_colors = num_colors,
-      limits = limits,
-      top = top,
-      verbose = verbose
-    )
-  }
-  res
-}
-
-
-# Try and find a meaningful vector of colors from a data frame.
-# If the data frame contains at least one column of colors, use the last column
-# of colors found.
-# Otherwise, if the data frame contains at least one column of factors, map
-# from the last factor column found to a list of colors.
-# Otherwise, if the data frame contains at least one character column, and it
-# can be treated like a factor (i.e. more than one level but as many levels as
-# observations), use the last character column found as if it was a factor.
-# if numeric_ok is TRUE, then if other ways to find colors, before going with
-# one color per point, try to map the last numeric column to a continuous
-# color scheme. Default is FALSE because if passing in a mixed dataframe of
-# labels and data, it's likely that the numeric columns are not meant to be
-# interpreted as a continuous color scale (they're the raw data).
-# Otherwise, color each point individually.
-# In the latter two cases where we can't find a categorical-like column, the
-# `fallback_color_scheme` will be used, so it probably should be a continuous
-# color scheme
-# @note R considers numbers to be acceptable colors because `col2rgb()`
-# interprets them as indexes into a palette. Columns of numbers are NOT treated
-# as colors by color_helper. Stick with color names (e.g. "goldenrod") or
-# rgb strings (e.g. "#140000" or "#140000FF" if including alpha values).
-# If ret_labels is TRUE, return the column used for the mapping
-color_helper_df <- function(
-  df,
-  color_scheme = NULL,
-  numeric_ok = FALSE,
-  fallback_color_scheme = grDevices::rainbow,
-  verbose = FALSE
-) {
-  colors <- NULL
-  labels <- NULL
-  # Is there a color column?
-  color_name <- last_color_column_name(df)
-  if (!is.null(color_name)) {
-    if (verbose) {
-      message("Found color column '", color_name, "'")
-    }
-    colors <- df[[color_name]]
-    return(list(colors = colors))
-  }
-  # Is there a factor column?
-  label_name <- last_factor_column_name(df)
-  if (!is.null(label_name)) {
-    if (verbose) {
-      message("Found a factor '", label_name, "' for mapping to colors")
-    }
-    labels <- df[[label_name]]
-    palette <- factor_to_palette(
-      labels,
-      color_scheme = color_scheme,
-      verbose = verbose
-    )
-    return(list(labels = labels, palette = palette))
-  }
-
-  # Is there something factorish?
-  label_name <- last_character_column_name(df)
-  if (!is.null(label_name) && is_factorish(df[[label_name]])) {
-    if (verbose) {
-      message(
-        "Found a character column '",
-        label_name,
-        "' for mapping to colors"
-      )
-    }
-    labels <- df[[label_name]]
-    palette <- factor_to_palette(
-      labels,
-      color_scheme = color_scheme,
-      verbose = verbose
-    )
-    return(list(labels = labels, palette = palette))
-  }
-
-  # Either a numeric or one-point-per color scheme here
-  # use fallback_color_scheme from here on out
-  if (numeric_ok) {
-    numeric_name <- last_numeric_column_name(df)
-    if (!is.null(numeric_name)) {
-      if (verbose) {
-        message(
-          "Found a numeric column '",
-          numeric_name,
-          "' for mapping to colors"
-        )
-      }
-      colors <- numeric_to_colors(
-        df[[numeric_name]],
-        color_scheme = fallback_color_scheme
-      )
-      return(list(colors = colors))
-    }
-  }
-
-  # use one color per point
-  if (verbose) {
-    message("Using one color per point")
-  }
-  colors <- make_palette(
-    ncolors = nrow(df),
-    color_scheme = fallback_color_scheme
-  )
-  list(colors = colors, labels = labels)
-}
-
-color_helper_column <- function(
-  x,
-  color_scheme,
-  num_colors = 15,
-  limits = NULL,
-  top = NULL,
-  verbose = FALSE
-) {
-  # Is this a color column - return as-is
-  if (is_color_column(x)) {
-    return(list(colors = x))
-  }
-
-  # Is it numeric - map to continuous palette
-  if (is.numeric(x)) {
-    colors <- numeric_to_colors(
-      x,
-      color_scheme = color_scheme,
-      n = num_colors,
-      limits = limits
-    )
-    if (!is.null(top)) {
-      svec <- sort(x, decreasing = TRUE)
-      colors[x < svec[top]] <- NA
-    }
-    return(list(colors = colors))
-  }
-
-  # Is it a factor - map to palette (which should be categorical)
-  if (is.factor(x)) {
-    palette <- factor_to_palette(
-      x,
-      color_scheme = color_scheme,
-      verbose = verbose
-    )
-    return(list(labels = x, palette = palette))
-  }
-
-  # Probably a column of characters, can they be treated as a factor?
-  if (is_factorish(x)) {
-    palette <- factor_to_palette(
-      as.factor(x),
-      color_scheme = color_scheme,
-      verbose = verbose
-    )
-    return(list(labels = x, palette = palette))
-  }
-
-  # Otherwise one color per point (doesn't really matter what the palette is!)
-  list(colors = make_palette(ncolors = length(x), color_scheme = color_scheme))
-}
-
-# Map a vector of factor levels, x, to a palette based on the specified
-# color scheme
-factor_to_palette <- function(x, color_scheme = NULL, verbose = FALSE) {
-  x <- as.factor(x)
-  category_names <- levels(x)
-  ncolors <- length(category_names)
-  stats::setNames(
-    make_palette(
-      ncolors = ncolors,
-      color_scheme = color_scheme,
-      verbose = verbose
-    ),
-    category_names
-  )
-}
-
-# Map Numbers to Colors
-#
-# Maps a numeric vector to an equivalent set of colors based on a color scheme
-#
-# For numeric scales, the following RColorBrewer schemes may be useful:
-# Sequential palettes names:
-#  Blues BuGn BuPu GnBu Greens Greys Oranges OrRd PuBu PuBuGn PuRd Purples
-#  RdPu Reds YlGn YlGnBu YlOrBr YlOrRd
-# Diverging palette names:
-#  BrBG PiYG PRGn PuOr RdBu RdGy RdYlBu RdYlGn Spectral
-#
-# This function is based off a Stack Overflow answer by user "Dave X":
-#  <http://stackoverflow.com/a/18749392>
-#
-# @param x Numeric vector.
-# @param name Name of the ColorBrewer palette.
-# @param n Number of unique colors to map values in `x` to.
-# @param limits The range that the colors should map over. If not specified,
-#  then the range of `x`. This is useful if there is some external
-#  absolute scale that should be used.
-# @seealso
-# More information on ColorBrewer is available at its website,
-# <http://www.colorbrewer2.org>.
-# @examples
-# if (interactive()) {
-# # Plot Iris dataset sepal width vs length, colored by petal length, using
-# # 20 colors ranging from Purple to Green (PRGn):
-# plot(iris[, c("Sepal.Length", "Sepal.Width")], cex = 1.5, pch = 20,
-#  col = numeric_to_colors(iris$Petal.Length, color_scheme = "RColorBrewer::PRGn", n = 20))
-#
-# # Use the rainbow color ramp function
-# plot(iris[, c("Sepal.Length", "Sepal.Width")], cex = 1.5, pch = 20,
-#  col = numeric_to_colors(iris$Petal.Length, color_scheme = rainbow, n = 20))
-# }
-numeric_to_colors <- function(
-  x,
-  color_scheme = "RColorBrewer::Blues",
-  n = NULL,
-  limits = NULL
-) {
-  if (is.null(n)) {
-    n <- length(x)
-  }
-
-  if (!is.numeric(n) || length(n) != 1 || is.na(n) || !is.finite(n) || n < 1) {
-    stop("'n' must be a positive finite number.", call. = FALSE)
-  }
-  n <- as.integer(n)
-
+# Map numeric values using the already resolved palette and limits.
+numeric_to_colors <- function(x, palette, limits) {
   if (is.null(limits)) {
-    finite_x <- x[is.finite(x)]
-    if (length(finite_x) == 0) {
-      return(rep(NA_character_, length(x)))
-    }
-    limits <- range(finite_x)
+    return(rep(NA_character_, length(x)))
   }
-
-  limits <- validate_numeric_limits(limits)
-
-  pal <- make_palette(ncolors = n, color_scheme = color_scheme)
   colors <- rep(NA_character_, length(x))
   ok <- is.finite(x)
 
   if (limits[1] == limits[2]) {
-    colors[ok] <- pal[[ceiling(length(pal) / 2)]]
+    colors[ok] <- palette[[ceiling(length(palette) / 2)]]
     return(colors)
   }
 
-  breaks <- seq(limits[1], limits[2], length.out = length(pal) + 1)
-  colors[ok] <- pal[findInterval(x[ok], breaks, all.inside = TRUE)]
+  breaks <- seq(limits[1], limits[2], length.out = length(palette) + 1)
+  colors[ok] <- palette[findInterval(x[ok], breaks, all.inside = TRUE)]
   colors
 }
 
@@ -691,29 +379,23 @@ last_color_column_name <- function(df) {
 }
 
 # Looks at all the columns in a data frame, returning the name of the last
-# column which is a character or NULL if there are no character columns present.
+# column which is factor-like character data, or NULL if none is suitable.
 last_character_column_name <- function(df) {
   char_name <- NULL
-  char_names <- filter_column_names(df, is.character)
+  char_names <- filter_column_names(df, is_factorish)
   if (length(char_names) > 0) {
     char_name <- char_names[length(char_names)]
   }
   char_name
 }
 
-last_numeric_column_name <- function(df) {
-  numeric_name <- NULL
-  numeric_names <- filter_column_names(df, is.numeric)
-  if (length(numeric_names) > 0) {
-    numeric_name <- numeric_names[length(numeric_names)]
-  }
-  numeric_name
-}
-
-
 # returns TRUE if vector x consists of colors
 is_color_column <- function(x) {
-  !is.numeric(x) && all(is.na(x) | is_color(x))
+  if (is.numeric(x)) {
+    return(FALSE)
+  }
+  candidates <- unique(x[!is.na(x)])
+  length(candidates) > 0 && all(is_color(candidates))
 }
 
 # Applies pred to each column in df and returns the names of each column that

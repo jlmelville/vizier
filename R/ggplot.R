@@ -75,14 +75,14 @@ embed_ggplot <- function(
     alpha_scale = alpha_scale,
     NA_color = NA_color,
     rev = rev,
-    verbose = verbose
+    verbose = verbose,
+    map_colors = FALSE
   )
 
   rows <- which(color_res$keep)
   data <- data.frame(
     x = coords[rows, 1],
     y = coords[rows, 2],
-    color = color_res$colors[rows],
     stringsAsFactors = FALSE
   )
   if (!is.null(text)) {
@@ -95,17 +95,21 @@ embed_ggplot <- function(
       levels = names(color_res$palette)
     )
     color_scale <- ggplot2::scale_color_manual(
-      values = color_res$palette,
-      na.value = if (is.null(NA_color)) NA else NA_color
+      values = scale_color_alpha(color_res$palette, alpha_scale),
+      na.value = scale_color_alpha(NA_color, alpha_scale)
     )
   } else if (color_res$kind == "continuous") {
     data$color <- color_res$mapped_values[rows]
     color_scale <- ggplot2::scale_color_gradientn(
-      colors = color_res$palette,
+      colors = rep(
+        scale_color_alpha(color_res$palette, alpha_scale),
+        length.out = max(2, length(color_res$palette))
+      ),
       limits = color_res$limits,
-      na.value = if (is.null(NA_color)) NA else NA_color
+      na.value = scale_color_alpha(NA_color, alpha_scale)
     )
   } else {
+    data$color <- scale_color_alpha(color_res$colors[rows], alpha_scale)
     color_scale <- ggplot2::scale_color_identity(guide = "none")
   }
 
@@ -118,13 +122,12 @@ embed_ggplot <- function(
     )
   )
   if (is.null(text)) {
-    p <- p + ggplot2::geom_point(size = cex, alpha = alpha_scale)
+    p <- p + ggplot2::geom_point(size = cex)
   } else {
     p <- p +
       ggplot2::geom_text(
         ggplot2::aes(label = .data[["label"]]),
-        size = cex,
-        alpha = alpha_scale
+        size = cex
       )
   }
   p <- p +
@@ -158,4 +161,16 @@ embed_ggplot <- function(
       )
   }
   p
+}
+
+# Keep missing colors missing and preserve names for manual scale lookup.
+scale_color_alpha <- function(colors, alpha_scale) {
+  if (is.null(colors)) return(NA_character_)
+  if (alpha_scale == 1) return(colors)
+  present <- !is.na(colors)
+  colors[present] <- grDevices::adjustcolor(
+    colors[present],
+    alpha.f = alpha_scale
+  )
+  colors
 }

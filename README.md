@@ -26,6 +26,7 @@ column to a dataframe if needed and have it picked out automatically.
 ```R
 install.packages("pak")
 pak::pak("jlmelville/vizier")
+library(vizier)
 ```
 
 ## Documentation

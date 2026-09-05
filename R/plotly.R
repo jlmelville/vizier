@@ -211,6 +211,9 @@ embed_plotly <- function(
 
   rows <- which(color_res$keep)
   labels <- color_res$labels
+  if (is.factor(labels)) {
+    labels <- droplevels(labels)
+  }
   hover_text <- plotly_hover_text(
     n = length(rows),
     row_ids = rows,
@@ -227,6 +230,7 @@ embed_plotly <- function(
       colors = color_res$palette,
       type = "scatter",
       mode = if (is.null(text)) "markers" else "text",
+      opacity = if (is.null(text)) NULL else alpha_scale,
       text = if (is.null(text)) hover_text else text[rows],
       hovertext = hover_text,
       hoverinfo = "text",
@@ -261,6 +265,7 @@ embed_plotly <- function(
       hovertext = hover_text,
       hoverinfo = "text",
       marker = if (is.null(text)) marker else NULL,
+      opacity = if (is.null(text)) NULL else alpha_scale,
       textfont = if (is.null(text)) NULL else
         list(color = color_res$colors[rows])
     )
@@ -272,6 +277,7 @@ embed_plotly <- function(
         y = coords[rows, 2],
         type = "scatter",
         mode = "text",
+        opacity = alpha_scale,
         text = text[rows],
         hovertext = hover_text,
         hoverinfo = "text",

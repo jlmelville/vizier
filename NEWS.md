@@ -1,3 +1,14 @@
+# vizier (development version)
+
+- Fixed numeric coloring with `num_colors = NULL` or `num_colors = 1` in `embed_plot()`,
+  `embed_ggplot()`, and `embed_plotly()`.
+- Automatic color selection from data frames now skips all-missing color columns and finds suitable
+  character columns even when a later column contains identifiers.
+- Named palettes no longer require colors for unused factor levels. Generated palettes keep the same
+  color assignments when levels are unused.
+- `embed_ggplot()` now scales existing color transparency with `alpha_scale`, and `embed_plotly()`
+  applies `alpha_scale` to text labels. Palette interpolation also preserves transparency.
+
 # vizier 0.6.1
 
 *July 17 2026*:

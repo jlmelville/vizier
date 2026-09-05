@@ -1,103 +1,29 @@
-test_that("character labels map to non-missing colors", {
-  labels <- c("a", "b", "a")
-
-  colors <- vizier:::get_colors(
-    labels,
-    color_scheme = c("red", "blue")
-  )
-
-  expect_false(anyNA(colors))
-  expect_identical(colors[[1]], colors[[3]])
-  expect_false(identical(colors[[1]], colors[[2]]))
-})
-
-test_that("data-frame character labels map to colors", {
-  meta <- data.frame(label = c("a", "b", "a"))
-
-  res <- vizier:::color_helper_df(
-    meta,
-    color_scheme = c("red", "blue")
-  )
-  colors <- vizier:::get_colors(
-    meta,
-    color_scheme = c("red", "blue")
-  )
-
-  expect_named(res$palette, c("a", "b"))
-  expect_false(anyNA(colors))
-  expect_identical(colors[[1]], colors[[3]])
-  expect_false(identical(colors[[1]], colors[[2]]))
-})
-
-test_that("data-frame color columns take priority", {
+test_that("public base rendering preserves categorical selection and ordering", {
+  coords <- cbind(1:3, 4:6)
+  palette <- c("red", "blue")
+  for (labels in list(c("a", "b", "a"), data.frame(label = c("a", "b", "a")))) {
+    expect_identical(
+      base_colors(coords, labels, color_scheme = palette),
+      grDevices::adjustcolor(c("red", "blue", "red"))
+    )
+  }
   meta <- data.frame(
     label = factor(c("a", "b", "a")),
     color1 = c("red", "blue", "red"),
     color2 = c("#111111", "#222222", "#333333"),
     value = c(3, 1, 2)
   )
-
-  res <- vizier:::color_helper_df(
-    meta,
-    color_scheme = c("orange", "purple"),
-    numeric_ok = TRUE
-  )
-  colors <- vizier:::get_colors(
-    meta,
-    color_scheme = c("orange", "purple"),
-    numeric_ok = TRUE
-  )
-
-  expect_identical(res, list(colors = meta$color2))
-  expect_identical(colors, grDevices::adjustcolor(meta$color2))
-})
-
-test_that("data-frame numeric fallback is opt-in", {
-  meta <- data.frame(
-    id = c("row1", "row2", "row3"),
-    value1 = c(10, 20, 30),
-    value2 = c(3, 1, 2)
-  )
-  fallback <- c("#111111", "#222222", "#333333")
-
-  default <- vizier:::color_helper_df(
-    meta,
-    fallback_color_scheme = fallback
-  )
-  numeric <- vizier:::color_helper_df(
-    meta,
-    numeric_ok = TRUE,
-    fallback_color_scheme = c("#000000", "#FFFFFF")
-  )
-
-  expect_identical(default$colors, fallback)
-  expect_null(default$labels)
   expect_identical(
-    numeric$colors,
-    vizier:::numeric_to_colors(
-      meta$value2,
-      color_scheme = c("#000000", "#FFFFFF")
-    )
+    base_colors(coords, meta),
+    grDevices::adjustcolor(meta$color2)
   )
-})
-
-test_that("factor labels use level names for palette lookup", {
   labels <- factor(c("b", "a", "b"), levels = c("b", "a"))
-
-  palette <- vizier:::factor_to_palette(
-    labels,
-    color_scheme = c("red", "blue")
+  expect_identical(
+    base_colors(coords, labels, color_scheme = palette),
+    grDevices::adjustcolor(c("red", "blue", "red"))
   )
-  colors <- vizier:::get_colors(
-    labels,
-    color_scheme = c("red", "blue")
-  )
-
-  expect_named(palette, c("b", "a"))
-  expect_identical(unname(palette), c("red", "blue"))
-  expect_identical(unname(colors[[1]]), grDevices::adjustcolor("red"))
-  expect_identical(unname(colors[[2]]), grDevices::adjustcolor("blue"))
-  expect_identical(colors[[1]], colors[[3]])
+  meta <- data.frame(id = paste0("row", 1:3), value = c(3, 1, 2))
+  expect_identical(base_colors(coords, meta), base_colors(coords))
 })
 
 test_that("custom palettes return the requested length", {
@@ -129,53 +55,37 @@ test_that("paletteer shorthand supports continuous and discrete types", {
   expect_length(vizier:::make_palette(3, "RColorBrewer::Dark2::discrete"), 3)
 })
 
-test_that("numeric color mapping handles missing and non-finite values", {
-  colors <- vizier:::numeric_to_colors(
+test_that("public numeric colors handle non-finite and constant values", {
+  coords <- cbind(1:5, 6:10)
+  colors <- base_colors(
+    coords,
     c(1, NA, Inf, -Inf, 2),
     color_scheme = c("red", "blue"),
-    n = 2
+    num_colors = 2
   )
-
-  expect_false(anyNA(colors[c(1, 5)]))
-  expect_true(all(is.na(colors[c(2, 3, 4)])))
-})
-
-test_that("numeric color mapping handles all non-finite values", {
-  colors <- vizier:::numeric_to_colors(
-    c(NA_real_, Inf, -Inf),
-    color_scheme = c("red", "blue")
-  )
-
-  expect_true(all(is.na(colors)))
-})
-
-test_that("numeric color mapping handles constant finite values", {
-  colors <- vizier:::numeric_to_colors(
+  expect_identical(colors, grDevices::adjustcolor(c("red", NA, NA, NA, "blue")))
+  colors <- base_colors(
+    coords[1:3, ],
     c(5, 5, NA),
     color_scheme = c("red", "blue", "green"),
-    n = 3
+    num_colors = 3
   )
-
-  expect_identical(colors[[1]], "blue")
-  expect_identical(colors[[2]], "blue")
-  expect_true(is.na(colors[[3]]))
-})
-
-test_that("numeric color mapping validates limits", {
+  expect_identical(colors, grDevices::adjustcolor(c("blue", "blue", NA)))
+  colors <- base_colors(coords[1:3, ], c(NA_real_, Inf, -Inf))
+  expect_identical(colors, grDevices::adjustcolor(rep(NA_character_, 3)))
   expect_error(
-    vizier:::numeric_to_colors(c(1, 2), limits = c(1, NA)),
+    base_colors(coords, 1:5, limits = c(1, NA)),
     "finite numeric values"
   )
   expect_error(
-    vizier:::numeric_to_colors(c(1, 2), limits = c(2, 1)),
+    base_colors(coords, 1:5, limits = c(2, 1)),
     "in increasing order"
   )
-  expect_error(
-    vizier:::numeric_to_colors(c(1, 2), n = 0),
-    "positive finite number"
-  )
+  expect_error(base_colors(coords, 1:5, num_colors = 0), "positive integer")
 })
 
+# These resolver tests protect the shared specification's row selection and
+# palette metadata, which renderer output alone cannot fully distinguish.
 test_that("color resolution reverses palettes without changing identity colors", {
   labels <- factor(c("a", "a", "b"), levels = c("a", "b"))
   forward <- vizier:::resolve_colors(

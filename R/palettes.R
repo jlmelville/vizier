@@ -66,7 +66,7 @@ make_palette_function <- function(name, verbose = FALSE) {
         if (verbose) {
           message("Interpolating palette for ", n, " colors")
         }
-        palette <- grDevices::colorRampPalette(name)(n)
+        palette <- grDevices::colorRampPalette(name, alpha = TRUE)(n)
       } else {
         palette <- name[seq_len(n)]
       }
@@ -174,7 +174,7 @@ make_palette_function <- function(name, verbose = FALSE) {
     }
     palette <- pal_fn(package_name, palette_name, ncols)
     if (n > max_colors) {
-      palette <- grDevices::colorRampPalette(palette)(n)
+      palette <- grDevices::colorRampPalette(palette, alpha = TRUE)(n)
     }
     palette
   }
