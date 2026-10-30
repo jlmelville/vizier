@@ -1,5 +1,11 @@
-# vizier (development version)
+# vizier 0.6.2
 
+- Added `fixed_aspect` to all three renderers to preserve equal physical X/Y
+  units with caller-supplied coordinate limits. Existing defaults and
+  `equal_axes = TRUE` behavior are unchanged.
+- `embed_plot()` now accepts `pch` as a single point symbol or one symbol per
+  observation, defaulting to `20`. Use the full `pc_axes` argument name: the
+  abbreviation `pc` is now ambiguous with `pch`.
 - Fixed numeric coloring with `num_colors = NULL` or `num_colors = 1` in `embed_plot()`,
   `embed_ggplot()`, and `embed_plotly()`.
 - Automatic color selection from data frames now skips all-missing color columns and finds suitable

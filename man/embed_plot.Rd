@@ -24,7 +24,9 @@ embed_plot(
   show_axes = TRUE,
   NA_color = NULL,
   rev = FALSE,
-  verbose = FALSE
+  verbose = FALSE,
+  fixed_aspect = FALSE,
+  pch = 20
 )
 }
 \arguments{
@@ -93,6 +95,18 @@ should be reversed. Explicit \code{colors} are unchanged.}
 
 \item{verbose}{If \code{TRUE}, log messages to the console, mainly when
 searching for a suitable color column in a dataframe.}
+
+\item{fixed_aspect}{If \code{TRUE}, use equal physical units on the X and Y axes.
+With \code{equal_axes = FALSE}, supplied \code{xlim} and \code{ylim} are retained and
+omitted limits are determined separately for each axis. \code{equal_axes = TRUE}
+always uses a common coordinate range and equal physical units, regardless
+of \code{fixed_aspect}. Renderer padding and aspect constraints may expand the
+visible ranges.}
+
+\item{pch}{A single point symbol or one symbol per observation, in the
+original coordinate row order. Use integer-valued numeric codes or single
+characters as in \code{\link[graphics:points]{graphics::points()}}. \code{NA} and \code{""} omit points.
+Defaults to \code{20}. Ignored if \code{text} is provided.}
 }
 \description{
 Plots the embedded coordinates, with each point colored by a specified
@@ -186,5 +200,12 @@ embed_plot(pca_iris$x, iris$Petal.Length, color_scheme = "RColorBrewer::Blues", 
 embed_plot(pca_iris$x, iris$Petal.Length,
   color_scheme = "RColorBrewer::Blues",
   equal_axes = TRUE
+)
+
+# Use supplied limits and equal physical units; use shapes
+# as an additional category cue
+embed_plot(pca_iris$x, iris$Species,
+  xlim = c(-4, 4), ylim = c(-2, 2), fixed_aspect = TRUE,
+  pch = c(16, 17, 15)[as.integer(iris$Species)]
 )
 }

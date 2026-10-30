@@ -100,6 +100,16 @@
 #'   should be reversed. Explicit `colors` are unchanged.
 #' @param verbose If `TRUE`, log messages to the console, mainly when
 #'   searching for a suitable color column in a dataframe.
+#' @param fixed_aspect If `TRUE`, use equal physical units on the X and Y axes.
+#'   With `equal_axes = FALSE`, supplied `xlim` and `ylim` are retained and
+#'   omitted limits are determined separately for each axis. `equal_axes = TRUE`
+#'   always uses a common coordinate range and equal physical units, regardless
+#'   of `fixed_aspect`. Renderer padding and aspect constraints may expand the
+#'   visible ranges.
+#' @param pch A single point symbol or one symbol per observation, in the
+#'   original coordinate row order. Use integer-valued numeric codes or single
+#'   characters as in [graphics::points()]. `NA` and `""` omit points.
+#'   Defaults to `20`. Ignored if `text` is provided.
 #' @export
 #' @examples
 #' # Embed with PCA
@@ -137,6 +147,13 @@
 #'   color_scheme = "RColorBrewer::Blues",
 #'   equal_axes = TRUE
 #' )
+#'
+#' # Use supplied limits and equal physical units; use shapes
+#' # as an additional category cue
+#' embed_plot(pca_iris$x, iris$Species,
+#'   xlim = c(-4, 4), ylim = c(-2, 2), fixed_aspect = TRUE,
+#'   pch = c(16, 17, 15)[as.integer(iris$Species)]
+#' )
 embed_plot <- function(
   coords,
   x = NULL,
@@ -157,9 +174,12 @@ embed_plot <- function(
   show_axes = TRUE,
   NA_color = NULL,
   rev = FALSE,
-  verbose = FALSE
+  verbose = FALSE,
+  fixed_aspect = FALSE,
+  pch = 20
 ) {
   validate_logical_scalar(equal_axes, "'equal_axes'")
+  validate_logical_scalar(fixed_aspect, "'fixed_aspect'")
   validate_logical_scalar(pc_axes, "'pc_axes'")
   validate_logical_scalar(show_axes, "'show_axes'")
   validate_logical_scalar(rev, "'rev'")
@@ -171,11 +191,15 @@ embed_plot <- function(
     pc_axes = pc_axes,
     xlim = xlim,
     ylim = ylim,
-    equal_axes = equal_axes
+    equal_axes = equal_axes,
+    fixed_aspect = fixed_aspect
   )
   coords <- coord_res$coords
   if (!is.null(text)) {
     text <- recycle_input(text, nrow(coords), "'text'")
+  } else {
+    validate_pch(pch)
+    pch <- recycle_input(pch, nrow(coords), "'pch'")
   }
 
   color_res <- resolve_colors(
@@ -221,7 +245,7 @@ embed_plot <- function(
   } else {
     graphics::plot(
       coords,
-      pch = 20,
+      pch = pch,
       cex = cex,
       col = colors,
       xlim = coord_res$xlim,
@@ -236,5 +260,29 @@ embed_plot <- function(
   }
   if (!is.null(sub)) {
     graphics::mtext(sub)
+  }
+}
+
+validate_pch <- function(pch) {
+  if (is.logical(pch) && all(is.na(pch))) {
+    return(invisible(NULL))
+  }
+  if (is.character(pch)) {
+    valid <- all(is.na(pch) | nchar(pch) <= 1)
+  } else if (is.numeric(pch) && !is.complex(pch)) {
+    present <- pch[!is.na(pch)]
+    valid <- all(
+      is.finite(present) &
+        present == trunc(present) &
+        abs(present) <= .Machine$integer.max
+    )
+  } else {
+    valid <- FALSE
+  }
+  if (!valid) {
+    stop(
+      "'pch' must contain integer symbol codes or single characters, with NA allowed.",
+      call. = FALSE
+    )
   }
 }

@@ -36,7 +36,8 @@ embed_ggplot <- function(
   show_axes = TRUE,
   NA_color = NULL,
   rev = FALSE,
-  verbose = FALSE
+  verbose = FALSE,
+  fixed_aspect = FALSE
 ) {
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
     stop(
@@ -46,6 +47,7 @@ embed_ggplot <- function(
   }
 
   validate_logical_scalar(equal_axes, "'equal_axes'")
+  validate_logical_scalar(fixed_aspect, "'fixed_aspect'")
   validate_logical_scalar(pc_axes, "'pc_axes'")
   validate_logical_scalar(show_axes, "'show_axes'")
   validate_logical_scalar(rev, "'rev'")
@@ -57,7 +59,8 @@ embed_ggplot <- function(
     pc_axes = pc_axes,
     xlim = xlim,
     ylim = ylim,
-    equal_axes = equal_axes
+    equal_axes = equal_axes,
+    fixed_aspect = fixed_aspect
   )
   coords <- coord_res$coords
   n <- nrow(coords)

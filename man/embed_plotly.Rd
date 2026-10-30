@@ -23,7 +23,8 @@ embed_plotly(
   xlim = NULL,
   ylim = NULL,
   rev = FALSE,
-  verbose = FALSE
+  verbose = FALSE,
+  fixed_aspect = FALSE
 )
 }
 \arguments{
@@ -93,6 +94,13 @@ should be reversed. Explicit \code{colors} are unchanged.}
 
 \item{verbose}{If \code{TRUE}, log messages to the console, mainly when
 searching for a suitable color column in a dataframe.}
+
+\item{fixed_aspect}{If \code{TRUE}, use equal physical units on the X and Y axes.
+With \code{equal_axes = FALSE}, supplied \code{xlim} and \code{ylim} are retained and
+omitted limits are determined separately for each axis. \code{equal_axes = TRUE}
+always uses a common coordinate range and equal physical units, regardless
+of \code{fixed_aspect}. Renderer padding and aspect constraints may expand the
+visible ranges.}
 }
 \description{
 Plots the embedded coordinates, with each point colored by a specified

@@ -108,6 +108,7 @@ test_that("embed_ggplot translates text, coordinates, titles, and hidden axes", 
   expect_identical(p$labels$subtitle, "subtitle")
   expect_equal(p$coordinates$limits$x, c(-1, 5))
   expect_equal(p$coordinates$limits$y, c(9, 31))
+  expect_null(p$coordinates$ratio)
   expect_equal(fixed$coordinates$ratio, 1)
   expect_equal(
     fixed$coordinates$limits$x,
@@ -120,6 +121,50 @@ test_that("embed_ggplot translates text, coordinates, titles, and hidden axes", 
   expect_s3_class(p$theme$axis.text, "element_blank")
   expect_s3_class(p$theme$axis.title, "element_blank")
   expect_s3_class(p$theme$axis.ticks, "element_blank")
+})
+
+test_that("embed_ggplot fixes physical units while retaining explicit limits", {
+  testthat::skip_if_not_installed("ggplot2")
+  coords <- cbind(c(0, 2, 4), c(10, 20, 30))
+  p <- embed_ggplot(
+    coords,
+    colors = "red",
+    fixed_aspect = TRUE,
+    xlim = c(1, 3),
+    ylim = c(9, 31)
+  )
+  expect_equal(p$coordinates$ratio, 1)
+  expect_equal(p$coordinates$limits$x, c(1, 3))
+  expect_equal(p$coordinates$limits$y, c(9, 31))
+  expect_equal(nrow(ggplot2::ggplot_build(p)$data[[1]]), nrow(coords))
+
+  automatic <- embed_ggplot(coords, colors = "red", fixed_aspect = TRUE)
+  expect_null(automatic$coordinates$limits$x)
+  expect_null(automatic$coordinates$limits$y)
+
+  equal <- embed_ggplot(
+    coords,
+    colors = "red",
+    equal_axes = TRUE,
+    fixed_aspect = TRUE,
+    xlim = c(1, 3),
+    ylim = c(9, 31)
+  )
+  expect_equal(equal$coordinates$ratio, 1)
+  expect_equal(equal$coordinates$limits$x, range(coords))
+  expect_equal(equal$coordinates$limits$y, range(coords))
+})
+
+test_that("embed_ggplot validates fixed_aspect", {
+  testthat::skip_if_not_installed("ggplot2")
+  expect_error(
+    embed_ggplot(cbind(1:2, 3:4), fixed_aspect = NA),
+    "'fixed_aspect'"
+  )
+  expect_error(
+    embed_ggplot(cbind(1:2, 3:4), fixed_aspect = 1),
+    "'fixed_aspect'"
+  )
 })
 
 test_that("embed_ggplot retains only selected numeric rows", {

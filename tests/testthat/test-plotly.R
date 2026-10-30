@@ -125,6 +125,58 @@ test_that("embed_plotly preserves list coordinates and explicit ranges", {
   expect_equal(as.numeric(trace$y), coords[, 2])
   expect_equal(built$x$layout$xaxis$range, c(-1, 5))
   expect_equal(built$x$layout$yaxis$range, c(9, 31))
+  expect_length(built$x$layout$xaxis$scaleanchor, 0)
+  expect_length(built$x$layout$xaxis$scaleratio, 0)
+})
+
+test_that("embed_plotly fixes physical units while retaining explicit limits", {
+  testthat::skip_if_not_installed("plotly")
+  coords <- cbind(c(0, 2, 4), c(10, 20, 30))
+  built <- plotly::plotly_build(embed_plotly(
+    coords,
+    colors = "red",
+    fixed_aspect = TRUE,
+    xlim = c(1, 3),
+    ylim = c(9, 31)
+  ))
+  expect_identical(built$x$layout$xaxis$scaleanchor, "y")
+  expect_identical(built$x$layout$xaxis$scaleratio, 1)
+  expect_equal(built$x$layout$xaxis$range, c(1, 3))
+  expect_equal(built$x$layout$yaxis$range, c(9, 31))
+  expect_equal(as.numeric(built$x$data[[1]]$x), coords[, 1])
+
+  automatic <- plotly::plotly_build(embed_plotly(
+    coords,
+    colors = "red",
+    fixed_aspect = TRUE
+  ))
+  expect_length(automatic$x$layout$xaxis$range, 0)
+  expect_length(automatic$x$layout$yaxis$range, 0)
+
+  equal <- plotly::plotly_build(embed_plotly(
+    coords,
+    colors = "red",
+    equal_axes = TRUE,
+    fixed_aspect = TRUE,
+    xlim = c(1, 3),
+    ylim = c(9, 31)
+  ))
+  expect_identical(equal$x$layout$xaxis$scaleanchor, "y")
+  expect_identical(equal$x$layout$xaxis$scaleratio, 1)
+  expect_equal(equal$x$layout$xaxis$range, range(coords))
+  expect_equal(equal$x$layout$yaxis$range, range(coords))
+})
+
+test_that("embed_plotly validates fixed_aspect", {
+  testthat::skip_if_not_installed("plotly")
+  expect_error(
+    embed_plotly(cbind(1:2, 3:4), fixed_aspect = NA),
+    "'fixed_aspect'"
+  )
+  expect_error(
+    embed_plotly(cbind(1:2, 3:4), fixed_aspect = 1),
+    "'fixed_aspect'"
+  )
 })
 
 test_that("embed_plotly equal_axes uses a shared, fixed coordinate system", {

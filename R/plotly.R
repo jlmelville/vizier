@@ -101,6 +101,12 @@
 #'   should be reversed. Explicit `colors` are unchanged.
 #' @param verbose If `TRUE`, log messages to the console, mainly when
 #'   searching for a suitable color column in a dataframe.
+#' @param fixed_aspect If `TRUE`, use equal physical units on the X and Y axes.
+#'   With `equal_axes = FALSE`, supplied `xlim` and `ylim` are retained and
+#'   omitted limits are determined separately for each axis. `equal_axes = TRUE`
+#'   always uses a common coordinate range and equal physical units, regardless
+#'   of `fixed_aspect`. Renderer padding and aspect constraints may expand the
+#'   visible ranges.
 #' @export
 #' @examplesIf interactive()
 #' # Embed with PCA
@@ -164,7 +170,8 @@ embed_plotly <- function(
   xlim = NULL,
   ylim = NULL,
   rev = FALSE,
-  verbose = FALSE
+  verbose = FALSE,
+  fixed_aspect = FALSE
 ) {
   if (!requireNamespace("plotly", quietly = TRUE)) {
     stop(
@@ -176,6 +183,7 @@ embed_plotly <- function(
   validate_logical_scalar(clip_limit_values, "'clip_limit_values'")
   validate_logical_scalar(show_legend, "'show_legend'")
   validate_logical_scalar(equal_axes, "'equal_axes'")
+  validate_logical_scalar(fixed_aspect, "'fixed_aspect'")
   validate_logical_scalar(pc_axes, "'pc_axes'")
   validate_logical_scalar(rev, "'rev'")
   validate_logical_scalar(verbose, "'verbose'")
@@ -186,7 +194,8 @@ embed_plotly <- function(
     pc_axes = pc_axes,
     xlim = xlim,
     ylim = ylim,
-    equal_axes = equal_axes
+    equal_axes = equal_axes,
+    fixed_aspect = fixed_aspect
   )
   coords <- coord_res$coords
   n <- nrow(coords)

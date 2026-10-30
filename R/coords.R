@@ -12,7 +12,8 @@ prepare_coords <- function(
   pc_axes = FALSE,
   xlim = NULL,
   ylim = NULL,
-  equal_axes = FALSE
+  equal_axes = FALSE,
+  fixed_aspect = FALSE
 ) {
   if (methods::is(coords, "list") && !is.null(coords$coords)) {
     coords <- coords$coords
@@ -55,7 +56,7 @@ prepare_coords <- function(
     coords = coords,
     xlim = xlim,
     ylim = ylim,
-    fixed_aspect = equal_axes
+    fixed_aspect = equal_axes || fixed_aspect
   )
 }
 
