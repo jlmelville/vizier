@@ -27,7 +27,8 @@ embed_ggplot(
   show_axes = TRUE,
   NA_color = NULL,
   rev = FALSE,
-  verbose = FALSE
+  verbose = FALSE,
+  fixed_aspect = FALSE
 )
 ```
 
@@ -136,6 +137,15 @@ embed_ggplot(
 
   If `TRUE`, log messages to the console, mainly when searching for a
   suitable color column in a dataframe.
+
+- fixed_aspect:
+
+  If `TRUE`, use equal physical units on the X and Y axes. With
+  `equal_axes = FALSE`, supplied `xlim` and `ylim` are retained and
+  omitted limits are determined separately for each axis.
+  `equal_axes = TRUE` always uses a common coordinate range and equal
+  physical units, regardless of `fixed_aspect`. Renderer padding and
+  aspect constraints may expand the visible ranges.
 
 ## Value
 

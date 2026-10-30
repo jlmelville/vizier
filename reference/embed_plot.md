@@ -26,7 +26,9 @@ embed_plot(
   show_axes = TRUE,
   NA_color = NULL,
   rev = FALSE,
-  verbose = FALSE
+  verbose = FALSE,
+  fixed_aspect = FALSE,
+  pch = 20
 )
 ```
 
@@ -136,6 +138,23 @@ embed_plot(
   If `TRUE`, log messages to the console, mainly when searching for a
   suitable color column in a dataframe.
 
+- fixed_aspect:
+
+  If `TRUE`, use equal physical units on the X and Y axes. With
+  `equal_axes = FALSE`, supplied `xlim` and `ylim` are retained and
+  omitted limits are determined separately for each axis.
+  `equal_axes = TRUE` always uses a common coordinate range and equal
+  physical units, regardless of `fixed_aspect`. Renderer padding and
+  aspect constraints may expand the visible ranges.
+
+- pch:
+
+  A single point symbol or one symbol per observation, in the original
+  coordinate row order. Use integer-valued numeric codes or single
+  characters as in
+  [`graphics::points()`](https://rdrr.io/r/graphics/points.html). `NA`
+  and `""` omit points. Defaults to `20`. Ignored if `text` is provided.
+
 ## Details
 
 The `x` argument can be used to provide a suitable vector of colors from
@@ -243,5 +262,13 @@ embed_plot(pca_iris$x, iris$Petal.Length, color_scheme = "RColorBrewer::Blues", 
 embed_plot(pca_iris$x, iris$Petal.Length,
   color_scheme = "RColorBrewer::Blues",
   equal_axes = TRUE
+)
+
+
+# Use supplied limits and equal physical units; use shapes
+# as an additional category cue
+embed_plot(pca_iris$x, iris$Species,
+  xlim = c(-4, 4), ylim = c(-2, 2), fixed_aspect = TRUE,
+  pch = c(16, 17, 15)[as.integer(iris$Species)]
 )
 ```

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">vizier</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,8 +34,11 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="development version" id="vizier-development-version">vizier (development version)<a class="anchor" aria-label="anchor" href="#vizier-development-version"></a></h2>
-<ul><li>Fixed numeric coloring with <code>num_colors = NULL</code> or <code>num_colors = 1</code> in <code><a href="../reference/embed_plot.html">embed_plot()</a></code>, <code><a href="../reference/embed_ggplot.html">embed_ggplot()</a></code>, and <code><a href="../reference/embed_plotly.html">embed_plotly()</a></code>.</li>
+<h2 class="pkg-version" data-toc-text="0.6.2" id="vizier-062">vizier 0.6.2<a class="anchor" aria-label="anchor" href="#vizier-062"></a></h2>
+<ul><li>Added <code>fixed_aspect</code> to all three renderers to preserve equal physical X/Y units with caller-supplied coordinate limits. Existing defaults and <code>equal_axes = TRUE</code> behavior are unchanged.</li>
+<li>
+<code><a href="../reference/embed_plot.html">embed_plot()</a></code> now accepts <code>pch</code> as a single point symbol or one symbol per observation, defaulting to <code>20</code>. Use the full <code>pc_axes</code> argument name: the abbreviation <code>pc</code> is now ambiguous with <code>pch</code>.</li>
+<li>Fixed numeric coloring with <code>num_colors = NULL</code> or <code>num_colors = 1</code> in <code><a href="../reference/embed_plot.html">embed_plot()</a></code>, <code><a href="../reference/embed_ggplot.html">embed_ggplot()</a></code>, and <code><a href="../reference/embed_plotly.html">embed_plotly()</a></code>.</li>
 <li>Automatic color selection from data frames now skips all-missing color columns and finds suitable character columns even when a later column contains identifiers.</li>
 <li>Named palettes no longer require colors for unused factor levels. Generated palettes keep the same color assignments when levels are unused.</li>
 <li>

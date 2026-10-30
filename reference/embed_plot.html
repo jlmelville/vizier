@@ -9,7 +9,7 @@ color."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">vizier</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -63,7 +63,9 @@ color.</p>
 <span>  show_axes <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  NA_color <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  rev <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  fixed_aspect <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  pch <span class="op">=</span> <span class="fl">20</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -176,6 +178,22 @@ should be reversed. Explicit <code>colors</code> are unchanged.</p></dd>
 <dd><p>If <code>TRUE</code>, log messages to the console, mainly when
 searching for a suitable color column in a dataframe.</p></dd>
 
+
+<dt id="arg-fixed-aspect">fixed_aspect<a class="anchor" aria-label="anchor" href="#arg-fixed-aspect"></a></dt>
+<dd><p>If <code>TRUE</code>, use equal physical units on the X and Y axes.
+With <code>equal_axes = FALSE</code>, supplied <code>xlim</code> and <code>ylim</code> are retained and
+omitted limits are determined separately for each axis. <code>equal_axes = TRUE</code>
+always uses a common coordinate range and equal physical units, regardless
+of <code>fixed_aspect</code>. Renderer padding and aspect constraints may expand the
+visible ranges.</p></dd>
+
+
+<dt id="arg-pch">pch<a class="anchor" aria-label="anchor" href="#arg-pch"></a></dt>
+<dd><p>A single point symbol or one symbol per observation, in the
+original coordinate row order. Use integer-valued numeric codes or single
+characters as in <code><a href="https://rdrr.io/r/graphics/points.html" class="external-link">graphics::points()</a></code>. <code>NA</code> and <code>""</code> omit points.
+Defaults to <code>20</code>. Ignored if <code>text</code> is provided.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -268,6 +286,14 @@ to the <code>colors</code> argument, e.g. <code>colors = "blue"</code>.</p>
 <span class="r-in"><span>  equal_axes <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="embed_plot-8.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Use supplied limits and equal physical units; use shapes</span></span></span>
+<span class="r-in"><span><span class="co"># as an additional category cue</span></span></span>
+<span class="r-in"><span><span class="fu">embed_plot</span><span class="op">(</span><span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>, <span class="va">iris</span><span class="op">$</span><span class="va">Species</span>,</span></span>
+<span class="r-in"><span>  xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">4</span>, <span class="fl">4</span><span class="op">)</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span>, fixed_aspect <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>  pch <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">16</span>, <span class="fl">17</span>, <span class="fl">15</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="va">iris</span><span class="op">$</span><span class="va">Species</span><span class="op">)</span><span class="op">]</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="embed_plot-9.png" alt="" width="700" height="433"></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
