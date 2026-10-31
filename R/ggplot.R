@@ -168,8 +168,12 @@ embed_ggplot <- function(
 
 # Keep missing colors missing and preserve names for manual scale lookup.
 scale_color_alpha <- function(colors, alpha_scale) {
-  if (is.null(colors)) return(NA_character_)
-  if (alpha_scale == 1) return(colors)
+  if (is.null(colors)) {
+    return(NA_character_)
+  }
+  if (alpha_scale == 1) {
+    return(colors)
+  }
   present <- !is.na(colors)
   colors[present] <- grDevices::adjustcolor(
     colors[present],

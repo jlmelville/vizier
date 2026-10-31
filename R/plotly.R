@@ -275,8 +275,11 @@ embed_plotly <- function(
       hoverinfo = "text",
       marker = if (is.null(text)) marker else NULL,
       opacity = if (is.null(text)) NULL else alpha_scale,
-      textfont = if (is.null(text)) NULL else
+      textfont = if (is.null(text)) {
+        NULL
+      } else {
         list(color = color_res$colors[rows])
+      }
     )
     layout_show_legend <- FALSE
   } else {
