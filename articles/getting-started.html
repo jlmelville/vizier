@@ -7,21 +7,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Getting Started • vizier</title>
 <!-- katex math --><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script><script src="../katex-auto.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script><script src="../katex-auto.js"></script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Getting Started">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
+<meta property="og:title" content="Getting Started">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top " aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="../index.html">vizier</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.2</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.6.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -39,6 +40,14 @@
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/jlmelville/vizier/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-lightswitch" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true" aria-label="Light switch"><span class="fa fa-sun"></span></button>
+  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-lightswitch">
+<li><button class="dropdown-item" data-bs-theme-value="light"><span class="fa fa-sun"></span> Light</button></li>
+    <li><button class="dropdown-item" data-bs-theme-value="dark"><span class="fa fa-moon"></span> Dark</button></li>
+    <li><button class="dropdown-item" data-bs-theme-value="auto"><span class="fa fa-adjust"></span> Auto</button></li>
+  </ul>
+</li>
       </ul>
 </div>
 
@@ -80,8 +89,9 @@ columns in <code>iris</code>:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/embed_plot.html">embed_plot</a></span><span class="op">(</span><span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>, <span class="va">iris</span><span class="op">)</span></span></code></pre></div>
 <div class="float">
-<img src="img/embed_ex.png" title="Default categorical colors for the iris PCA" alt="Three clusters in the iris PCA, colored by species"><div class="figcaption">Three clusters in the iris PCA, colored by
-species</div>
+<img src="img/embed_ex.png" title="Default categorical colors for the iris PCA" alt="Iris PCA scatterplot: setosa forms a separate cluster on the left; versicolor and virginica overlap on the right."><div class="figcaption">Iris PCA scatterplot: setosa forms a separate
+cluster on the left; versicolor and virginica overlap on the
+right.</div>
 </div>
 <p>Vizier finds the factor column <code>Species</code> and gives each
 species a stable categorical color. If you pass a numeric vector
@@ -115,8 +125,8 @@ points beneath a title and subtitle</div>
 <span>  alpha_scale <span class="op">=</span> <span class="fl">0.5</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <div class="float">
-<img src="img/embed_ex_alpha.png" title="Half-opacity points" alt="The iris PCA drawn with semi-transparent points"><div class="figcaption">The iris PCA drawn with semi-transparent
-points</div>
+<img src="img/embed_ex_alpha.png" title="Half-opacity points" alt="Iris PCA scatterplot with translucent red, green, and blue points; overlapping points appear more saturated."><div class="figcaption">Iris PCA scatterplot with translucent red,
+green, and blue points; overlapping points appear more saturated.</div>
 </div>
 <p>If you already have one color for each observation, pass it through
 <code>colors</code>. This bypasses category and numeric mapping:</p>
@@ -127,8 +137,9 @@ points</div>
 <span></span>
 <span><span class="fu"><a href="../reference/embed_plot.html">embed_plot</a></span><span class="op">(</span><span class="va">pca_iris</span><span class="op">$</span><span class="va">x</span>, colors <span class="op">=</span> <span class="va">my_iris_colors</span><span class="op">)</span></span></code></pre></div>
 <div class="float">
-<img src="img/embed_ex_colors.png" title="Explicit per-row colors" alt="Iris observations colored along a per-row red-to-yellow gradient"><div class="figcaption">Iris observations colored along a per-row
-red-to-yellow gradient</div>
+<img src="img/embed_ex_colors.png" title="Explicit per-row colors" alt="Iris PCA scatterplot colored by row order: the left cluster is red and the overlapping right clusters transition from orange to yellow."><div class="figcaption">Iris PCA scatterplot colored by row order: the
+left cluster is red and the overlapping right clusters transition from
+orange to yellow.</div>
 </div>
 <p>A single value such as <code>colors = "blue"</code> colors every
 point blue. Otherwise, provide exactly one color per row.</p>
@@ -155,8 +166,8 @@ longest petals:</p>
 <span>  top <span class="op">=</span> <span class="fl">10</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <div class="float">
-<img src="img/embed_ex_top.png" title="Top ten petal lengths" alt="The ten iris observations with the longest petals"><div class="figcaption">The ten iris observations with the longest
-petals</div>
+<img src="img/embed_ex_top.png" title="Top ten petal lengths" alt="Ten dark blue points at the far right of the iris PCA, corresponding to the longest petals."><div class="figcaption">Ten dark blue points at the far right of the
+iris PCA, corresponding to the longest petals.</div>
 </div>
 <p>Ties are resolved by the existing row order. See the <a href="../reference/embed_plot.html"><code>embed_plot()</code>
 reference</a> for numeric limits, missing-value colors, and the full
@@ -189,8 +200,8 @@ short and the data set is small enough to avoid heavy overlap:</p>
 <span>  cex <span class="op">=</span> <span class="fl">0.75</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <div class="float">
-<img src="img/embed_ex_text.png" title="Text labels instead of points" alt="Iris species names drawn at each PCA coordinate"><div class="figcaption">Iris species names drawn at each PCA
-coordinate</div>
+<img src="img/embed_ex_text.png" title="Text labels instead of points" alt="Species names replace points on the iris PCA; labels overlap heavily within each cluster."><div class="figcaption">Species names replace points on the iris PCA;
+labels overlap heavily within each cluster.</div>
 </div>
 </div>
 <div class="section level2">
@@ -216,8 +227,9 @@ around each species:</p>
 <span>  <span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">12</span><span class="op">)</span></span></code></pre></div>
 <div class="float">
-<img src="img/embed_ex_ggplot_ellipse.png" title="Vizier plot extended with ggplot2 layers" alt="Iris PCA with one confidence ellipse around each species cluster"><div class="figcaption">Iris PCA with one confidence ellipse around each
-species cluster</div>
+<img src="img/embed_ex_ggplot_ellipse.png" title="Vizier plot extended with ggplot2 layers" alt="Iris PCA scatterplot with an 80% ellipse around each species: setosa is separate on the left, while versicolor and virginica overlap on the right."><div class="figcaption">Iris PCA scatterplot with an 80% ellipse around
+each species: setosa is separate on the left, while versicolor and
+virginica overlap on the right.</div>
 </div>
 <p>Numeric input creates a native continuous ggplot2 scale and
 colorbar:</p>
@@ -232,8 +244,9 @@ colorbar:</p>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">"Petal length"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">12</span><span class="op">)</span></span></code></pre></div>
 <div class="float">
-<img src="img/embed_ex_ggplot_numeric.png" title="Numeric color scale in ggplot2" alt="Iris PCA with a ggplot2 continuous colorbar for petal length"><div class="figcaption">Iris PCA with a ggplot2 continuous colorbar for
-petal length</div>
+<img src="img/embed_ex_ggplot_numeric.png" title="Numeric color scale in ggplot2" alt="Iris PCA scatterplot with a continuous petal-length colorbar: short petals are purple on the left and longer petals transition through green to yellow on the right."><div class="figcaption">Iris PCA scatterplot with a continuous
+petal-length colorbar: short petals are purple on the left and longer
+petals transition through green to yellow on the right.</div>
 </div>
 </div>
 <div class="section level2">

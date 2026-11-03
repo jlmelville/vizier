@@ -26,10 +26,12 @@ Pass the coordinates and the `iris` data frame to
 embed_plot(pca_iris$x, iris)
 ```
 
-![Three clusters in the iris PCA, colored by
-species](img/embed_ex.png "Default categorical colors for the iris PCA")
+![Iris PCA scatterplot: setosa forms a separate cluster on the left;
+versicolor and virginica overlap on the
+right.](img/embed_ex.png "Default categorical colors for the iris PCA")
 
-Three clusters in the iris PCA, colored by species
+Iris PCA scatterplot: setosa forms a separate cluster on the left;
+versicolor and virginica overlap on the right.
 
 Vizier finds the factor column `Species` and gives each species a stable
 categorical color. If you pass a numeric vector instead, Vizier uses a
@@ -72,10 +74,12 @@ embed_plot(
 )
 ```
 
-![The iris PCA drawn with semi-transparent
-points](img/embed_ex_alpha.png "Half-opacity points")
+![Iris PCA scatterplot with translucent red, green, and blue points;
+overlapping points appear more
+saturated.](img/embed_ex_alpha.png "Half-opacity points")
 
-The iris PCA drawn with semi-transparent points
+Iris PCA scatterplot with translucent red, green, and blue points;
+overlapping points appear more saturated.
 
 If you already have one color for each observation, pass it through
 `colors`. This bypasses category and numeric mapping:
@@ -89,10 +93,12 @@ my_iris_colors <- grDevices::colorRampPalette(
 embed_plot(pca_iris$x, colors = my_iris_colors)
 ```
 
-![Iris observations colored along a per-row red-to-yellow
-gradient](img/embed_ex_colors.png "Explicit per-row colors")
+![Iris PCA scatterplot colored by row order: the left cluster is red and
+the overlapping right clusters transition from orange to
+yellow.](img/embed_ex_colors.png "Explicit per-row colors")
 
-Iris observations colored along a per-row red-to-yellow gradient
+Iris PCA scatterplot colored by row order: the left cluster is red and
+the overlapping right clusters transition from orange to yellow.
 
 A single value such as `colors = "blue"` colors every point blue.
 Otherwise, provide exactly one color per row.
@@ -130,10 +136,11 @@ embed_plot(
 )
 ```
 
-![The ten iris observations with the longest
-petals](img/embed_ex_top.png "Top ten petal lengths")
+![Ten dark blue points at the far right of the iris PCA, corresponding
+to the longest petals.](img/embed_ex_top.png "Top ten petal lengths")
 
-The ten iris observations with the longest petals
+Ten dark blue points at the far right of the iris PCA, corresponding to
+the longest petals.
 
 Ties are resolved by the existing row order. See the [`embed_plot()`
 reference](https://jlmelville.github.io/vizier/reference/embed_plot.md)
@@ -174,10 +181,12 @@ embed_plot(
 )
 ```
 
-![Iris species names drawn at each PCA
-coordinate](img/embed_ex_text.png "Text labels instead of points")
+![Species names replace points on the iris PCA; labels overlap heavily
+within each
+cluster.](img/embed_ex_text.png "Text labels instead of points")
 
-Iris species names drawn at each PCA coordinate
+Species names replace points on the iris PCA; labels overlap heavily
+within each cluster.
 
 ## Extend the plot with ggplot2
 
@@ -205,10 +214,13 @@ iris_ggplot +
   ggplot2::theme_minimal(base_size = 12)
 ```
 
-![Iris PCA with one confidence ellipse around each species
-cluster](img/embed_ex_ggplot_ellipse.png "Vizier plot extended with ggplot2 layers")
+![Iris PCA scatterplot with an 80% ellipse around each species: setosa
+is separate on the left, while versicolor and virginica overlap on the
+right.](img/embed_ex_ggplot_ellipse.png "Vizier plot extended with ggplot2 layers")
 
-Iris PCA with one confidence ellipse around each species cluster
+Iris PCA scatterplot with an 80% ellipse around each species: setosa is
+separate on the left, while versicolor and virginica overlap on the
+right.
 
 Numeric input creates a native continuous ggplot2 scale and colorbar:
 
@@ -225,10 +237,14 @@ embed_ggplot(
   ggplot2::theme_minimal(base_size = 12)
 ```
 
-![Iris PCA with a ggplot2 continuous colorbar for petal
-length](img/embed_ex_ggplot_numeric.png "Numeric color scale in ggplot2")
+![Iris PCA scatterplot with a continuous petal-length colorbar: short
+petals are purple on the left and longer petals transition through green
+to yellow on the
+right.](img/embed_ex_ggplot_numeric.png "Numeric color scale in ggplot2")
 
-Iris PCA with a ggplot2 continuous colorbar for petal length
+Iris PCA scatterplot with a continuous petal-length colorbar: short
+petals are purple on the left and longer petals transition through green
+to yellow on the right.
 
 ## Add interaction with Plotly
 

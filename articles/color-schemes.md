@@ -154,10 +154,12 @@ embed_plot(
 )
 ```
 
-![Iris species colored with Vizier’s turbo
-palette](img/embed_ex_turbo.png "Turbo palette")
+![Iris PCA scatterplot with the left cluster dark purple, the middle
+cluster yellow-green, and the right cluster dark
+red.](img/embed_ex_turbo.png "Turbo palette")
 
-Iris species colored with Vizier’s turbo palette
+Iris PCA scatterplot with the left cluster dark purple, the middle
+cluster yellow-green, and the right cluster dark red.
 
 ``` r
 
@@ -169,10 +171,12 @@ embed_plot(
 )
 ```
 
-![The same iris species with the turbo palette order
-reversed](img/embed_ex_turbo_rev.png "Reversed turbo palette")
+![The same iris PCA with the turbo colors reversed: the left cluster is
+dark red, the middle yellow-green, and the right dark
+purple.](img/embed_ex_turbo_rev.png "Reversed turbo palette")
 
-The same iris species with the turbo palette order reversed
+The same iris PCA with the turbo colors reversed: the left cluster is
+dark red, the middle yellow-green, and the right dark purple.
 
 Reversal also applies to named category mappings, while preserving their
 names. It does not reorder literal per-row colors supplied through
@@ -217,10 +221,12 @@ embed_plot(
 )
 ```
 
-![Iris species colored with the first three Dark2
-colors](img/embed_dark2.png "Default discrete Dark2 selection")
+![Iris PCA scatterplot using the first three Dark2 colors: the left
+cluster is teal, the middle orange, and the right
+purple.](img/embed_dark2.png "Default discrete Dark2 selection")
 
-Iris species colored with the first three Dark2 colors
+Iris PCA scatterplot using the first three Dark2 colors: the left
+cluster is teal, the middle orange, and the right purple.
 
 Forcing continuous sampling uses the two ends of the palette and
 synthesizes a middle color between them:
@@ -276,10 +282,12 @@ embed_plot(
 )
 ```
 
-![Iris species colored with the first three jcolors rainbow
-colors](img/embed_jcrainbow.png "Default discrete jcolors rainbow selection")
+![Iris PCA scatterplot using the first three rainbow colors: the left
+cluster is red, the middle orange, and the right
+yellow-green.](img/embed_jcrainbow.png "Default discrete jcolors rainbow selection")
 
-Iris species colored with the first three jcolors rainbow colors
+Iris PCA scatterplot using the first three rainbow colors: the left
+cluster is red, the middle orange, and the right yellow-green.
 
 The continuous override spreads three samples across the entire ordered
 palette:
