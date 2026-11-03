@@ -2,6 +2,16 @@ url: https://jlmelville.github.io/vizier/
 template:
   bootstrap: 5
   math-rendering: katex
+  light-switch: true
+  theme: github-light
+  theme-dark: github-dark
+  bslib:
+    danger: "#A6081A"
+
+development:
+  mode: unreleased
+
+llm-docs: true
 
 articles:
 - title: Guides

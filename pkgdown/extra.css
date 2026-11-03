@@ -1,0 +1,12 @@
+.katex-display {
+  overflow: auto hidden;
+}
+
+[data-bs-theme="dark"] .navbar .text-danger {
+  color: #ffb4b4 !important;
+}
+
+/* Preserve palette colors in plots and swatches in dark mode. */
+[data-bs-theme="dark"] main img {
+  filter: none !important;
+}
