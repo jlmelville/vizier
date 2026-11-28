@@ -28,7 +28,8 @@ embed_ggplot(
   NA_color = NULL,
   rev = FALSE,
   verbose = FALSE,
-  fixed_aspect = FALSE
+  fixed_aspect = FALSE,
+  overlays = NULL
 )
 ```
 
@@ -146,6 +147,17 @@ embed_ggplot(
   `equal_axes = TRUE` always uses a common coordinate range and equal
   physical units, regardless of `fixed_aspect`. Renderer padding and
   aspect constraints may expand the visible ranges.
+
+- overlays:
+
+  Optional edge data frame, for example from
+  [`embed_edges()`](https://jlmelville.github.io/vizier/reference/embed_edges.md).
+  Integer-valued `from` and `to` columns index the original coordinate
+  rows. Draw one subdued straight segment per distinct pair behind the
+  points or text. Self-loops are omitted. Where `top` is available, both
+  endpoints must be selected. For bundled paths, supply a Hammer
+  specification or the reusable result of
+  [`prepare_overlay()`](https://jlmelville.github.io/vizier/reference/prepare_overlay.md).
 
 ## Value
 

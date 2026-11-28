@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">vizier</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.6.2</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -39,6 +39,12 @@
       <small>Source: <a href="https://github.com/jlmelville/vizier/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.7.0" id="vizier-070">vizier 0.7.0<a class="anchor" aria-label="anchor" href="#vizier-070"></a></h2>
+<ul><li>Draw graph edges behind the points in <code><a href="../reference/embed_plot.html">embed_plot()</a></code>, <code><a href="../reference/embed_ggplot.html">embed_ggplot()</a></code>, or <code><a href="../reference/embed_plotly.html">embed_plotly()</a></code>. Use <code><a href="../reference/embed_edges.html">embed_edges()</a></code> to get an edge table from ranked neighbors or a fitted sparse graph, then pass the table to <code>overlays</code>.</li>
+<li>In <code><a href="../reference/embed_plotly.html">embed_plotly()</a></code>, use <code>overlays = list(edges = edges, mode = "incident")</code> to show the edges attached to whichever point you click.</li>
+<li>Use <code><a href="../reference/prepare_overlay.html">prepare_overlay()</a></code> to bundle the edges once and draw the same Hammer paths in all three plots. To draw weighted paths with at most four Plotly line traces, set <code>alpha_bins = 4L</code> on the copy you pass to Plotly.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.2" id="vizier-062">vizier 0.6.2<a class="anchor" aria-label="anchor" href="#vizier-062"></a></h2>
 <ul><li>Added <code>fixed_aspect</code> to all three renderers to preserve equal physical X/Y units with caller-supplied coordinate limits. Existing defaults and <code>equal_axes = TRUE</code> behavior are unchanged.</li>

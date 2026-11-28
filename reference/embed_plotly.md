@@ -26,7 +26,8 @@ embed_plotly(
   ylim = NULL,
   rev = FALSE,
   verbose = FALSE,
-  fixed_aspect = FALSE
+  fixed_aspect = FALSE,
+  overlays = NULL
 )
 ```
 
@@ -144,6 +145,21 @@ embed_plotly(
   `equal_axes = TRUE` always uses a common coordinate range and equal
   physical units, regardless of `fixed_aspect`. Renderer padding and
   aspect constraints may expand the visible ranges.
+
+- overlays:
+
+  Optional edge table from
+  [`embed_edges()`](https://jlmelville.github.io/vizier/reference/embed_edges.md)
+  or a data frame with original row IDs in `from` and `to`. A table
+  draws all its pairs. Supply `list(edges = table, mode = "incident")`
+  to start with points only. Click a point or text label to show its
+  incoming and outgoing edges. Each click replaces the previous
+  neighborhood. Clicking an isolated point clears the lines. Reciprocal
+  pairs draw once. The standalone widget carries the adjacency index and
+  endpoint coordinates. For a bundled overview, supply a Hammer
+  specification or a prepared object from
+  [`prepare_overlay()`](https://jlmelville.github.io/vizier/reference/prepare_overlay.md).
+  Set its `alpha_bins` to bound the number of edge traces.
 
 ## Details
 

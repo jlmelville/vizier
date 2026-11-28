@@ -1,5 +1,26 @@
 # Changelog
 
+## vizier 0.7.0
+
+- Draw graph edges behind the points in
+  [`embed_plot()`](https://jlmelville.github.io/vizier/reference/embed_plot.md),
+  [`embed_ggplot()`](https://jlmelville.github.io/vizier/reference/embed_ggplot.md),
+  or
+  [`embed_plotly()`](https://jlmelville.github.io/vizier/reference/embed_plotly.md).
+  Use
+  [`embed_edges()`](https://jlmelville.github.io/vizier/reference/embed_edges.md)
+  to get an edge table from ranked neighbors or a fitted sparse graph,
+  then pass the table to `overlays`.
+- In
+  [`embed_plotly()`](https://jlmelville.github.io/vizier/reference/embed_plotly.md),
+  use `overlays = list(edges = edges, mode = "incident")` to show the
+  edges attached to whichever point you click.
+- Use
+  [`prepare_overlay()`](https://jlmelville.github.io/vizier/reference/prepare_overlay.md)
+  to bundle the edges once and draw the same Hammer paths in all three
+  plots. To draw weighted paths with at most four Plotly line traces,
+  set `alpha_bins = 4L` on the copy you pass to Plotly.
+
 ## vizier 0.6.2
 
 - Added `fixed_aspect` to all three renderers to preserve equal physical

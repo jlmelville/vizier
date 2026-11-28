@@ -28,7 +28,8 @@ embed_plot(
   rev = FALSE,
   verbose = FALSE,
   fixed_aspect = FALSE,
-  pch = 20
+  pch = 20,
+  overlays = NULL
 )
 ```
 
@@ -154,6 +155,17 @@ embed_plot(
   characters as in
   [`graphics::points()`](https://rdrr.io/r/graphics/points.html). `NA`
   and `""` omit points. Defaults to `20`. Ignored if `text` is provided.
+
+- overlays:
+
+  Optional edge data frame, for example from
+  [`embed_edges()`](https://jlmelville.github.io/vizier/reference/embed_edges.md).
+  Integer-valued `from` and `to` columns index the original coordinate
+  rows. Draw one subdued straight segment per distinct pair behind the
+  points or text. Self-loops are omitted. Where `top` is available, both
+  endpoints must be selected. For bundled paths, supply a Hammer
+  specification or the reusable result of
+  [`prepare_overlay()`](https://jlmelville.github.io/vizier/reference/prepare_overlay.md).
 
 ## Details
 

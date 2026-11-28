@@ -9,7 +9,7 @@ color."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">vizier</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.6.2</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -71,7 +71,8 @@ color.</p>
 <span>  rev <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  fixed_aspect <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  pch <span class="op">=</span> <span class="fl">20</span></span>
+<span>  pch <span class="op">=</span> <span class="fl">20</span>,</span>
+<span>  overlays <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -199,6 +200,15 @@ visible ranges.</p></dd>
 original coordinate row order. Use integer-valued numeric codes or single
 characters as in <code><a href="https://rdrr.io/r/graphics/points.html" class="external-link">graphics::points()</a></code>. <code>NA</code> and <code>""</code> omit points.
 Defaults to <code>20</code>. Ignored if <code>text</code> is provided.</p></dd>
+
+
+<dt id="arg-overlays">overlays<a class="anchor" aria-label="anchor" href="#arg-overlays"></a></dt>
+<dd><p>Optional edge data frame, for example from <code><a href="embed_edges.html">embed_edges()</a></code>.
+Integer-valued <code>from</code> and <code>to</code> columns index the original coordinate
+rows. Draw one subdued straight segment per distinct pair behind the
+points or text. Self-loops are omitted. Where <code>top</code> is available, both
+endpoints must be selected. For bundled paths, supply a Hammer
+specification or the reusable result of <code><a href="prepare_overlay.html">prepare_overlay()</a></code>.</p></dd>
 
 </dl></div>
     <div class="section level2">

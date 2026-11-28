@@ -42,6 +42,8 @@ The pkgdown site has longer guides:
   started](https://jlmelville.github.io/vizier/articles/getting-started.html)
 - [Color
   schemes](https://jlmelville.github.io/vizier/articles/color-schemes.html)
+- [Graph
+  overlays](https://jlmelville.github.io/vizier/articles/graph-overlays.html)
 
 ## Example
 
