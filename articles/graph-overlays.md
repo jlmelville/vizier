@@ -3,7 +3,7 @@
 In the iris UMAP below, setosa forms a group of its own. Versicolor and
 virginica run together. To see which flowers link those two species, we
 can take the edges from uwot’s fitted graph and draw them over the
-points.
+points. Click any static plot for a closer look.
 
 ### Fitting UMAP to iris
 
@@ -64,9 +64,11 @@ map <- function(overlay = NULL) {
     xy,
     species,
     overlays = overlay,
+    cex = 0.8,
     color_scheme = palette,
     fixed_aspect = TRUE
   ) +
+    ggplot2::theme_classic() +
     ggplot2::theme(legend.position = "bottom")
 }
 map() + ggplot2::labs(title = "Species", colour = NULL)
@@ -75,10 +77,10 @@ map(between) + ggplot2::labs(title = "Cross-species edges", colour = NULL)
 
 ![The two panels show the same iris observations. Cross-species edges
 join versicolor and
-virginica.](graph-overlays_files/figure-html/bridges-1.png)![The two
+virginica.](graph-overlays_files/figure-html/bridges-1.svg)![The two
 panels show the same iris observations. Cross-species edges join
 versicolor and
-virginica.](graph-overlays_files/figure-html/bridges-2.png)
+virginica.](graph-overlays_files/figure-html/bridges-2.svg)
 
 In this fit, all 97 cross-species edges join versicolor to virginica.
 Setosa has no fitted edge to either species.
@@ -113,12 +115,13 @@ counts <- vapply(views, count_bridges, integer(1))
 
 ``` r
 
-par(mfrow = c(1, 3), mar = c(1, 1, 3, 1))
+par(mfrow = c(1, 3), mar = c(1, 1, 3, 1), lwd = 1.25)
 for (name in names(views)) {
   embed_plot(
     xy,
     species,
     overlays = views[[name]],
+    cex = 0.8,
     color_scheme = palette,
     fixed_aspect = TRUE,
     show_axes = FALSE,
@@ -128,7 +131,7 @@ for (name in names(views)) {
 ```
 
 ![Three iris maps show the nearest choice, the furthest retained choice,
-and every fitted edge.](graph-overlays_files/figure-html/compare-1.png)
+and every fitted edge.](graph-overlays_files/figure-html/compare-1.svg)
 
 Keeping the nearest neighbor gives 5 distinct cross-species pairs.
 Keeping the furthest gives 11. Either way, we miss plenty of connections
@@ -136,6 +139,11 @@ in the fitted graph. To pick the tenth neighbor specifically, use
 `embed_edges(nn, select = "furthest", k = 10)`.
 
 ### Neighbor preservation in 2D
+
+[quadra](https://github.com/jlmelville/quadra) is an R package for
+measuring how well an embedding preserves the structure of the original
+data. Install it from GitHub with `pak::pak("jlmelville/quadra")` (run
+`install.packages("pak")` first if you need pak).
 
 Of a flower’s ten nearest neighbors in the original measurements, how
 many are still among its ten nearest neighbors on the map?
@@ -207,7 +215,7 @@ hammer <- prepare_overlay(xy, weighted_hammer)
 
 ``` r
 
-par(mfrow = c(1, 2), mar = c(1, 1, 3, 1))
+par(mfrow = c(1, 2), mar = c(1, 1, 3, 1), lwd = 1.25)
 embed_plot(
   xy,
   retained,
@@ -216,6 +224,7 @@ embed_plot(
   color_scheme = "grDevices::Viridis",
   fixed_aspect = TRUE,
   show_axes = FALSE,
+  cex = 0.8,
   title = "Straight edges"
 )
 embed_plot(
@@ -226,13 +235,14 @@ embed_plot(
   color_scheme = "grDevices::Viridis",
   fixed_aspect = TRUE,
   show_axes = FALSE,
+  cex = 0.8,
   title = "Weighted Hammer paths"
 )
 ```
 
 ![Side-by-side iris maps compare uniform straight edges with
 membership-weighted Hammer paths for the same fitted
-pairs.](graph-overlays_files/figure-html/hammer-base-1.png)
+pairs.](graph-overlays_files/figure-html/hammer-base-1.svg)
 
 Both panels connect the same 1,347 pairs. In the right panel, nearby
 paths bend together and weaker edges fade. A curve can pass close to a
@@ -248,16 +258,18 @@ embed_ggplot(
   xy,
   retained,
   overlays = hammer,
+  cex = 0.8,
   limits = c(0, 1),
   color_scheme = "grDevices::Viridis",
   fixed_aspect = TRUE
 ) +
+  ggplot2::theme_classic() +
   ggplot2::labs(colour = "Fraction retained")
 ```
 
 ![Bundled iris graph with a colorbar showing each flower's fraction of
 ten retained
-neighbors.](graph-overlays_files/figure-html/hammer-ggplot-1.png)
+neighbors.](graph-overlays_files/figure-html/hammer-ggplot-1.svg)
 
 Plotly uses one line trace per distinct opacity. With continuous
 opacity, we’d need 1,208 traces for this graph. Set `alpha_bins = 4L` on
