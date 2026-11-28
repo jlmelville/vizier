@@ -7,6 +7,7 @@
 }
 
 /* Preserve palette colors in plots and swatches in dark mode. */
-[data-bs-theme="dark"] main img {
+[data-bs-theme="dark"] main img,
+[data-bs-theme="dark"] [data-figure-modal] img {
   filter: none !important;
 }

@@ -4,7 +4,7 @@ title: "Graph overlays on an iris UMAP"
 
 In the iris UMAP below, setosa forms a group of its own. Versicolor and virginica run together.
 To see which flowers link those two species, we can take the edges from uwot's fitted graph and
-draw them over the points.
+draw them over the points. Click any static plot for a closer look.
 
 ```{r, include=FALSE}
 example <- readRDS("iris-overlay-data.rds")
@@ -14,6 +14,8 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   fig.align = "center",
+  dev = "svg",
+  fig.ext = "svg",
   dev.args = list(bg = "white")
 )
 ```
@@ -57,15 +59,17 @@ rows happen to be sorted by species, which is why the counts fall on one side of
 with(between, table(species[from], species[to]))
 ```
 
-```{r bridges, fig.show='hold', fig.align='default', out.width='49%', out.extra='style="display:inline-block; vertical-align:top"', fig.width=4.5, fig.height=3.8, fig.alt="The two panels show the same iris observations. Cross-species edges join versicolor and virginica."}
+```{r bridges, fig.show='hold', fig.align='default', out.width='49%', out.extra='style="display:inline-block; vertical-align:top"', fig.width=3.75, fig.height=3.15, fig.alt="The two panels show the same iris observations. Cross-species edges join versicolor and virginica."}
 map <- function(overlay = NULL) {
   embed_ggplot(
     xy,
     species,
     overlays = overlay,
+    cex = 0.8,
     color_scheme = palette,
     fixed_aspect = TRUE
   ) +
+    ggplot2::theme_classic() +
     ggplot2::theme(legend.position = "bottom")
 }
 map() + ggplot2::labs(title = "Species", colour = NULL)
@@ -100,12 +104,13 @@ counts <- vapply(views, count_bridges, integer(1))
 ```
 
 ```{r compare, fig.width=9, fig.height=3.2, fig.alt="Three iris maps show the nearest choice, the furthest retained choice, and every fitted edge."}
-par(mfrow = c(1, 3), mar = c(1, 1, 3, 1))
+par(mfrow = c(1, 3), mar = c(1, 1, 3, 1), lwd = 1.25)
 for (name in names(views)) {
   embed_plot(
     xy,
     species,
     overlays = views[[name]],
+    cex = 0.8,
     color_scheme = palette,
     fixed_aspect = TRUE,
     show_axes = FALSE,
@@ -120,6 +125,10 @@ fitted graph. To pick the tenth neighbor specifically, use
 `embed_edges(nn, select = "furthest", k = 10)`.
 
 ### Neighbor preservation in 2D
+
+[quadra](https://github.com/jlmelville/quadra) is an R package for measuring how well an embedding
+preserves the structure of the original data. Install it from GitHub with
+`pak::pak("jlmelville/quadra")` (run `install.packages("pak")` first if you need pak).
 
 Of a flower's ten nearest neighbors in the original measurements, how many are still among its
 ten nearest neighbors on the map? `quadra::nn_preservation()` gives us the fraction retained for
@@ -181,7 +190,7 @@ hammer <- prepare_overlay(xy, weighted_hammer)
 ```
 
 ```{r hammer-base, fig.width=9, fig.height=4, fig.alt="Side-by-side iris maps compare uniform straight edges with membership-weighted Hammer paths for the same fitted pairs."}
-par(mfrow = c(1, 2), mar = c(1, 1, 3, 1))
+par(mfrow = c(1, 2), mar = c(1, 1, 3, 1), lwd = 1.25)
 embed_plot(
   xy,
   retained,
@@ -190,6 +199,7 @@ embed_plot(
   color_scheme = "grDevices::Viridis",
   fixed_aspect = TRUE,
   show_axes = FALSE,
+  cex = 0.8,
   title = "Straight edges"
 )
 embed_plot(
@@ -200,6 +210,7 @@ embed_plot(
   color_scheme = "grDevices::Viridis",
   fixed_aspect = TRUE,
   show_axes = FALSE,
+  cex = 0.8,
   title = "Weighted Hammer paths"
 )
 ```
@@ -211,15 +222,17 @@ its way between the two flowers it actually connects.
 `embed_ggplot()` can use `hammer` as it stands, with the same paths and continuous edge opacity.
 The colorbar shows the fraction of neighbors each flower kept.
 
-```{r hammer-ggplot, fig.width=7, fig.height=4.5, fig.alt="Bundled iris graph with a colorbar showing each flower's fraction of ten retained neighbors."}
+```{r hammer-ggplot, fig.width=5.8, fig.height=3.7, out.width=672, fig.alt="Bundled iris graph with a colorbar showing each flower's fraction of ten retained neighbors."}
 embed_ggplot(
   xy,
   retained,
   overlays = hammer,
+  cex = 0.8,
   limits = c(0, 1),
   color_scheme = "grDevices::Viridis",
   fixed_aspect = TRUE
 ) +
+  ggplot2::theme_classic() +
   ggplot2::labs(colour = "Fraction retained")
 ```
 
