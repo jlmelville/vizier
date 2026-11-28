@@ -149,8 +149,92 @@ embed_plotly(
 ```
 
 Hover over a flower to read its original row number, species and score. A point at 0.7 kept seven
-of its ten neighbors. The mean here is `r round(mean(retained), 2)`. To inspect cross-species connections only, use `edges = between` in the overlay specification.
-Clicking a flower with no such connections clears the lines.
+of its ten neighbors. The mean here is `r round(mean(retained), 2)`. To inspect cross-species
+connections only, use `edges = between` in the overlay specification. Clicking a flower with no
+such connections clears the lines.
+
+### What does bundling change?
+
+Keep the full fitted graph and the same point colors. Prepare its Hammer paths once with igraph
+and edgebundle installed. Give the strongest memberships an opacity of 0.25 and the weakest end
+of the scale an opacity of 0.01. Point color still shows the fraction of neighbors retained.
+
+```{r prepare-hammer}
+weighted_hammer <- list(
+  edges = edges,
+  route = "hammer",
+  alpha = "weight",
+  alpha_limits = c(0, 1),
+  alpha_range = c(0.01, 0.25)
+)
+hammer <- prepare_overlay(xy, weighted_hammer)
+```
+
+```{r hammer-base, fig.width=9, fig.height=4, fig.alt="Side-by-side iris maps compare uniform straight edges with membership-weighted Hammer paths for the same fitted pairs."}
+par(mfrow = c(1, 2), mar = c(1, 1, 3, 1))
+embed_plot(
+  xy,
+  retained,
+  overlays = edges,
+  limits = c(0, 1),
+  color_scheme = "grDevices::Viridis",
+  fixed_aspect = TRUE,
+  show_axes = FALSE,
+  title = "Straight edges"
+)
+embed_plot(
+  xy,
+  retained,
+  overlays = hammer,
+  limits = c(0, 1),
+  color_scheme = "grDevices::Viridis",
+  fixed_aspect = TRUE,
+  show_axes = FALSE,
+  title = "Weighted Hammer paths"
+)
+```
+
+Both panels connect the same `r format(nrow(edges), big.mark = ",")` pairs. In the right panel,
+nearby paths bend together and weak memberships fade. Only a path's endpoints tell you which
+flowers share an edge. A curve can pass close to a third flower.
+
+The same prepared object draws the same paths with continuous opacity in ggplot2. The colorbar
+belongs to the points.
+
+```{r hammer-ggplot, fig.width=7, fig.height=4.5, fig.alt="Bundled iris graph with a colorbar showing each flower's fraction of ten retained neighbors."}
+embed_ggplot(
+  xy,
+  retained,
+  overlays = hammer,
+  limits = c(0, 1),
+  color_scheme = "grDevices::Viridis",
+  fixed_aspect = TRUE
+) +
+  ggplot2::labs(colour = "Fraction retained")
+```
+
+Plotly draws one line trace per distinct opacity. This graph has
+`r format(length(unique(edges$weight)), big.mark = ",")` distinct weights. Set
+`alpha_bins` on a copy to group the paths into four traces at opacities 0.01, 0.09, 0.17 and
+0.25. Every sampled vertex stays in the widget. Hover over a flower to read its score.
+
+```{r hammer-plotly}
+hammer_plotly <- hammer
+hammer_plotly$alpha_bins <- 4L
+embed_plotly(
+  xy,
+  retained,
+  overlays = hammer_plotly,
+  limits = c(0, 1),
+  color_scheme = "grDevices::Viridis",
+  fixed_aspect = TRUE,
+  tooltip = sprintf(
+    "%s | %d of 10 neighbors retained",
+    species,
+    round(10 * retained)
+  )
+)
+```
 
 <!-- To refresh iris-overlay-data.rds, run the fit, setup and quality chunks in order, then
 saveRDS(list(fit = fit, retained = retained), "vignettes/articles/iris-overlay-data.rds", version = 2)

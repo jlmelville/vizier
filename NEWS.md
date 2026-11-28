@@ -1,5 +1,8 @@
 # vizier (development version)
 
+- Prepare weighted Hammer paths once with `prepare_overlay()` and reuse them in base, ggplot2 and
+  Plotly. Set `alpha_bins = 4L` on a copy for a four-opacity Plotly view.
+
 - Click a point in `embed_plotly()` to inspect its incident edges with
   `overlays = list(edges = edges, mode = "incident")`.
 

@@ -14,8 +14,10 @@ Imports:
     paletteer
 Suggests:
     Matrix,
+    edgebundle (>= 1.0.1),
     ggplot2,
     htmlwidgets,
+    igraph,
     plotly,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3

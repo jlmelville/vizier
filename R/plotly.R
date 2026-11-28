@@ -87,6 +87,9 @@
 #'   edges. Each click replaces the previous neighborhood. Clicking an
 #'   isolated point clears the lines. Reciprocal pairs draw once. The
 #'   standalone widget carries the adjacency index and endpoint coordinates.
+#'   For a bundled overview, supply a Hammer specification or a prepared
+#'   object from [prepare_overlay()]. Set its `alpha_bins` to bound the number
+#'   of edge traces.
 #' @param tooltip Vector of tooltip text, to be displayed when a point is
 #'   hovered over. Without it, hover text uses `text`, then resolved labels, and
 #'   always retains the original row-number prefix. Explicit colors alone are
@@ -226,7 +229,9 @@ embed_plotly <- function(
     clip_limit_values = clip_limit_values
   )
 
-  incident <- is.list(overlays) && !is.data.frame(overlays)
+  incident <- is.list(overlays) &&
+    !is.data.frame(overlays) &&
+    "mode" %in% names(overlays)
   if (incident) {
     if (
       !identical(sort(names(overlays)), c("edges", "mode")) ||
@@ -240,7 +245,7 @@ embed_plotly <- function(
     }
     overlays <- overlays$edges
   }
-  pairs <- overlay_pairs(overlays, n, color_res$keep)
+  overlay <- resolve_overlay(overlays, coords, color_res$keep, pc_axes)
   rows <- which(color_res$keep)
   labels <- color_res$labels
   if (is.factor(labels)) {
@@ -358,7 +363,7 @@ embed_plotly <- function(
       ),
       showlegend = layout_show_legend
     )
-  if (is.null(pairs)) {
+  if (is.null(overlay)) {
     return(p)
   }
   if (incident) {
@@ -367,36 +372,34 @@ embed_plotly <- function(
   }
   # Build point traces first to preserve palettes and category splits.
   p <- plotly::plotly_build(p)
-  edge_trace <- list(
+  pairs <- overlay$pairs
+  if (incident) {
+    traces <- list(plotly_edge_trace(numeric(), numeric(), 0.7, width = 1.5))
+    p <- add_incident_handler(p, pairs, coords)
+  } else if (!is.null(overlay$paths)) {
+    traces <- lapply(path_batches(overlay$paths), function(batch) {
+      plotly_edge_trace(batch$x, batch$y, batch$alpha)
+    })
+  } else {
+    x <- as.vector(rbind(coords[pairs$from, 1], coords[pairs$to, 1], NA_real_))
+    y <- as.vector(rbind(coords[pairs$from, 2], coords[pairs$to, 2], NA_real_))
+    traces <- list(plotly_edge_trace(x, y, 0.25))
+  }
+  p$x$data <- c(traces, p$x$data)
+  p
+}
+
+plotly_edge_trace <- function(x, y, alpha, width = 1) {
+  list(
     type = "scatter",
     mode = "lines",
-    line = list(
-      color = if (incident) "rgba(64,64,64,0.7)" else "rgba(64,64,64,0.25)",
-      width = if (incident) 1.5 else 1
-    ),
-    x = numeric(),
-    y = numeric(),
+    line = list(color = paste0("rgba(64,64,64,", alpha, ")"), width = width),
+    x = x,
+    y = y,
     connectgaps = FALSE,
     hoverinfo = "skip",
     showlegend = FALSE
   )
-  if (!incident) {
-    edge_trace$x <- as.vector(rbind(
-      coords[pairs$from, 1],
-      coords[pairs$to, 1],
-      NA_real_
-    ))
-    edge_trace$y <- as.vector(rbind(
-      coords[pairs$from, 2],
-      coords[pairs$to, 2],
-      NA_real_
-    ))
-  }
-  p$x$data <- c(list(edge_trace), p$x$data)
-  if (incident) {
-    p <- add_incident_handler(p, pairs, coords)
-  }
-  p
 }
 
 add_incident_handler <- function(p, pairs, coords) {

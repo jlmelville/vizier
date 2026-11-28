@@ -110,7 +110,8 @@
 #'   Integer-valued `from` and `to` columns index the original coordinate
 #'   rows. Draw one subdued straight segment per distinct pair behind the
 #'   points or text. Self-loops are omitted. Where `top` is available, both
-#'   endpoints must be selected. Point colors and edge styling are independent.
+#'   endpoints must be selected. For bundled paths, supply a Hammer
+#'   specification or the reusable result of [prepare_overlay()].
 #' @param pch A single point symbol or one symbol per observation, in the
 #'   original coordinate row order. Use integer-valued numeric codes or single
 #'   characters as in [graphics::points()]. `NA` and `""` omit points.
@@ -223,7 +224,7 @@ embed_plot <- function(
   )
   colors <- grDevices::adjustcolor(color_res$colors, alpha.f = alpha_scale)
 
-  segments <- overlay_segments(overlays, coords, color_res$keep)
+  overlay <- resolve_overlay(overlays, coords, color_res$keep, pc_axes)
 
   if (show_axes) {
     xlab <- "X"
@@ -248,7 +249,7 @@ embed_plot <- function(
       main = title,
       axes = axes,
       frame.plot = frame.plot,
-      panel.first = draw_overlay_segments(segments)
+      panel.first = draw_base_overlay(overlay, coords)
     )
     graphics::text(coords, labels = text, cex = cex, col = colors)
   } else {
@@ -265,7 +266,7 @@ embed_plot <- function(
       main = title,
       axes = axes,
       frame.plot = frame.plot,
-      panel.first = draw_overlay_segments(segments)
+      panel.first = draw_base_overlay(overlay, coords)
     )
   }
   if (!is.null(sub)) {
@@ -273,8 +274,14 @@ embed_plot <- function(
   }
 }
 
-draw_overlay_segments <- function(segments) {
-  if (!is.null(segments)) {
+draw_base_overlay <- function(overlay, coords) {
+  if (!is.null(overlay$paths)) {
+    for (batch in path_batches(overlay$paths)) {
+      color <- grDevices::rgb(64 / 255, 64 / 255, 64 / 255, batch$alpha)
+      graphics::lines(batch$x, batch$y, col = color)
+    }
+  } else if (!is.null(overlay$pairs)) {
+    segments <- overlay_segments(overlay$pairs, coords)
     graphics::segments(
       segments$x,
       segments$y,

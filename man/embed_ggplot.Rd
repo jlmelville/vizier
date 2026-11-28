@@ -107,7 +107,8 @@ visible ranges.}
 Integer-valued \code{from} and \code{to} columns index the original coordinate
 rows. Draw one subdued straight segment per distinct pair behind the
 points or text. Self-loops are omitted. Where \code{top} is available, both
-endpoints must be selected. Point colors and edge styling are independent.}
+endpoints must be selected. For bundled paths, supply a Hammer
+specification or the reusable result of \code{\link[=prepare_overlay]{prepare_overlay()}}.}
 }
 \value{
 A ggplot object.

@@ -125,11 +125,26 @@ embed_ggplot <- function(
       color = .data[["color"]]
     )
   )
-  segments <- overlay_segments(overlays, coords, color_res$keep)
-  if (!is.null(segments)) {
+  overlay <- resolve_overlay(overlays, coords, color_res$keep, pc_axes)
+  if (!is.null(overlay$paths)) {
+    p <- p +
+      ggplot2::geom_path(
+        data = overlay$paths,
+        mapping = ggplot2::aes(
+          x = .data[["x"]],
+          y = .data[["y"]],
+          group = .data[["edge_id"]],
+          alpha = I(.data[["alpha"]])
+        ),
+        inherit.aes = FALSE,
+        show.legend = FALSE,
+        colour = "#404040",
+        linewidth = 0.3
+      )
+  } else if (!is.null(overlay$pairs)) {
     p <- p +
       ggplot2::geom_segment(
-        data = segments,
+        data = overlay_segments(overlay$pairs, coords),
         mapping = ggplot2::aes(
           x = .data[["x"]],
           y = .data[["y"]],

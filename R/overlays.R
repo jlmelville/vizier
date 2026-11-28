@@ -179,18 +179,14 @@ overlay_pairs <- function(overlays, n, keep) {
   visible <- from != to & keep[from] & keep[to]
   from <- from[visible]
   to <- to[visible]
-  pairs <- unique(data.frame(from = pmin(from, to), to = pmax(from, to)))
-  if (nrow(pairs) == 0L) {
-    return(NULL)
-  }
+  pairs <- data.frame(from = pmin(from, to), to = pmax(from, to))
+  first <- !duplicated(pairs)
+  pairs <- pairs[first, , drop = FALSE]
+  pairs$edge_id <- which(visible)[first]
   pairs
 }
 
-overlay_segments <- function(overlays, coords, keep) {
-  pairs <- overlay_pairs(overlays, nrow(coords), keep)
-  if (is.null(pairs)) {
-    return(NULL)
-  }
+overlay_segments <- function(pairs, coords) {
   data.frame(
     x = coords[pairs$from, 1],
     y = coords[pairs$from, 2],

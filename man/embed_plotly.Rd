@@ -109,7 +109,10 @@ Supply \code{list(edges = table, mode = "incident")} to start with points
 only. Click a point or text label to show its incoming and outgoing
 edges. Each click replaces the previous neighborhood. Clicking an
 isolated point clears the lines. Reciprocal pairs draw once. The
-standalone widget carries the adjacency index and endpoint coordinates.}
+standalone widget carries the adjacency index and endpoint coordinates.
+For a bundled overview, supply a Hammer specification or a prepared
+object from \code{\link[=prepare_overlay]{prepare_overlay()}}. Set its \code{alpha_bins} to bound the number
+of edge traces.}
 }
 \description{
 Plots the embedded coordinates, with each point colored by a specified

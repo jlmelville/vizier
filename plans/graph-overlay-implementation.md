@@ -1,9 +1,9 @@
 # Implementation plan for graph overlays in vizier
 
-Milestone 1 was committed in `4454259`. Milestone 2 adds click-to-inspect to `embed_plotly()`.
-The [iris gallery](../vignettes/articles/graph-overlays.Rmd) uses a saved fit and score vector.
-Its last widget shows the selected flower's fitted neighbors and its pointwise retention score.
-Weighted Hammer routing remains milestone 3.
+Milestone 1 shipped straight overlays in `4454259`. Milestone 2 added click-to-inspect to
+`embed_plotly()` in `eb2b38b`. Milestone 3 implements reusable weighted Hammer paths. The
+[iris gallery](../vignettes/articles/graph-overlays.Rmd) shows the point inspector, the straight
+and bundled views of the full graph, and the four-opacity Plotly widget.
 
 Milestone 1 passed the full package check and 472 test assertions. The static iris widget showed
 97 separate edge paths, 150 markers, a numeric colorbar and
@@ -108,19 +108,18 @@ stayed at two. These measurements describe one browser and fixture.
    hover settings as straight edges. Exact opacity can require one trace per distinct weight.
    Four bins require at most four traces and still transmit every sampled path vertex.
 
-**Release checks.** Match each path's first and last coordinates and weight to the originating
-edge, allowing reversal for an undirected pair. Count routing calls across preparation and the
-three gallery calls below. The expected count is one. Verify that
-base and ggplot2 receive continuous opacities, Plotly emits at most four edge traces, and binning
-preserves every ordered path. Check the point traces and legends against the straight version.
-The probe measured 139 kB straight and 2.65 MB bundled for the same one-style iris graph. Its
-1,208 distinct memberships explain the value of explicit binning.
+**Release checks.** The regression test counts one Hammer call across preparation and the three
+renderers. It compares ordered path coordinates and continuous opacities in base and ggplot2,
+the four binned Plotly traces and the original point trace. On iris, all 1,347 paths matched their
+fitted endpoint pairs within 1e-8 coordinate units. The browser rendered all 67,350 sampled
+vertices in four line traces and preserved the 150 point markers, hover labels and colorbar.
+The fitted graph has 1,208 distinct memberships before binning.
 
 ## Iris gallery — Which groups are connected in an embedding?
 
 Add `vignettes/articles/graph-overlays.Rmd` to the Guides in `_pkgdown.yml`. Generate the figures
 from the same fit and keep the examples in reading order. Publish examples 1–3 with milestone 1
-and add example 4 with milestone 3. The fourth example targets the planned Hammer API.
+and add example 4 with milestone 3. The fourth example uses the same prepared paths throughout.
 
 ```r
 library(vizier)
