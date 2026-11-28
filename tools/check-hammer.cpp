@@ -4,9 +4,60 @@
 #include <array>
 #include <cmath>
 #include <cstdlib>
+#include <cstring>
 #include <vector>
 
 namespace {
+bool check_gaussian_blur() {
+  namespace hammer = vizier::hammer;
+  constexpr int side = hammer::grid_size;
+  std::vector<double> input(hammer::cells);
+  for (int i = 0; i < hammer::cells; ++i) {
+    input[i] = (i % 17 == 0) ? (i % 199) + 0.25 : 0.0;
+  }
+
+  // A scalar two-pass reference also exercises the replicated borders.
+  constexpr int radius = 3;
+  std::array<double, 2 * radius + 1> weights{};
+  double sum = 0;
+  for (int k = -radius; k <= radius; ++k) {
+    weights[k + radius] = std::exp(-0.5 * k * k);
+    sum += weights[k + radius];
+  }
+  for (double &weight : weights) {
+    weight /= sum;
+  }
+  auto convolve = [&](const std::vector<double> &source, bool horizontal) {
+    std::vector<double> result(hammer::cells);
+    for (int y = 0; y < side; ++y) {
+      for (int x = 0; x < side; ++x) {
+        double value = 0;
+        for (int k = -radius; k <= radius; ++k) {
+          const int xx = horizontal ? std::clamp(x + k, 0, side - 1) : x;
+          const int yy = horizontal ? y : std::clamp(y + k, 0, side - 1);
+          value += source[yy * side + xx] * weights[k + radius];
+        }
+        result[y * side + x] = value;
+      }
+    }
+    return result;
+  };
+  const auto expected = convolve(convolve(input, true), false);
+  for (const auto threads : {1, 3}) {
+    auto actual = input;
+    hammer::gaussian_blur(actual, 0.49, threads);
+    if (actual != input) {
+      return false;
+    }
+    hammer::gaussian_blur(actual, 1.0, threads);
+    if (std::memcmp(actual.data(), expected.data(),
+                    expected.size() * sizeof(double)) != 0) {
+      return false;
+    }
+  }
+  return true;
+}
+
 bool check_density_gradient() {
   namespace hammer = vizier::hammer;
   std::vector<double> density(hammer::cells);
@@ -35,7 +86,7 @@ bool check_density_gradient() {
 } // namespace
 
 int main() {
-  if (!check_density_gradient()) {
+  if (!check_gaussian_blur() || !check_density_gradient()) {
     return EXIT_FAILURE;
   }
   namespace hammer = vizier::hammer;

@@ -74,7 +74,8 @@ inline Extent endpoint_extent(Layout layout, Edges edges) {
   return {xmin, ymin, span == 0 ? 1.0 : span};
 }
 
-inline void gaussian_blur(std::vector<double> &density, double sigma) {
+inline void gaussian_blur(std::vector<double> &density, double sigma,
+                          std::size_t threads) {
   if (sigma < 0.5) {
     return;
   }
@@ -89,26 +90,40 @@ inline void gaussian_blur(std::vector<double> &density, double sigma) {
     k /= sum;
   }
   std::vector<double> horizontal(cells);
-  for (int y = 0; y < grid_size; ++y) {
-    for (int x = 0; x < grid_size; ++x) {
-      double value = 0;
-      for (int i = -radius; i <= radius; ++i) {
-        const int col = std::clamp(x + i, 0, grid_size - 1);
-        value += density[y * grid_size + col] * kernel[i + radius];
+  // Each kernel tap updates a contiguous row. Every pixel still accumulates
+  // its taps from left to right, then from top to bottom.
+  auto convolve_x = [&](std::size_t first, std::size_t last) {
+    std::vector<double> padded(grid_size + 2 * radius);
+    for (std::size_t y = first; y < last; ++y) {
+      const double *src = density.data() + y * grid_size;
+      std::fill_n(padded.begin(), radius, src[0]);
+      std::copy_n(src, grid_size, padded.begin() + radius);
+      std::fill_n(padded.begin() + radius + grid_size, radius,
+                  src[grid_size - 1]);
+      double *dst = horizontal.data() + y * grid_size;
+      for (int k = 0; k <= 2 * radius; ++k) {
+        const double *row = padded.data() + k;
+        for (int x = 0; x < grid_size; ++x) {
+          dst[x] += row[x] * kernel[k];
+        }
       }
-      horizontal[y * grid_size + x] = value;
     }
-  }
-  for (int y = 0; y < grid_size; ++y) {
-    for (int x = 0; x < grid_size; ++x) {
-      double value = 0;
-      for (int i = -radius; i <= radius; ++i) {
-        const int row = std::clamp(y + i, 0, grid_size - 1);
-        value += horizontal[row * grid_size + x] * kernel[i + radius];
+  };
+  pforr::parallel_for(grid_size, convolve_x, threads);
+  auto convolve_y = [&](std::size_t first, std::size_t last) {
+    for (int y = static_cast<int>(first); y < static_cast<int>(last); ++y) {
+      double *dst = density.data() + y * grid_size;
+      std::fill_n(dst, grid_size, 0.0);
+      for (int k = -radius; k <= radius; ++k) {
+        const double *row =
+            horizontal.data() + std::clamp(y + k, 0, grid_size - 1) * grid_size;
+        for (int x = 0; x < grid_size; ++x) {
+          dst[x] += row[x] * kernel[k + radius];
+        }
       }
-      density[y * grid_size + x] = value;
     }
-  }
+  };
+  pforr::parallel_for(grid_size, convolve_y, threads);
 }
 
 inline double bilinear(double top_left, double top_right, double bottom_left,
@@ -270,7 +285,7 @@ inline void route(Layout layout, Edges edges, PathColumns paths,
         density[i] += grids[worker * cells + i];
       }
     }
-    gaussian_blur(density, bandwidth * grid_size);
+    gaussian_blur(density, bandwidth * grid_size, threads);
     std::fill(grids.begin(), grids.end(), 0);
     auto update = [&](std::size_t begin, std::size_t end, std::size_t chunk) {
       for (auto e = begin; e < end; ++e) {
