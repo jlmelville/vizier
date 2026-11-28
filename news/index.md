@@ -1,5 +1,12 @@
 # Changelog
 
+## vizier (development version)
+
+- Hammer edge bundling now runs in vizier. To prepare large graphs in
+  parallel, add `n_threads = 4L` to the Hammer specification. Thread
+  counts produce the same paths. Preparation uses less memory and no
+  longer requires igraph or edgebundle.
+
 ## vizier 0.7.0
 
 - Draw graph edges behind the points in

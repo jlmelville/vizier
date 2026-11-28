@@ -199,7 +199,8 @@ flowers. In the right panel below we’ll bundle the edges and give the
 stronger ones more ink. Membership weight maps linearly to opacity, from
 0.01 at weight 0 to 0.25 at weight 1.
 [`prepare_overlay()`](https://jlmelville.github.io/vizier/reference/prepare_overlay.md)
-uses igraph and edgebundle to compute the Hammer paths once.
+computes the Hammer paths once. For a larger graph, add `n_threads = 4L`
+to the specification to use up to four threads during preparation.
 
 ``` r
 
