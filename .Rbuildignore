@@ -12,3 +12,5 @@ plans/
 ^docs$
 ^vignettes/articles$
 ^pkgdown$
+^\.clang-format$
+^tools$

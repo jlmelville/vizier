@@ -1,7 +1,7 @@
 Type: Package
 Package: vizier
 Title: Visualization of 2D Datasets in R
-Version: 0.7.0
+Version: 0.7.0.9000
 Authors@R: 
     person("James", "Melville", , "jlmelville@gmail.com", role = c("aut", "cre", "cph"))
 Description: Convenience functions for visualizing 2D datasets, coloring
@@ -11,13 +11,15 @@ URL: https://github.com/jlmelville/vizier, https://jlmelville.github.io/vizier/
 BugReports: https://github.com/jlmelville/vizier/issues
 Imports:
     methods,
-    paletteer
+    paletteer,
+    Rcpp
+LinkingTo:
+    Rcpp
+SystemRequirements: C++17
 Suggests:
     Matrix,
-    edgebundle (>= 1.0.1),
     ggplot2,
     htmlwidgets,
-    igraph,
     plotly,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3

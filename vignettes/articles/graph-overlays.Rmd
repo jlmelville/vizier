@@ -175,8 +175,9 @@ no cross-species edges then clears the lines.
 
 With all the edges drawn, the straight lines pile up around some of the flowers. In the right
 panel below we'll bundle the edges and give the stronger ones more ink. Membership weight maps
-linearly to opacity, from 0.01 at weight 0 to 0.25 at weight 1. `prepare_overlay()` uses igraph
-and edgebundle to compute the Hammer paths once.
+linearly to opacity, from 0.01 at weight 0 to 0.25 at weight 1. `prepare_overlay()` computes the
+Hammer paths once. For a larger graph, add `n_threads = 4L` to the specification to use up to four
+threads during preparation.
 
 ```{r prepare-hammer}
 weighted_hammer <- list(

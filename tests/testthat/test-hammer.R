@@ -16,20 +16,19 @@ hammer_fixture <- function() {
 }
 
 test_that("one Hammer preparation supplies all three renderers", {
-  skip_if_not_installed("edgebundle", "1.0.1")
   skip_if_not_installed("ggplot2")
   skip_if_not_installed("plotly")
   fixture <- hammer_fixture()
   xy <- fixture$xy
   spec <- fixture$spec
-  original <- edgebundle::edge_bundle_hammer
+  original <- vizier:::hammer_paths
   calls <- 0L
   local_mocked_bindings(
-    edge_bundle_hammer = function(...) {
+    hammer_paths = function(...) {
       calls <<- calls + 1L
       original(...)
     },
-    .package = "edgebundle"
+    .package = "vizier"
   )
   hammer <- prepare_overlay(xy, spec, pc_axes = TRUE)
   ids <- c(2L, 3L, 4L, 5L, 7L)
@@ -104,7 +103,6 @@ test_that("one Hammer preparation supplies all three renderers", {
 })
 
 test_that("inline routing, display filtering and coordinate checks agree", {
-  skip_if_not_installed("edgebundle", "1.0.1")
   skip_if_not_installed("ggplot2")
   fixture <- hammer_fixture()
   xy <- fixture$xy
@@ -154,4 +152,46 @@ test_that("weight mapping validates, clips and rounds at draw time", {
   expect_error(vizier:::overlay_alpha(style), "alpha_range")
   style$alpha_limits <- c(1, 1)
   expect_error(vizier:::overlay_alpha(style), "alpha_limits")
+})
+
+test_that("native Hammer paths match the reference at every thread count", {
+  fixture <- hammer_fixture()
+  route <- function(threads) {
+    spec <- fixture$spec
+    spec$n_threads <- threads
+    prepare_overlay(fixture$xy, spec)$paths
+  }
+  serial <- route(0L)
+  expect_identical(route(1L), serial)
+  expect_identical(route(3L), serial)
+  expect_equal(nrow(serial), 250L)
+  # Vertex 25 in each path, from edgebundle 1.0.1 with its default settings.
+  mid <- seq(25L, nrow(serial), by = 50L)
+  expect_equal(
+    serial$x[mid],
+    c(4.27667640, 3.14069397, 1.93087738, 2.56869634, 3.87557543),
+    tolerance = 1e-7
+  )
+  expect_equal(
+    serial$y[mid],
+    c(1.36540118, 1.98670796, 3.45156685, 1.12329877, 1.15846022),
+    tolerance = 1e-7
+  )
+  for (bad in list(-1, 1.5, NA_real_, Inf, "4", c(1, 2), 2^31)) {
+    expect_error(route(bad), "n_threads")
+  }
+})
+
+test_that("Hammer routes a graph with coincident integer coordinates", {
+  xy <- matrix(7L, nrow = 3L, ncol = 2L)
+  spec <- list(
+    edges = data.frame(from = 3L, to = 1L),
+    route = "hammer",
+    n_threads = 4L
+  )
+  paths <- prepare_overlay(xy, spec)$paths
+  expect_true(all(is.finite(paths$x)) && all(is.finite(paths$y)))
+  expect_equal(paths$x[c(1L, 50L)], c(7, 7))
+  expect_equal(paths$y[c(1L, 50L)], c(7, 7))
+  expect_identical(paths$edge_id, rep(1L, 50))
 })

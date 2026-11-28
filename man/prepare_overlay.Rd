@@ -18,7 +18,9 @@ Set \code{alpha = "weight"} to map the numeric \code{weight} column linearly fro
 \code{c(0.01, 0.25)}). Weights outside the limits use the nearest endpoint.
 Opacity is continuous unless \code{alpha_bins} is set to an integer of at
 least two. This rounds to the nearest equally spaced opacity level,
-including both endpoints, with ties rounded up.}
+including both endpoints, with ties rounded up. Set \code{n_threads} to the
+maximum number of routing threads. The default of 0 and a value of 1
+both run serially. Thread count does not affect the resulting paths.}
 
 \item{pc_axes}{If \code{TRUE}, the \code{coords} are replaced by the first
 two (unscaled) principal components, which should have the effect of
@@ -32,22 +34,23 @@ axis setting and editable opacity settings. The \code{edge_id} in both tables
 identifies the original input edge row.
 }
 \description{
-Bundle a graph once with \code{\link[edgebundle:edge_bundle_hammer]{edgebundle::edge_bundle_hammer()}}. Pass the result
-to the \code{overlays} argument of \code{\link[=embed_plot]{embed_plot()}}, \code{\link[=embed_ggplot]{embed_ggplot()}} or
+Bundle a graph once with Hammer edge bundling. Pass the result to the
+\code{overlays} argument of \code{\link[=embed_plot]{embed_plot()}}, \code{\link[=embed_ggplot]{embed_ggplot()}} or
 \code{\link[=embed_plotly]{embed_plotly()}}. All three also accept an inline specification, which
 computes the paths for that call.
 }
 \details{
-Preparation requires igraph and edgebundle. Drawing the result
-reuses the stored paths. Use the same coordinate rows and \code{pc_axes}
-setting in each plot. A display filter such as \code{top} hides whole paths.
+The native router samples each edge at 50 points and moves
+them toward shared density ridges over 12 iterations. Membership weights
+affect opacity. Drawing the result reuses the stored paths.
+Use the same coordinate rows and \code{pc_axes} setting in each plot.
+A display filter such as \code{top} hides whole paths.
 To route a different graph, subset the edges before preparing.
 
 Plotly uses one line trace per distinct displayed opacity. Set
 \code{alpha_bins = 4L} on a copy to limit that widget to four edge traces.
 }
 \examples{
-\dontshow{if (requireNamespace("edgebundle", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 xy <- as.matrix(iris[1:8, c("Sepal.Length", "Sepal.Width")])
 edges <- data.frame(from = 1:4, to = 5:8, weight = c(0.1, 0.4, 0.6, 1))
 hammer <- prepare_overlay(xy, list(
@@ -59,5 +62,4 @@ binned$alpha_bins <- 4L
 if (requireNamespace("plotly", quietly = TRUE)) {
   embed_plotly(xy, colors = "navy", overlays = binned)
 }
-\dontshow{\}) # examplesIf}
 }
