@@ -180,7 +180,15 @@ overlay_pairs <- function(overlays, n, keep) {
   from <- from[visible]
   to <- to[visible]
   pairs <- data.frame(from = pmin(from, to), to = pmax(from, to))
-  first <- !duplicated(pairs)
+  first <- rep_len(TRUE, nrow(pairs))
+  if (nrow(pairs) > 1L) {
+    # Stable radix order puts the earliest input row first in each pair.
+    sorted <- order(pairs$from, pairs$to, method = "radix")
+    current <- sorted[-1L]
+    previous <- sorted[-length(sorted)]
+    first[current] <- pairs$from[current] != pairs$from[previous] |
+      pairs$to[current] != pairs$to[previous]
+  }
   pairs <- pairs[first, , drop = FALSE]
   pairs$edge_id <- which(visible)[first]
   pairs

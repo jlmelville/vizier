@@ -7,15 +7,18 @@
 #include <array>
 #include <cmath>
 #include <cstddef>
+#include <cstdint>
 #include <limits>
 #include <stdexcept>
 #include <thread>
+#include <utility>
 #include <vector>
 
 #include "pforr.h"
 
 namespace vizier::hammer {
 constexpr int samples = 50;
+constexpr int iterations = 12;
 constexpr int grid_size = 256;
 constexpr int cells = grid_size * grid_size;
 constexpr double padding = 0.05;
@@ -108,6 +111,12 @@ inline void gaussian_blur(std::vector<double> &density, double sigma) {
   }
 }
 
+inline double bilinear(double top_left, double top_right, double bottom_left,
+                       double bottom_right, double fx, double fy) {
+  return top_left * (1 - fx) * (1 - fy) + top_right * fx * (1 - fy) +
+         bottom_left * (1 - fx) * fy + bottom_right * fx * fy;
+}
+
 inline double sample_density(const double *density, double x, double y) {
   const auto col = static_cast<int>(std::floor(x));
   const auto row = static_cast<int>(std::floor(y));
@@ -117,10 +126,40 @@ inline double sample_density(const double *density, double x, double y) {
   const auto right = std::clamp(col + 1, 0, grid_size - 1);
   const auto top = std::clamp(row, 0, grid_size - 1) * grid_size;
   const auto bottom = std::clamp(row + 1, 0, grid_size - 1) * grid_size;
-  return density[top + left] * (1 - fx) * (1 - fy) +
-         density[top + right] * fx * (1 - fy) +
-         density[bottom + left] * (1 - fx) * fy +
-         density[bottom + right] * fx * fy;
+  return bilinear(density[top + left], density[top + right],
+                  density[bottom + left], density[bottom + right], fx, fy);
+}
+
+inline double sample_cell(const double *cell, double fx, double fy) {
+  return bilinear(cell[0], cell[1], cell[grid_size], cell[grid_size + 1], fx,
+                  fy);
+}
+
+inline std::pair<double, double> density_gradient(const double *density,
+                                                  double x, double y) {
+  if (x < 1 || y < 1 || x >= grid_size - 2 || y >= grid_size - 2) {
+    return {
+        sample_density(density, x + 1, y) - sample_density(density, x - 1, y),
+        sample_density(density, x, y + 1) - sample_density(density, x, y - 1)};
+  }
+  // Subtracting one preserves the fractional part in this interior range.
+  // Adding one can round across a binary exponent boundary, so compute the
+  // actual fractions for the right and lower samples.
+  const int col = static_cast<int>(x);
+  const int row = static_cast<int>(y);
+  const double fx = x - col;
+  const double fy = y - row;
+  const double right = x + 1;
+  const double below = y + 1;
+  const int right_col = static_cast<int>(right);
+  const int below_row = static_cast<int>(below);
+  const double *cell = density + row * grid_size + col;
+  return {sample_cell(density + row * grid_size + right_col, right - right_col,
+                      fy) -
+              sample_cell(cell - 1, fx, fy),
+          sample_cell(density + below_row * grid_size + col, fx,
+                      below - below_row) -
+              sample_cell(cell - grid_size, fx, fy)};
 }
 
 inline void update_path(double *x, double *y, const double *density,
@@ -128,10 +167,7 @@ inline void update_path(double *x, double *y, const double *density,
   for (int i = 1; i < samples - 1; ++i) {
     const double cx = x[i] * (grid_size - 1);
     const double cy = y[i] * (grid_size - 1);
-    const double gx = sample_density(density, cx + 1, cy) -
-                      sample_density(density, cx - 1, cy);
-    const double gy = sample_density(density, cx, cy + 1) -
-                      sample_density(density, cx, cy - 1);
+    const auto [gx, gy] = density_gradient(density, cx, cy);
     const double norm = std::sqrt(gx * gx + gy * gy);
     if (norm > 1e-12) {
       x[i] += 0.6 * bandwidth * gx / norm;
@@ -140,16 +176,18 @@ inline void update_path(double *x, double *y, const double *density,
   }
 
   std::array<double, samples> sx, sy, length;
-  std::copy_n(x, samples, sx.begin());
-  std::copy_n(y, samples, sy.begin());
+  sx.front() = x[0];
+  sy.front() = y[0];
+  sx.back() = x[samples - 1];
+  sy.back() = y[samples - 1];
   for (int i = 1; i < samples - 1; ++i) {
-    x[i] = 0.5 * sx[i] + 0.25 * (sx[i - 1] + sx[i + 1]);
-    y[i] = 0.5 * sy[i] + 0.25 * (sy[i - 1] + sy[i + 1]);
+    sx[i] = 0.5 * x[i] + 0.25 * (x[i - 1] + x[i + 1]);
+    sy[i] = 0.5 * y[i] + 0.25 * (y[i - 1] + y[i + 1]);
   }
   length[0] = 0;
   for (int i = 1; i < samples; ++i) {
-    const double dx = x[i] - x[i - 1];
-    const double dy = y[i] - y[i - 1];
+    const double dx = sx[i] - sx[i - 1];
+    const double dy = sy[i] - sy[i - 1];
     length[i] = length[i - 1] + std::sqrt(dx * dx + dy * dy);
   }
   int segment = 0;
@@ -160,11 +198,9 @@ inline void update_path(double *x, double *y, const double *density,
     }
     const double dist = length[segment + 1] - length[segment];
     const double t = dist > 0 ? (target - length[segment]) / dist : 0;
-    sx[i] = x[segment] + t * (x[segment + 1] - x[segment]);
-    sy[i] = y[segment] + t * (y[segment + 1] - y[segment]);
+    x[i] = sx[segment] + t * (sx[segment + 1] - sx[segment]);
+    y[i] = sy[segment] + t * (sy[segment + 1] - sy[segment]);
   }
-  std::copy_n(sx.begin(), samples, x);
-  std::copy_n(sy.begin(), samples, y);
 }
 
 inline void route(Layout layout, Edges edges, PathColumns paths,
@@ -197,24 +233,22 @@ inline void route(Layout layout, Edges edges, PathColumns paths,
   pforr::parallel_for(edges.size, initialize, threads);
 
   const auto count = edges.size * samples;
-  std::vector<double> grids(threads * cells);
+  std::vector<std::uint64_t> grids(threads * cells);
   std::vector<double> density(cells);
-  for (int iteration = 0; iteration < 12; ++iteration) {
+  auto deposit = [&](std::size_t begin, std::size_t end, std::size_t chunk) {
+    auto *hist = grids.data() + chunk * cells;
+    auto cell = [](double value) {
+      return std::clamp(static_cast<int>(value * (grid_size - 1)), 0,
+                        grid_size - 1);
+    };
+    for (auto j = begin; j < end; ++j) {
+      ++hist[cell(paths.y[j]) * grid_size + cell(paths.x[j])];
+    }
+  };
+  pforr::parallel_for_indexed(count, deposit, threads);
+  for (int iteration = 0; iteration < iterations; ++iteration) {
     check_interrupt();
     const double bandwidth = 0.05 * std::pow(0.7, iteration);
-    std::fill(grids.begin(), grids.end(), 0.0);
-    // Each worker owns its histogram. Counts are exact integers in doubles.
-    auto deposit = [&](std::size_t begin, std::size_t end, std::size_t chunk) {
-      auto *hist = grids.data() + chunk * cells;
-      auto cell = [](double value) {
-        return std::clamp(static_cast<int>(std::floor(value * (grid_size - 1))),
-                          0, grid_size - 1);
-      };
-      for (auto j = begin; j < end; ++j) {
-        ++hist[cell(paths.y[j]) * grid_size + cell(paths.x[j])];
-      }
-    };
-    pforr::parallel_for_indexed(count, deposit, threads);
     std::copy_n(grids.begin(), cells, density.begin());
     for (std::size_t worker = 1; worker < threads; ++worker) {
       for (int i = 0; i < cells; ++i) {
@@ -222,13 +256,19 @@ inline void route(Layout layout, Edges edges, PathColumns paths,
       }
     }
     gaussian_blur(density, bandwidth * grid_size);
-    auto update = [&](std::size_t begin, std::size_t end) {
+    std::fill(grids.begin(), grids.end(), 0);
+    auto update = [&](std::size_t begin, std::size_t end, std::size_t chunk) {
       for (auto e = begin; e < end; ++e) {
         update_path(paths.x + e * samples, paths.y + e * samples,
                     density.data(), bandwidth);
+        // The next density field counts these same resampled vertices.
+        // Deposit while the path is still in this worker's cache.
+        if (iteration + 1 < iterations) {
+          deposit(e * samples, (e + 1) * samples, chunk);
+        }
       }
     };
-    pforr::parallel_for(edges.size, update, threads);
+    pforr::parallel_for_indexed(edges.size, update, threads);
   }
 
   auto restore = [&](std::size_t begin, std::size_t end) {

@@ -6,7 +6,38 @@
 #include <cstdlib>
 #include <vector>
 
+namespace {
+bool check_density_gradient() {
+  namespace hammer = vizier::hammer;
+  std::vector<double> density(hammer::cells);
+  for (int i = 0; i < hammer::cells; ++i) {
+    density[i] = (i % 37) * 1.25 + (i % 997) / 41.0;
+  }
+  std::vector<double> probes{-1.25, 0.125, 1.25, 27.875, 254.75, 256.25};
+  for (int i = 0; i < hammer::grid_size; ++i) {
+    const double v = i;
+    probes.insert(probes.end(),
+                  {std::nextafter(v, v - 1), v, std::nextafter(v, v + 1)});
+  }
+  for (double x : probes) {
+    for (double y : probes) {
+      const auto [gx, gy] = hammer::density_gradient(density.data(), x, y);
+      if (gx != hammer::sample_density(density.data(), x + 1, y) -
+                    hammer::sample_density(density.data(), x - 1, y) ||
+          gy != hammer::sample_density(density.data(), x, y + 1) -
+                    hammer::sample_density(density.data(), x, y - 1)) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+} // namespace
+
 int main() {
+  if (!check_density_gradient()) {
+    return EXIT_FAILURE;
+  }
   namespace hammer = vizier::hammer;
   const std::array<double, 6> x{1, 3, -2, -1, 3, 0}, y{1, 0, 1, -2, 0, -2};
   const std::array<int, 7> from{1, 2, 3, 4, 5, 1, 2}, to{4, 5, 4, 5, 6, 2, 6};
