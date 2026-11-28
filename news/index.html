@@ -41,7 +41,7 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="vizier-development-version">vizier (development version)<a class="anchor" aria-label="anchor" href="#vizier-development-version"></a></h2>
-<ul><li>Hammer edge bundling now runs in vizier. To prepare large graphs in parallel, add <code>n_threads = 4L</code> to the Hammer specification. Thread counts produce the same paths. Preparation uses less memory and no longer requires igraph or edgebundle.</li>
+<ul><li>Hammer edge bundling now runs in vizier. To prepare large graphs in parallel, add <code>n_threads = 4L</code> to the Hammer specification. Thread counts produce the same paths. Preparation uses less memory and no longer requires igraph or edgebundle. The router reuses neighboring density samples and counts each resampled path while it is still in cache.</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.7.0" id="vizier-070">vizier 0.7.0<a class="anchor" aria-label="anchor" href="#vizier-070"></a></h2>
