@@ -1,13 +1,13 @@
-# vizier (development version)
+# vizier 0.7.0
 
-- Prepare weighted Hammer paths once with `prepare_overlay()` and reuse them in base, ggplot2 and
-  Plotly. Set `alpha_bins = 4L` on a copy for a four-opacity Plotly view.
-
-- Click a point in `embed_plotly()` to inspect its incident edges with
-  `overlays = list(edges = edges, mode = "incident")`.
-
-- Select ranked neighbors or fitted sparse graph edges with `embed_edges()` and pass the resulting
-  table to `overlays` in `embed_plot()`, `embed_ggplot()`, or `embed_plotly()`.
+- Draw graph edges behind the points in `embed_plot()`, `embed_ggplot()`, or `embed_plotly()`.
+  Use `embed_edges()` to get an edge table from ranked neighbors or a fitted sparse graph, then
+  pass the table to `overlays`.
+- In `embed_plotly()`, use `overlays = list(edges = edges, mode = "incident")` to show the edges
+  attached to whichever point you click.
+- Use `prepare_overlay()` to bundle the edges once and draw the same Hammer paths in all three
+  plots. To draw weighted paths with at most four Plotly line traces, set `alpha_bins = 4L` on
+  the copy you pass to Plotly.
 
 # vizier 0.6.2
 

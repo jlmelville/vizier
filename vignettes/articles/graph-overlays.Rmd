@@ -1,9 +1,10 @@
 ---
-title: "Which groups are connected in an embedding?"
+title: "Graph overlays on an iris UMAP"
 ---
 
-Two groups can look close on a UMAP even if no fitted edge joins them. On iris, we can answer
-that question by counting endpoint pairs, then drawing those same pairs behind the observations.
+In the iris UMAP below, setosa forms a group of its own. Versicolor and virginica run together.
+To see which flowers link those two species, we can take the edges from uwot's fitted graph and
+draw them over the points.
 
 ```{r, include=FALSE}
 example <- readRDS("iris-overlay-data.rds")
@@ -17,10 +18,11 @@ knitr::opts_chunk$set(
 )
 ```
 
-### Fit one embedding
+### Fitting UMAP to iris
 
-To reproduce the fit, ask uwot for both the ranked neighbors and the fitted fuzzy graph. The
-figures below use one saved run so every panel has the same observations and coordinates.
+The four numeric columns of `iris` go into UMAP. The two extras worth keeping here are the
+ranked neighbors (`ret_nn = TRUE`) and the fitted fuzzy graph (`ret_extra = "fgraph"`). All the
+plots below use one saved run of this code.
 
 ```{r fit, eval=FALSE}
 X <- as.matrix(iris[, 1:4])
@@ -44,11 +46,12 @@ edges <- embed_edges(fit$fgraph)
 between <- subset(edges, species[from] != species[to])
 ```
 
-### Which species share a fitted edge?
+### Edges between species
 
-`edges` has one row per undirected pair and its membership weight. Look up each endpoint in
-`species` using its original row ID. Taking one triangle gives each pair once. On iris the rows
-happen to be ordered by species.
+The fitted graph is symmetric, so `embed_edges()` takes its upper triangle. We get one row per
+pair, with the membership strength in `weight`. The `from` and `to` columns are row numbers in
+`iris`, so `species[from] != species[to]` picks out the edges between different species. The iris
+rows happen to be sorted by species, which is why the counts fall on one side of the table.
 
 ```{r count}
 with(between, table(species[from], species[to]))
@@ -72,11 +75,13 @@ map(between) + ggplot2::labs(title = "Cross-species edges", colour = NULL)
 In this fit, all `r nrow(between)` cross-species edges join versicolor to virginica. Setosa has
 no fitted edge to either species.
 
-### Which bridges survive a one-neighbor view?
+### Keeping one neighbor per flower
 
-`fit$nn[[1]]` is the ranked result for the input metric. Select the nearest or last retained
-neighbor of each observation. The helper removes self by row ID, so two different flowers at
-zero distance still count as neighbors.
+A quick way to thin out the plot is to keep one neighbor per flower. `fit$nn[[1]]` lists the
+neighbors from the four original measurements in order of distance. The first panel below uses
+the nearest neighbor in that list and the second uses the furthest. `embed_edges()` skips the
+flower itself by row ID, so a different flower at zero distance still counts. Two flowers can
+choose each other, which is why `count_bridges()` counts each pair only once.
 
 ```{r ranks}
 nn <- fit$nn[[1]]
@@ -109,15 +114,16 @@ for (name in names(views)) {
 }
 ```
 
-Nearest-only shows `r counts[["Nearest"]]` distinct cross-species pairs and furthest-only shows
-`r counts[["Furthest"]]`. Both views miss connections present in the fitted graph. For a
-specific input-space rank, use `embed_edges(nn, select = "furthest", k = 10)`.
+Keeping the nearest neighbor gives `r counts[["Nearest"]]` distinct cross-species pairs. Keeping
+the furthest gives `r counts[["Furthest"]]`. Either way, we miss plenty of connections in the
+fitted graph. To pick the tenth neighbor specifically, use
+`embed_edges(nn, select = "furthest", k = 10)`.
 
-### Do the endpoints keep their neighbors in 2D?
+### Neighbor preservation in 2D
 
-Use quadra to score each point by the fraction of its ten original neighbors retained in 2D.
-Color the points by that score. Click any flower to see its neighbors in the full fitted graph.
-Click another flower to replace the displayed edges.
+Of a flower's ten nearest neighbors in the original measurements, how many are still among its
+ten nearest neighbors on the map? `quadra::nn_preservation()` gives us the fraction retained for
+each flower. A score of 0.7 means seven flowers appear in both lists.
 
 ```{r quality, eval=FALSE}
 quality <- quadra::nn_preservation(
@@ -131,6 +137,10 @@ quality <- quadra::nn_preservation(
 )
 retained <- quality$nnpv$nnp10
 ```
+
+Hover over a flower for its row number, species and score. Click it to draw its edges, then click
+another flower to switch. You can see more than ten lines on a click because the lines show every
+edge uwot fitted to that flower. The color comes from quadra's ten-neighbor calculation above.
 
 ```{r retention}
 embed_plotly(
@@ -148,16 +158,16 @@ embed_plotly(
 )
 ```
 
-Hover over a flower to read its original row number, species and score. A point at 0.7 kept seven
-of its ten neighbors. The mean here is `r round(mean(retained), 2)`. To inspect cross-species
-connections only, use `edges = between` in the overlay specification. Clicking a flower with no
-such connections clears the lines.
+The mean fraction retained here is `r round(mean(retained), 2)`. If you're only interested in
+connections between species, change `edges = edges` to `edges = between`. Clicking a flower with
+no cross-species edges then clears the lines.
 
-### What does bundling change?
+### Bundling the fitted graph
 
-Keep the full fitted graph and the same point colors. Prepare its Hammer paths once with igraph
-and edgebundle installed. Give the strongest memberships an opacity of 0.25 and the weakest end
-of the scale an opacity of 0.01. Point color still shows the fraction of neighbors retained.
+With all the edges drawn, the straight lines pile up around some of the flowers. In the right
+panel below we'll bundle the edges and give the stronger ones more ink. Membership weight maps
+linearly to opacity, from 0.01 at weight 0 to 0.25 at weight 1. `prepare_overlay()` uses igraph
+and edgebundle to compute the Hammer paths once.
 
 ```{r prepare-hammer}
 weighted_hammer <- list(
@@ -195,11 +205,11 @@ embed_plot(
 ```
 
 Both panels connect the same `r format(nrow(edges), big.mark = ",")` pairs. In the right panel,
-nearby paths bend together and weak memberships fade. Only a path's endpoints tell you which
-flowers share an edge. A curve can pass close to a third flower.
+nearby paths bend together and weaker edges fade. A curve can pass close to a third flower on
+its way between the two flowers it actually connects.
 
-The same prepared object draws the same paths with continuous opacity in ggplot2. The colorbar
-belongs to the points.
+`embed_ggplot()` can use `hammer` as it stands, with the same paths and continuous edge opacity.
+The colorbar shows the fraction of neighbors each flower kept.
 
 ```{r hammer-ggplot, fig.width=7, fig.height=4.5, fig.alt="Bundled iris graph with a colorbar showing each flower's fraction of ten retained neighbors."}
 embed_ggplot(
@@ -213,10 +223,11 @@ embed_ggplot(
   ggplot2::labs(colour = "Fraction retained")
 ```
 
-Plotly draws one line trace per distinct opacity. This graph has
-`r format(length(unique(edges$weight)), big.mark = ",")` distinct weights. Set
-`alpha_bins` on a copy to group the paths into four traces at opacities 0.01, 0.09, 0.17 and
-0.25. Every sampled vertex stays in the widget. Hover over a flower to read its score.
+Plotly uses one line trace per distinct opacity. With continuous opacity, we'd need
+`r format(length(unique(edges$weight)), big.mark = ",")` traces for this graph. Set
+`alpha_bins = 4L` on a copy of `hammer` and each path gets the nearest of four opacities
+(0.01, 0.09, 0.17 and 0.25). Now Plotly can draw the graph in four traces. It still gets every
+sampled point along each path, and we can still hover over a flower to read its score.
 
 ```{r hammer-plotly}
 hammer_plotly <- hammer
