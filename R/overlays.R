@@ -152,7 +152,7 @@ ranked_edges <- function(idx, distance, select, k) {
   edges
 }
 
-overlay_segments <- function(overlays, coords, keep) {
+overlay_pairs <- function(overlays, n, keep) {
   if (is.null(overlays)) {
     return(NULL)
   }
@@ -162,7 +162,6 @@ overlay_segments <- function(overlays, coords, keep) {
       call. = FALSE
     )
   }
-  n <- nrow(coords)
   vertices <- attr(overlays, "n_vertices", exact = TRUE)
   if (!is.null(vertices) && vertices != n) {
     stop(
@@ -182,6 +181,14 @@ overlay_segments <- function(overlays, coords, keep) {
   to <- to[visible]
   pairs <- unique(data.frame(from = pmin(from, to), to = pmax(from, to)))
   if (nrow(pairs) == 0L) {
+    return(NULL)
+  }
+  pairs
+}
+
+overlay_segments <- function(overlays, coords, keep) {
+  pairs <- overlay_pairs(overlays, nrow(coords), keep)
+  if (is.null(pairs)) {
     return(NULL)
   }
   data.frame(

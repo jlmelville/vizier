@@ -80,7 +80,13 @@
 #' @param text Vector of label text to display instead of a point, including for
 #'   numeric color scales. If the labels are long or the data set is large, this
 #'   is unlikely to be very legible, but is occasionally useful.
-#' @inheritParams embed_plot
+#' @param overlays Optional edge table from [embed_edges()] or a data frame
+#'   with original row IDs in `from` and `to`. A table draws all its pairs.
+#'   Supply `list(edges = table, mode = "incident")` to start with points
+#'   only. Click a point or text label to show its incoming and outgoing
+#'   edges. Each click replaces the previous neighborhood. Clicking an
+#'   isolated point clears the lines. Reciprocal pairs draw once. The
+#'   standalone widget carries the adjacency index and endpoint coordinates.
 #' @param tooltip Vector of tooltip text, to be displayed when a point is
 #'   hovered over. Without it, hover text uses `text`, then resolved labels, and
 #'   always retains the original row-number prefix. Explicit colors alone are
@@ -220,6 +226,21 @@ embed_plotly <- function(
     clip_limit_values = clip_limit_values
   )
 
+  incident <- is.list(overlays) && !is.data.frame(overlays)
+  if (incident) {
+    if (
+      !identical(sort(names(overlays)), c("edges", "mode")) ||
+        !identical(overlays$mode, "incident") ||
+        !is.data.frame(overlays$edges)
+    ) {
+      stop(
+        "Supply an edge table or list(edges = table, mode = \"incident\").",
+        call. = FALSE
+      )
+    }
+    overlays <- overlays$edges
+  }
+  pairs <- overlay_pairs(overlays, n, color_res$keep)
   rows <- which(color_res$keep)
   labels <- color_res$labels
   if (is.factor(labels)) {
@@ -337,23 +358,65 @@ embed_plotly <- function(
       ),
       showlegend = layout_show_legend
     )
-  segments <- overlay_segments(overlays, coords, color_res$keep)
-  if (!is.null(segments)) {
-    # Build the point traces first so Plotly preserves their resolved palettes.
-    p <- plotly::plotly_build(p)
-    edge_trace <- list(
-      type = "scatter",
-      mode = "lines",
-      x = as.vector(rbind(segments$x, segments$xend, NA_real_)),
-      y = as.vector(rbind(segments$y, segments$yend, NA_real_)),
-      line = list(color = "rgba(64,64,64,0.25)", width = 1),
-      connectgaps = FALSE,
-      hoverinfo = "skip",
-      showlegend = FALSE
-    )
-    p$x$data <- c(list(edge_trace), p$x$data)
+  if (is.null(pairs)) {
+    return(p)
+  }
+  if (incident) {
+    # Plotly will split these IDs alongside the coordinates for each category.
+    p$x$attrs[[1L]]$customdata <- rows
+  }
+  # Build point traces first to preserve palettes and category splits.
+  p <- plotly::plotly_build(p)
+  edge_trace <- list(
+    type = "scatter",
+    mode = "lines",
+    line = list(
+      color = if (incident) "rgba(64,64,64,0.7)" else "rgba(64,64,64,0.25)",
+      width = if (incident) 1.5 else 1
+    ),
+    x = numeric(),
+    y = numeric(),
+    connectgaps = FALSE,
+    hoverinfo = "skip",
+    showlegend = FALSE
+  )
+  if (!incident) {
+    edge_trace$x <- as.vector(rbind(
+      coords[pairs$from, 1],
+      coords[pairs$to, 1],
+      NA_real_
+    ))
+    edge_trace$y <- as.vector(rbind(
+      coords[pairs$from, 2],
+      coords[pairs$to, 2],
+      NA_real_
+    ))
+  }
+  p$x$data <- c(list(edge_trace), p$x$data)
+  if (incident) {
+    p <- add_incident_handler(p, pairs, coords)
   }
   p
+}
+
+add_incident_handler <- function(p, pairs, coords) {
+  # Offsets and neighbors use zero-based indexing in the browser. Index both
+  # ends so each click reads only the neighborhood of the selected row.
+  from <- c(pairs$from, pairs$to)
+  to <- c(pairs$to, pairs$from)
+  graph <- list(
+    offsets = c(0L, cumsum(tabulate(from, nbins = nrow(coords)))),
+    neighbors = to[order(from, method = "radix")] - 1L,
+    x = unname(coords[, 1]),
+    y = unname(coords[, 2])
+  )
+  handler <- system.file(
+    "js",
+    "incident-edges.js",
+    package = "vizier",
+    mustWork = TRUE
+  )
+  htmlwidgets::onRender(p, readLines(handler, warn = FALSE), data = graph)
 }
 
 plotly_colorscale <- function(colors) {

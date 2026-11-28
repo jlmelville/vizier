@@ -34,6 +34,65 @@ test_that("Plotly batches straight edges and preserves the built point traces", 
   ))
 })
 
+test_that("incident mode indexes both ends and preserves original row IDs", {
+  skip_if_not_installed("plotly")
+  xy <- cbind(1:6, c(0, 3, 1, 4, 2, 5))
+  pairs <- data.frame(from = c(1, 2, 4, 5, 3), to = c(2, 1, 2, 2, 4))
+  spec <- list(edges = pairs, mode = "incident")
+  group <- factor(c("b", "a", "b", "a", "b", "c"))
+  rotated <- vizier:::pc_rotate(xy)
+
+  for (label in list(NULL, letters[1:6])) {
+    p <- embed_plotly(xy, group, overlays = spec, text = label, pc_axes = TRUE)
+    traces <- plotly::plotly_build(p)$x$data
+    expect_length(traces, 4L)
+    expect_length(traces[[1]]$x, 0L)
+    expect_identical(traces[[1]]$hoverinfo, "skip")
+    expect_false(traces[[1]]$showlegend)
+    expect_equal(
+      lapply(traces[-1], function(t) as.integer(t$customdata)),
+      list(c(2L, 4L), c(1L, 3L, 5L), 6L)
+    )
+    graph <- p$jsHooks$render[[1]]$data
+    expect_equal(graph$x, rotated[, 1])
+    expect_equal(graph$y, rotated[, 2])
+    expect_equal(diff(graph$offsets), c(1, 3, 1, 2, 1, 0))
+    positions <- seq.int(graph$offsets[2] + 1L, graph$offsets[3])
+    expect_equal(sort(graph$neighbors[positions] + 1L), c(1, 4, 5))
+  }
+})
+
+test_that("the browser callback replaces or clears the same line trace", {
+  node <- Sys.which("node")
+  skip_if(
+    !nzchar(node),
+    "Node.js is required to exercise the JavaScript callback."
+  )
+  handler <- system.file(
+    "js",
+    "incident-edges.js",
+    package = "vizier",
+    mustWork = TRUE
+  )
+  script <- testthat::test_path("incident-click.js")
+  expect_equal(system2(node, shQuote(c(script, handler))), 0L)
+})
+
+test_that("incident mode validates its table and handles an empty graph", {
+  skip_if_not_installed("plotly")
+  xy <- cbind(1:3, 3:1)
+  e <- data.frame(from = integer(), to = integer())
+  spec <- list(edges = e, mode = "incident")
+  p <- embed_plotly(xy, colors = "red", overlays = spec)
+  expect_length(plotly::plotly_build(p)$x$data, 1L)
+  expect_error(
+    embed_plotly(xy, overlays = list(edges = e, mode = "bad")),
+    "mode"
+  )
+  spec$edges <- data.frame(from = 1L, to = 4L)
+  expect_error(embed_plotly(xy, overlays = spec), "row IDs")
+})
+
 test_that("embed_plotly accepts paletteer color vectors", {
   testthat::skip_if_not_installed("plotly")
 

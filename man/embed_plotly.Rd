@@ -103,11 +103,13 @@ always uses a common coordinate range and equal physical units, regardless
 of \code{fixed_aspect}. Renderer padding and aspect constraints may expand the
 visible ranges.}
 
-\item{overlays}{Optional edge data frame, for example from \code{\link[=embed_edges]{embed_edges()}}.
-Integer-valued \code{from} and \code{to} columns index the original coordinate
-rows. Draw one subdued straight segment per distinct pair behind the
-points or text. Self-loops are omitted. Where \code{top} is available, both
-endpoints must be selected. Point colors and edge styling are independent.}
+\item{overlays}{Optional edge table from \code{\link[=embed_edges]{embed_edges()}} or a data frame
+with original row IDs in \code{from} and \code{to}. A table draws all its pairs.
+Supply \code{list(edges = table, mode = "incident")} to start with points
+only. Click a point or text label to show its incoming and outgoing
+edges. Each click replaces the previous neighborhood. Clicking an
+isolated point clears the lines. Reciprocal pairs draw once. The
+standalone widget carries the adjacency index and endpoint coordinates.}
 }
 \description{
 Plots the embedded coordinates, with each point colored by a specified

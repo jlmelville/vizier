@@ -1,5 +1,8 @@
 # vizier (development version)
 
+- Click a point in `embed_plotly()` to inspect its incident edges with
+  `overlays = list(edges = edges, mode = "incident")`.
+
 - Select ranked neighbors or fitted sparse graph edges with `embed_edges()` and pass the resulting
   table to `overlays` in `embed_plot()`, `embed_ggplot()`, or `embed_plotly()`.
 

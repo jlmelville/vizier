@@ -1,13 +1,12 @@
 # Implementation plan for graph overlays in vizier
 
-Milestone 1 is implemented in the working tree. The three plotters accept straight overlays,
-and the [iris gallery](../vignettes/articles/graph-overlays.Rmd) covers examples 1–3. Its third
-example uses Plotly so readers can inspect each flower's score. The site renders from a saved iris
-fit and score vector. Milestone 2, point inspection by click, is next. Weighted Hammer routing
-remains milestone 3.
+Milestone 1 was committed in `4454259`. Milestone 2 adds click-to-inspect to `embed_plotly()`.
+The [iris gallery](../vignettes/articles/graph-overlays.Rmd) uses a saved fit and score vector.
+Its last widget shows the selected flower's fitted neighbors and its pointwise retention score.
+Weighted Hammer routing remains milestone 3.
 
-The full package check, including the PDF manual, passed with 472 test assertions passing in the
-local suite. A browser check found 97 separate edge paths, 150 markers, a numeric colorbar and
+Milestone 1 passed the full package check and 472 test assertions. The static iris widget showed
+97 separate edge paths, 150 markers, a numeric colorbar and
 the correct row, species and score on hover. The gallery reproduced 5, 11 and 97 distinct
 cross-species pairs for the nearest, furthest-retained and fitted views.
 
@@ -72,16 +71,20 @@ package tests and `R CMD check` before release.
 
 ## Milestone 2 — inspect one observation in Plotly
 
-Use straight edges for the first click-to-inspect mode. Give each point its original row ID in
-`customdata` before Plotly splits categories into traces. On a point click, use that ID to retrieve
-incoming and outgoing incident edges and replace the contents of one reusable line trace. Store a
-compact adjacency index in a standalone widget. Panning, zooming and ordinary tooltips require no
-graph lookup.
+Use `overlays = list(edges = edges, mode = "incident")` for a standalone point inspector.
+Each point carries its original row ID in `customdata` before Plotly splits categories into traces.
+A click looks up both ends of each supplied pair in an adjacency index and replaces one straight
+line trace. Clicking another point replaces the previous neighborhood. An isolated point clears it.
 
-Exercise this in a browser with category-split points, a second click, and an isolated point.
-Verify the displayed endpoints and that previous edges clear. Measure initial payload, load time
-and click-to-draw time on a larger graph. The iris probe's 23 kB figure contained one displayed
-neighborhood. It did not include a complete interactive adjacency index or measure browser time.
+Browser checks covered category-split markers, rotated text labels, reciprocal pairs and an
+isolated point. Successive clicks in the gallery drew all 15 neighbors of iris row 36 and all 14
+neighbors of row 135. Their endpoints matched the fitted sparse graph.
+
+A local headless Edge run exercised 5,000 grid points, each linked to the next ten IDs around a
+ring (50,000 distinct pairs). The widget HTML was 979,345 bytes excluding shared libraries. It
+rendered initially in about 0.79 s on localhost. Three clicks each drew 20 incident edges in
+167–176 ms from pointer release through two animation frames after the trace update. Trace count
+stayed at two. These measurements describe one browser and fixture.
 
 ## Milestone 3 — prepare weighted Hammer paths once
 
@@ -176,8 +179,9 @@ embed_ggplot(
 ) + ggplot2::labs(colour = "Fraction of 10 neighbors retained")
 ```
 
-Keep the cross-species edges from example 1. A point at 0.7 kept seven of its ten input-space
-neighbors in 2D. Color describes a vertex and membership weight describes an edge.
+In milestone 1 this example kept the cross-species edges from example 1. In milestone 2 the
+gallery passes the full fitted graph to the Plotly inspector so readers can click any flower.
+A point at 0.7 kept seven of its ten input-space neighbors in 2D.
 
 ### 4. What does bundling change?
 

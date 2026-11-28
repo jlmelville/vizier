@@ -116,7 +116,8 @@ specific input-space rank, use `embed_edges(nn, select = "furthest", k = 10)`.
 ### Do the endpoints keep their neighbors in 2D?
 
 Use quadra to score each point by the fraction of its ten original neighbors retained in 2D.
-Keep the same cross-species edge table and change the point colors.
+Color the points by that score. Click any flower to see its neighbors in the full fitted graph.
+Click another flower to replace the displayed edges.
 
 ```{r quality, eval=FALSE}
 quality <- quadra::nn_preservation(
@@ -135,7 +136,7 @@ retained <- quality$nnpv$nnp10
 embed_plotly(
   xy,
   retained,
-  overlays = between,
+  overlays = list(edges = edges, mode = "incident"),
   limits = c(0, 1),
   color_scheme = "grDevices::Viridis",
   fixed_aspect = TRUE,
@@ -148,8 +149,8 @@ embed_plotly(
 ```
 
 Hover over a flower to read its original row number, species and score. A point at 0.7 kept seven
-of its ten neighbors. The mean here is `r round(mean(retained), 2)`. Zooming changes the view of
-the same cross-species edges.
+of its ten neighbors. The mean here is `r round(mean(retained), 2)`. To inspect cross-species connections only, use `edges = between` in the overlay specification.
+Clicking a flower with no such connections clears the lines.
 
 <!-- To refresh iris-overlay-data.rds, run the fit, setup and quality chunks in order, then
 saveRDS(list(fit = fit, retained = retained), "vignettes/articles/iris-overlay-data.rds", version = 2)
