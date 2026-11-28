@@ -1,3 +1,29 @@
+test_that("ggplot segments use selected rotated endpoints and preserve point layers", {
+  skip_if_not_installed("ggplot2")
+  xy <- cbind(c(4, 1, 3, 7), c(2, 8, 1, 2))
+  rotated <- vizier:::pc_rotate(xy)
+  edges <- data.frame(from = c(1, 4, 2, 4), to = c(4, 2, 4, 4))
+  for (label in list(NULL, letters[1:4])) {
+    args <- list(
+      coords = xy,
+      x = c(1, 4, 0, 3),
+      pc_axes = TRUE,
+      top = 2,
+      text = label
+    )
+    original <- ggplot2::ggplot_build(do.call(embed_ggplot, args))
+    p <- do.call(embed_ggplot, c(args, list(overlays = edges)))
+    built <- ggplot2::ggplot_build(p)
+    expect_identical(built$data[[2]], original$data[[1]])
+    expect_false(p$layers[[1]]$inherit.aes)
+    expect_false(p$layers[[1]]$show.legend)
+    seg <- built$data[[1]][c("x", "y", "xend", "yend")]
+    expect_equal(as.numeric(seg), c(rotated[2, ], rotated[4, ]))
+    empty <- do.call(embed_ggplot, c(args, list(overlays = edges[FALSE, ])))
+    expect_identical(ggplot2::ggplot_build(empty)$data, original$data)
+  }
+})
+
 test_that("embed_ggplot reports its optional dependency clearly", {
   testthat::local_mocked_bindings(
     requireNamespace = function(package, quietly = FALSE) FALSE,

@@ -106,6 +106,11 @@
 #'   always uses a common coordinate range and equal physical units, regardless
 #'   of `fixed_aspect`. Renderer padding and aspect constraints may expand the
 #'   visible ranges.
+#' @param overlays Optional edge data frame, for example from [embed_edges()].
+#'   Integer-valued `from` and `to` columns index the original coordinate
+#'   rows. Draw one subdued straight segment per distinct pair behind the
+#'   points or text. Self-loops are omitted. Where `top` is available, both
+#'   endpoints must be selected. Point colors and edge styling are independent.
 #' @param pch A single point symbol or one symbol per observation, in the
 #'   original coordinate row order. Use integer-valued numeric codes or single
 #'   characters as in [graphics::points()]. `NA` and `""` omit points.
@@ -176,7 +181,8 @@ embed_plot <- function(
   rev = FALSE,
   verbose = FALSE,
   fixed_aspect = FALSE,
-  pch = 20
+  pch = 20,
+  overlays = NULL
 ) {
   validate_logical_scalar(equal_axes, "'equal_axes'")
   validate_logical_scalar(fixed_aspect, "'fixed_aspect'")
@@ -217,6 +223,8 @@ embed_plot <- function(
   )
   colors <- grDevices::adjustcolor(color_res$colors, alpha.f = alpha_scale)
 
+  segments <- overlay_segments(overlays, coords, color_res$keep)
+
   if (show_axes) {
     xlab <- "X"
     ylab <- "Y"
@@ -239,7 +247,8 @@ embed_plot <- function(
       ylab = ylab,
       main = title,
       axes = axes,
-      frame.plot = frame.plot
+      frame.plot = frame.plot,
+      panel.first = draw_overlay_segments(segments)
     )
     graphics::text(coords, labels = text, cex = cex, col = colors)
   } else {
@@ -255,11 +264,24 @@ embed_plot <- function(
       ylab = ylab,
       main = title,
       axes = axes,
-      frame.plot = frame.plot
+      frame.plot = frame.plot,
+      panel.first = draw_overlay_segments(segments)
     )
   }
   if (!is.null(sub)) {
     graphics::mtext(sub)
+  }
+}
+
+draw_overlay_segments <- function(segments) {
+  if (!is.null(segments)) {
+    graphics::segments(
+      segments$x,
+      segments$y,
+      segments$xend,
+      segments$yend,
+      col = "#40404040"
+    )
   }
 }
 

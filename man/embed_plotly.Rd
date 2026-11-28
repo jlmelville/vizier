@@ -24,7 +24,8 @@ embed_plotly(
   ylim = NULL,
   rev = FALSE,
   verbose = FALSE,
-  fixed_aspect = FALSE
+  fixed_aspect = FALSE,
+  overlays = NULL
 )
 }
 \arguments{
@@ -101,6 +102,12 @@ omitted limits are determined separately for each axis. \code{equal_axes = TRUE}
 always uses a common coordinate range and equal physical units, regardless
 of \code{fixed_aspect}. Renderer padding and aspect constraints may expand the
 visible ranges.}
+
+\item{overlays}{Optional edge data frame, for example from \code{\link[=embed_edges]{embed_edges()}}.
+Integer-valued \code{from} and \code{to} columns index the original coordinate
+rows. Draw one subdued straight segment per distinct pair behind the
+points or text. Self-loops are omitted. Where \code{top} is available, both
+endpoints must be selected. Point colors and edge styling are independent.}
 }
 \description{
 Plots the embedded coordinates, with each point colored by a specified

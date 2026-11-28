@@ -1,0 +1,156 @@
+---
+title: "Which groups are connected in an embedding?"
+---
+
+Two groups can look close on a UMAP even if no fitted edge joins them. On iris, we can answer
+that question by counting endpoint pairs, then drawing those same pairs behind the observations.
+
+```{r, include=FALSE}
+example <- readRDS("iris-overlay-data.rds")
+fit <- example$fit
+retained <- example$retained
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.align = "center",
+  dev.args = list(bg = "white")
+)
+```
+
+### Fit one embedding
+
+To reproduce the fit, ask uwot for both the ranked neighbors and the fitted fuzzy graph. The
+figures below use one saved run so every panel has the same observations and coordinates.
+
+```{r fit, eval=FALSE}
+X <- as.matrix(iris[, 1:4])
+set.seed(65)
+fit <- uwot::umap(
+  X,
+  n_neighbors = 15,
+  n_threads = 1,
+  ret_nn = TRUE,
+  ret_extra = "fgraph"
+)
+```
+
+```{r setup}
+library(vizier)
+
+xy <- fit$embedding
+species <- iris$Species
+palette <- c(setosa = "#0072B2", versicolor = "#D55E00", virginica = "#009E73")
+edges <- embed_edges(fit$fgraph)
+between <- subset(edges, species[from] != species[to])
+```
+
+### Which species share a fitted edge?
+
+`edges` has one row per undirected pair and its membership weight. Look up each endpoint in
+`species` using its original row ID. Taking one triangle gives each pair once. On iris the rows
+happen to be ordered by species.
+
+```{r count}
+with(between, table(species[from], species[to]))
+```
+
+```{r bridges, fig.show='hold', fig.align='default', out.width='49%', out.extra='style="display:inline-block; vertical-align:top"', fig.width=4.5, fig.height=3.8, fig.alt="The two panels show the same iris observations. Cross-species edges join versicolor and virginica."}
+map <- function(overlay = NULL) {
+  embed_ggplot(
+    xy,
+    species,
+    overlays = overlay,
+    color_scheme = palette,
+    fixed_aspect = TRUE
+  ) +
+    ggplot2::theme(legend.position = "bottom")
+}
+map() + ggplot2::labs(title = "Species", colour = NULL)
+map(between) + ggplot2::labs(title = "Cross-species edges", colour = NULL)
+```
+
+In this fit, all `r nrow(between)` cross-species edges join versicolor to virginica. Setosa has
+no fitted edge to either species.
+
+### Which bridges survive a one-neighbor view?
+
+`fit$nn[[1]]` is the ranked result for the input metric. Select the nearest or last retained
+neighbor of each observation. The helper removes self by row ID, so two different flowers at
+zero distance still count as neighbors.
+
+```{r ranks}
+nn <- fit$nn[[1]]
+nearest <- embed_edges(nn, select = "nearest")
+furthest <- embed_edges(nn, select = "furthest")
+views <- list(Nearest = nearest, Furthest = furthest, Fitted = edges)
+
+count_bridges <- function(e) {
+  cross <- e[species[e$from] != species[e$to], , drop = FALSE]
+  nrow(unique(data.frame(
+    a = pmin(cross$from, cross$to),
+    b = pmax(cross$from, cross$to)
+  )))
+}
+counts <- vapply(views, count_bridges, integer(1))
+```
+
+```{r compare, fig.width=9, fig.height=3.2, fig.alt="Three iris maps show the nearest choice, the furthest retained choice, and every fitted edge."}
+par(mfrow = c(1, 3), mar = c(1, 1, 3, 1))
+for (name in names(views)) {
+  embed_plot(
+    xy,
+    species,
+    overlays = views[[name]],
+    color_scheme = palette,
+    fixed_aspect = TRUE,
+    show_axes = FALSE,
+    title = sprintf("%s\n%d cross-species pairs", name, counts[[name]])
+  )
+}
+```
+
+Nearest-only shows `r counts[["Nearest"]]` distinct cross-species pairs and furthest-only shows
+`r counts[["Furthest"]]`. Both views miss connections present in the fitted graph. For a
+specific input-space rank, use `embed_edges(nn, select = "furthest", k = 10)`.
+
+### Do the endpoints keep their neighbors in 2D?
+
+Use quadra to score each point by the fraction of its ten original neighbors retained in 2D.
+Keep the same cross-species edge table and change the point colors.
+
+```{r quality, eval=FALSE}
+quality <- quadra::nn_preservation(
+  X,
+  xy,
+  k = 10,
+  nn_method_in = "brute",
+  metric_in = "euclidean",
+  metric_out = "euclidean",
+  ret_extra = TRUE
+)
+retained <- quality$nnpv$nnp10
+```
+
+```{r retention}
+embed_plotly(
+  xy,
+  retained,
+  overlays = between,
+  limits = c(0, 1),
+  color_scheme = "grDevices::Viridis",
+  fixed_aspect = TRUE,
+  tooltip = sprintf(
+    "%s | %d of 10 neighbors retained",
+    species,
+    round(10 * retained)
+  )
+)
+```
+
+Hover over a flower to read its original row number, species and score. A point at 0.7 kept seven
+of its ten neighbors. The mean here is `r round(mean(retained), 2)`. Zooming changes the view of
+the same cross-species edges.
+
+<!-- To refresh iris-overlay-data.rds, run the fit, setup and quality chunks in order, then
+saveRDS(list(fit = fit, retained = retained), "vignettes/articles/iris-overlay-data.rds", version = 2)
+from the package root. The cached data is used only to render this article. -->

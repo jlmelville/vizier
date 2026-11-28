@@ -1,3 +1,39 @@
+test_that("Plotly batches straight edges and preserves the built point traces", {
+  skip_if_not_installed("plotly")
+  xy <- cbind(c(0, 4, 2, 7), c(1, 2, 0, 4))
+  edges <- data.frame(from = c(1, 2, 3), to = c(2, 1, 4))
+  cases <- list(
+    list(colors = "grey"),
+    list(x = 1:4, limits = c(0, 5)),
+    list(
+      x = factor(c("b", "a", "b", "a")),
+      color_scheme = c(a = "blue", b = "red")
+    )
+  )
+  for (case in cases) {
+    for (labels in list(NULL, letters[1:4])) {
+      args <- c(list(coords = xy, text = labels, tooltip = letters[1:4]), case)
+      original <- plotly::plotly_build(do.call(embed_plotly, args))
+      widget <- do.call(embed_plotly, c(args, list(overlays = edges)))
+      result <- plotly::plotly_build(widget)
+      line <- result$x$data[[1]]
+      expect_identical(result$x$data[-1], original$x$data)
+      expect_identical(result$x$layout$showlegend, original$x$layout$showlegend)
+      expect_identical(line$mode, "lines")
+      expect_identical(line$hoverinfo, "skip")
+      expect_false(line$showlegend)
+      expect_false(line$connectgaps)
+      expect_equal(as.numeric(line$x), c(0, 4, NA, 2, 7, NA))
+      expect_equal(as.numeric(line$y), c(1, 2, NA, 0, 4, NA))
+    }
+  }
+  expect_true(grepl(
+    '"x":[0,4,null,2,7,null]',
+    plotly::plotly_json(widget, pretty = FALSE),
+    fixed = TRUE
+  ))
+})
+
 test_that("embed_plotly accepts paletteer color vectors", {
   testthat::skip_if_not_installed("plotly")
 

@@ -26,7 +26,8 @@ embed_plot(
   rev = FALSE,
   verbose = FALSE,
   fixed_aspect = FALSE,
-  pch = 20
+  pch = 20,
+  overlays = NULL
 )
 }
 \arguments{
@@ -107,6 +108,12 @@ visible ranges.}
 original coordinate row order. Use integer-valued numeric codes or single
 characters as in \code{\link[graphics:points]{graphics::points()}}. \code{NA} and \code{""} omit points.
 Defaults to \code{20}. Ignored if \code{text} is provided.}
+
+\item{overlays}{Optional edge data frame, for example from \code{\link[=embed_edges]{embed_edges()}}.
+Integer-valued \code{from} and \code{to} columns index the original coordinate
+rows. Draw one subdued straight segment per distinct pair behind the
+points or text. Self-loops are omitted. Where \code{top} is available, both
+endpoints must be selected. Point colors and edge styling are independent.}
 }
 \description{
 Plots the embedded coordinates, with each point colored by a specified

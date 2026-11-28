@@ -1,3 +1,8 @@
+# vizier (development version)
+
+- Select ranked neighbors or fitted sparse graph edges with `embed_edges()` and pass the resulting
+  table to `overlays` in `embed_plot()`, `embed_ggplot()`, or `embed_plotly()`.
+
 # vizier 0.6.2
 
 - Added `fixed_aspect` to all three renderers to preserve equal physical X/Y

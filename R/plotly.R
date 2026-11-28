@@ -80,6 +80,7 @@
 #' @param text Vector of label text to display instead of a point, including for
 #'   numeric color scales. If the labels are long or the data set is large, this
 #'   is unlikely to be very legible, but is occasionally useful.
+#' @inheritParams embed_plot
 #' @param tooltip Vector of tooltip text, to be displayed when a point is
 #'   hovered over. Without it, hover text uses `text`, then resolved labels, and
 #'   always retains the original row-number prefix. Explicit colors alone are
@@ -171,7 +172,8 @@ embed_plotly <- function(
   ylim = NULL,
   rev = FALSE,
   verbose = FALSE,
-  fixed_aspect = FALSE
+  fixed_aspect = FALSE,
+  overlays = NULL
 ) {
   if (!requireNamespace("plotly", quietly = TRUE)) {
     stop(
@@ -335,6 +337,22 @@ embed_plotly <- function(
       ),
       showlegend = layout_show_legend
     )
+  segments <- overlay_segments(overlays, coords, color_res$keep)
+  if (!is.null(segments)) {
+    # Build the point traces first so Plotly preserves their resolved palettes.
+    p <- plotly::plotly_build(p)
+    edge_trace <- list(
+      type = "scatter",
+      mode = "lines",
+      x = as.vector(rbind(segments$x, segments$xend, NA_real_)),
+      y = as.vector(rbind(segments$y, segments$yend, NA_real_)),
+      line = list(color = "rgba(64,64,64,0.25)", width = 1),
+      connectgaps = FALSE,
+      hoverinfo = "skip",
+      showlegend = FALSE
+    )
+    p$x$data <- c(list(edge_trace), p$x$data)
+  }
   p
 }
 

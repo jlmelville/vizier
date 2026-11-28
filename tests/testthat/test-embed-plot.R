@@ -151,6 +151,34 @@ test_that("embed_plot renders equal physical units for points and text", {
   })
 })
 
+test_that("base draws the selected straight segments beneath points and text", {
+  xy <- cbind(c(1, 7, 3, 4), c(2, 1, 2, 9))
+  rotated <- vizier:::pc_rotate(xy)
+  edges <- data.frame(from = c(1, 4, 2), to = c(4, 2, 4))
+  calls <- list()
+  testthat::local_mocked_bindings(
+    segments = function(x0, y0, x1, y1, ...) {
+      calls[[length(calls) + 1L]] <<- c(x0, y0, x1, y1)
+    },
+    .package = "graphics"
+  )
+  with_pdf_device({
+    for (label in list(NULL, letters[1:4])) {
+      embed_plot(
+        xy,
+        c(1, 4, 0, 3),
+        overlays = edges,
+        pc_axes = TRUE,
+        top = 2,
+        text = label,
+        pch = 15:18
+      )
+    }
+  })
+  endpoints <- c(rotated[2, ], rotated[4, ])
+  expect_equal(calls, list(endpoints, endpoints))
+})
+
 test_that("embed_plot accepts scalar and per-observation point symbols", {
   coords <- cbind(1:4, 5:8)
   expect_equal(base_plot_args(coords, colors = "red")$pch, rep(20, 4))

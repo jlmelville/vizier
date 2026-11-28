@@ -37,7 +37,8 @@ embed_ggplot <- function(
   NA_color = NULL,
   rev = FALSE,
   verbose = FALSE,
-  fixed_aspect = FALSE
+  fixed_aspect = FALSE,
+  overlays = NULL
 ) {
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
     stop(
@@ -124,6 +125,23 @@ embed_ggplot <- function(
       color = .data[["color"]]
     )
   )
+  segments <- overlay_segments(overlays, coords, color_res$keep)
+  if (!is.null(segments)) {
+    p <- p +
+      ggplot2::geom_segment(
+        data = segments,
+        mapping = ggplot2::aes(
+          x = .data[["x"]],
+          y = .data[["y"]],
+          xend = .data[["xend"]],
+          yend = .data[["yend"]]
+        ),
+        inherit.aes = FALSE,
+        show.legend = FALSE,
+        colour = "#40404040",
+        linewidth = 0.3
+      )
+  }
   if (is.null(text)) {
     p <- p + ggplot2::geom_point(size = cex)
   } else {
