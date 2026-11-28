@@ -3,8 +3,11 @@
 pkgload::load_all(".", quiet = TRUE)
 set.seed(65)
 fit <- uwot::umap(
-  as.matrix(iris[1:4]), n_neighbors = 15, n_threads = 1,
-  ret_nn = TRUE, ret_extra = "fgraph"
+  as.matrix(iris[1:4]),
+  n_neighbors = 15,
+  n_threads = 1,
+  ret_nn = TRUE,
+  ret_extra = "fgraph"
 )
 xy <- fit$embedding
 ids <- seq_len(nrow(xy))
@@ -17,8 +20,11 @@ first <- !duplicated(paths$group)
 last <- !duplicated(paths$group, fromLast = TRUE)
 matches_xy <- function(path_rows, vertex_ids) {
   path_xy <- as.matrix(paths[path_rows, c("x", "y")])
-  isTRUE(all.equal(path_xy, xy[vertex_ids, , drop = FALSE],
-                   check.attributes = FALSE))
+  isTRUE(all.equal(
+    path_xy,
+    xy[vertex_ids, , drop = FALSE],
+    check.attributes = FALSE
+  ))
 }
 stopifnot(
   matches_xy(first, ends[paths$group[first], 1]),
@@ -47,9 +53,17 @@ line_args <- function(x, y, group, width = 1) {
   xx <- yy <- rep(NA_real_, max(position))
   xx[position] <- x
   yy[position] <- y
-  list(x = xx, y = yy, type = "scatter", mode = "lines", connectgaps = FALSE,
-       hoverinfo = "skip", showlegend = FALSE, opacity = 0.2,
-       line = list(color = "grey", width = width))
+  list(
+    x = xx,
+    y = yy,
+    type = "scatter",
+    mode = "lines",
+    connectgaps = FALSE,
+    hoverinfo = "skip",
+    showlegend = FALSE,
+    opacity = 0.2,
+    line = list(color = "grey", width = width)
+  )
 }
 straight <- function(e, width = 1) {
   vertices <- as.vector(rbind(e$from, e$to))
@@ -73,15 +87,25 @@ measure <- function(lines) {
     stopifnot(
       identical(as.numeric(trace$x), lines[[i]]$x),
       identical(as.numeric(trace$y), lines[[i]]$y),
-      trace$mode == "lines", identical(trace$hoverinfo, "skip"), !trace$showlegend
+      trace$mode == "lines",
+      identical(trace$hoverinfo, "skip"),
+      !trace$showlegend
     )
   }
   slots <- vapply(lines, function(trace) length(trace$x), integer(1))
   json <- plotly::plotly_json(p, pretty = FALSE)
-  c(line_traces = length(lines), xy_slots_per_axis = sum(slots),
-    figure_json_bytes = nchar(json, type = "bytes"))
+  c(
+    line_traces = length(lines),
+    xy_slots_per_axis = sum(slots),
+    figure_json_bytes = nchar(json, type = "bytes")
+  )
 }
-bins <- cut(edges$weight, seq(0, 1, 0.25), include.lowest = TRUE, labels = FALSE)
+bins <- cut(
+  edges$weight,
+  seq(0, 1, 0.25),
+  include.lowest = TRUE,
+  labels = FALSE
+)
 batches <- lapply(sort(unique(bins)), function(i) {
   straight(edges[bins == i, ], width = i)
 })
