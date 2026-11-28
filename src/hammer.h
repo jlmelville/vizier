@@ -164,15 +164,30 @@ inline std::pair<double, double> density_gradient(const double *density,
 
 inline void update_path(double *x, double *y, const double *density,
                         double bandwidth) {
-  for (int i = 1; i < samples - 1; ++i) {
-    const double cx = x[i] * (grid_size - 1);
-    const double cy = y[i] * (grid_size - 1);
-    const auto [gx, gy] = density_gradient(density, cx, cy);
+  // Issue independent density reads before applying the vertex updates.
+  constexpr int batch_size = 4;
+  static_assert((samples - 2) % batch_size == 0);
+  auto gradient = [&](int i) {
+    return density_gradient(density, x[i] * (grid_size - 1),
+                            y[i] * (grid_size - 1));
+  };
+  auto move = [&](int i, const std::pair<double, double> &g) {
+    const auto [gx, gy] = g;
     const double norm = std::sqrt(gx * gx + gy * gy);
     if (norm > 1e-12) {
       x[i] += 0.6 * bandwidth * gx / norm;
       y[i] += 0.6 * bandwidth * gy / norm;
     }
+  };
+  for (int i = 1; i < samples - 1; i += batch_size) {
+    const auto g0 = gradient(i);
+    const auto g1 = gradient(i + 1);
+    const auto g2 = gradient(i + 2);
+    const auto g3 = gradient(i + 3);
+    move(i, g0);
+    move(i + 1, g1);
+    move(i + 2, g2);
+    move(i + 3, g3);
   }
 
   std::array<double, samples> sx, sy, length;
